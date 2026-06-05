@@ -1,0 +1,14 @@
+{
+  "name": "cooked-finance",
+  // Set to the build date; bump when you want newer Workers runtime defaults.
+  "compatibility_date": "2026-06-05",
+  "assets": {
+    // Astro's static build output.
+    "directory": "./dist",
+    // Serve the custom src/pages/404.astro (built to dist/404.html) on unknown routes.
+    "not_found_handling": "404-page"
+  },
+  "observability": {
+    "enabled": true
+  }
+}
