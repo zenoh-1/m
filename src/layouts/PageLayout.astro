@@ -18,12 +18,14 @@ interface Props {
   lead?: string;
   /** Optional "last updated" date string for legal pages. */
   updated?: string;
+  /** Keep the page out of search indexes (error pages, etc.). */
+  noindex?: boolean;
 }
 
-const { title, description, path, eyebrow, heading, lead, updated } = Astro.props;
+const { title, description, path, eyebrow, heading, lead, updated, noindex } = Astro.props;
 ---
 
-<Layout title={title} description={description} path={path}>
+<Layout title={title} description={description} path={path} noindex={noindex}>
   <span id="top"></span>
   <SiteHeader />
 

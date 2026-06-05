@@ -1,0 +1,90 @@
+---
+/**
+ * 404 — Page Not Found. Astro statically renders src/pages/404.astro to
+ * dist/404.html, which most static hosts (Netlify, Vercel, Cloudflare Pages,
+ * GitHub Pages) serve automatically for unknown routes. Built on the base
+ * Layout (not PageLayout) for a centered, focused error state. noindex keeps
+ * it out of search results while still allowing crawlers to follow links out.
+ */
+import Layout from '../layouts/Layout.astro';
+import SiteHeader from '../components/SiteHeader.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+---
+
+<Layout
+  title="404 — Page Not Found | Cooked Finance"
+  description="This page got a little too cooked and couldn't be found. Head back to the financial health score calculator."
+  path="/404"
+  noindex
+>
+  <SiteHeader />
+
+  <main class="error">
+    <div class="container-page error__inner">
+      <span class="eyebrow">Error 404</span>
+      <p class="error__code" aria-hidden="true">404</p>
+      <h1 class="error__title">This page is well done.</h1>
+      <p class="error__lead">
+        We looked everywhere, but the page you're after doesn't exist — it may
+        have been moved, renamed, or it never existed in the first place.
+      </p>
+      <div class="error__actions">
+        <a href="/" class="btn-primary">Back to home</a>
+        <a href="/#check" class="btn-secondary">Check my score</a>
+      </div>
+    </div>
+  </main>
+
+  <SiteFooter />
+</Layout>
+
+<style>
+  .error {
+    display: flex;
+    align-items: center;
+    min-height: clamp(60vh, 68vh, 72vh);
+    padding-top: clamp(2.5rem, 7vh, 4.5rem);
+    padding-bottom: clamp(3rem, 8vh, 5rem);
+  }
+  .error__inner {
+    max-width: 640px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 1rem;
+  }
+  .error__code {
+    margin: 0.5rem 0 0;
+    font-family: var(--font-mono);
+    font-weight: 600;
+    font-size: clamp(4.5rem, 18vw, 8rem);
+    line-height: 1;
+    letter-spacing: -0.04em;
+    background: linear-gradient(135deg, var(--color-grad-coral), var(--color-grad-amber));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .error__title {
+    margin: 0;
+    font-size: clamp(1.75rem, 6vw, 2.75rem);
+    font-weight: 600;
+    letter-spacing: -0.035em;
+    line-height: 1.05;
+  }
+  .error__lead {
+    margin: 0;
+    max-width: 48ch;
+    font-size: clamp(1rem, 2.5vw, 1.125rem);
+    line-height: 1.6;
+    color: var(--color-body);
+  }
+  .error__actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+  }
+</style>

@@ -30,6 +30,17 @@
       <span class="hero__note">Free · No signup · 100% private</span>
     </div>
 
+    <!-- Quick links to the standalone pages -->
+    <nav class="hero__links animate-fade-up" aria-label="Site pages">
+      <a href="/about" class="hero__link">About Us</a>
+      <span class="hero__link-sep" aria-hidden="true">·</span>
+      <a href="/privacy" class="hero__link">Privacy Policy</a>
+      <span class="hero__link-sep" aria-hidden="true">·</span>
+      <a href="/terms" class="hero__link">Terms &amp; Conditions</a>
+      <span class="hero__link-sep" aria-hidden="true">·</span>
+      <a href="/contact" class="hero__link">Contact Us</a>
+    </nav>
+
     <!-- Example metrics below the hero -->
     <ul class="hero__metrics animate-fade-up" aria-label="Example result">
       <li class="hero__metric">
@@ -122,6 +133,31 @@
     font-family: var(--font-mono);
     font-size: 0.75rem;
     color: var(--color-mute);
+  }
+
+  .hero__links {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem 0.75rem;
+    margin-top: 1.5rem;
+    animation-delay: 0.22s;
+  }
+  .hero__link {
+    font-size: 0.875rem;
+    color: var(--color-body);
+    text-decoration: none;
+    transition: color 0.18s var(--ease-out-expo);
+  }
+  .hero__link:hover {
+    color: var(--color-ink);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .hero__link-sep { color: var(--color-hairline-strong); font-size: 0.75rem; }
+  @media (max-width: 420px) {
+    .hero__link-sep { display: none; }
   }
 
   .hero__metrics {

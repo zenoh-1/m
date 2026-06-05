@@ -11,6 +11,8 @@ interface Props {
   /** Include the FAQ + WebApplication JSON-LD graph (homepage). */
   structuredData?: boolean;
   keywords?: string[];
+  /** Keep the page out of search indexes (error pages, etc.). */
+  noindex?: boolean;
 }
 
 const {
@@ -20,6 +22,7 @@ const {
   image = SITE.ogImage,
   structuredData = false,
   keywords = SITE.keywords,
+  noindex = false,
 } = Astro.props;
 
 const siteName = SITE.name;
@@ -48,7 +51,7 @@ const jsonLd = structuredData ? buildStructuredData() : null;
     <meta name="description" content={description} />
     <meta name="keywords" content={keywords.join(', ')} />
     <meta name="author" content={siteName} />
-    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta name="robots" content={noindex ? 'noindex, follow' : 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1'} />
     <meta name="theme-color" content="#0a0a0a" />
     <meta name="color-scheme" content="dark" />
 
