@@ -81,6 +81,15 @@ const jsonLd = structuredData ? buildStructuredData() : null;
 
     {jsonLd && <script type="application/ld+json" set:html={jsonLd} />}
 
+    <!-- Google Analytics (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-SG7VP5RKS2"></script>
+    <script is:inline>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-SG7VP5RKS2');
+    </script>
+
     <!--
       Google AdSense: drop your publisher script here when approved, e.g.
       <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script>
