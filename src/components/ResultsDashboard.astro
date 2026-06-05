@@ -1,0 +1,266 @@
+---
+/**
+ * ResultsDashboard — Assembles the full results experience.
+ *
+ * Layout: a main column (gauge, badge, percentile, financial age, roast,
+ * strengths/improvements) plus a desktop sidebar ad. An ad slot sits after
+ * the results and before the share card, per the monetization spec.
+ *
+ * Hidden by default; index.astro reveals it (and fills the data) after the
+ * user submits the form.
+ */
+import ScoreGauge from './ScoreGauge.astro';
+import RoastCard from './RoastCard.astro';
+import ShareCard from './ShareCard.astro';
+import AdSlot from './AdSlot.astro';
+---
+
+<section id="results" class="results" data-results hidden aria-live="polite">
+  <div class="container-page">
+    <div class="results__head">
+      <span class="eyebrow">Your verdict is in</span>
+      <h2 class="results__title">Here's how cooked you are.</h2>
+    </div>
+
+    <div class="results__layout">
+      <!-- Main column -->
+      <div class="results__main">
+        <!-- Score + badge -->
+        <div class="card results__score-card">
+          <ScoreGauge />
+          <div class="results__badge" data-status-badge>
+            <span class="results__badge-emoji" data-status-emoji>🥩</span>
+            <span class="results__badge-label" data-status-label>Medium Rare</span>
+          </div>
+          <p class="results__percentile" data-percentile-text>
+            You're ahead of <strong>—%</strong> of Americans your age.
+          </p>
+        </div>
+
+        <!-- Key stats -->
+        <div class="results__stats">
+          <div class="card results__stat">
+            <span class="results__stat-value" data-finage>—</span>
+            <span class="results__stat-label">Financial Age</span>
+            <span class="results__stat-note" data-finage-note></span>
+          </div>
+          <div class="card results__stat">
+            <span class="results__stat-value" data-networth>—</span>
+            <span class="results__stat-label">Net Worth</span>
+            <span class="results__stat-note">Savings − Debt</span>
+          </div>
+        </div>
+
+        <!-- Roast -->
+        <RoastCard />
+
+        <!-- Strengths & improvements -->
+        <div class="results__insights">
+          <div class="card insight insight--good">
+            <h3 class="insight__title">
+              <span aria-hidden="true">✅</span> Strengths
+            </h3>
+            <ul class="insight__list" data-strengths></ul>
+          </div>
+          <div class="card insight insight--work">
+            <h3 class="insight__title">
+              <span aria-hidden="true">🎯</span> Areas to improve
+            </h3>
+            <ul class="insight__list" data-improvements></ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Desktop sidebar ad -->
+      <aside class="results__sidebar">
+        <div class="results__sidebar-sticky">
+          <AdSlot label="Sponsored" minHeight={600} class="results__ad-sidebar" slot="results-sidebar" />
+        </div>
+      </aside>
+    </div>
+
+    <!-- Ad after results, before share card -->
+    <AdSlot minHeight={120} class="results__ad-mid" slot="results-mid" />
+
+    <!-- Share card -->
+    <div class="results__share">
+      <ShareCard />
+    </div>
+
+    <div class="results__footer-actions">
+      <button type="button" class="btn-secondary" data-retake>
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <path d="M13 8a5 5 0 1 1-1.5-3.5M13 2v3h-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Run another check
+      </button>
+    </div>
+  </div>
+</section>
+
+<style>
+  .results {
+    padding-block: clamp(2.5rem, 6vh, 4rem);
+    scroll-margin-top: 1.5rem;
+  }
+  .results__head {
+    text-align: center;
+    margin-bottom: 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.625rem;
+  }
+  .results__title {
+    margin: 0;
+    font-size: clamp(1.75rem, 4vw, 2.25rem);
+    font-weight: 600;
+    letter-spacing: -0.03em;
+  }
+
+  .results__layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+    align-items: start;
+  }
+  @media (min-width: 1000px) {
+    .results__layout { grid-template-columns: minmax(0, 1fr) 300px; }
+  }
+
+  .results__main {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    min-width: 0;
+  }
+
+  .results__score-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.25rem;
+    padding: clamp(1.75rem, 5vw, 2.5rem);
+    text-align: center;
+  }
+  .results__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-pill);
+    border: 1px solid var(--status-color, var(--color-hairline-strong));
+    background: var(--status-bg, rgba(255,255,255,0.04));
+    color: var(--status-color, var(--color-ink));
+    font-weight: 500;
+  }
+  .results__badge-emoji { font-size: 1.125rem; }
+  .results__percentile {
+    margin: 0;
+    font-size: 1.0625rem;
+    color: var(--color-body);
+    line-height: 1.5;
+  }
+  .results__percentile strong { color: var(--color-ink); font-weight: 600; }
+
+  .results__stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+  .results__stat {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: clamp(1rem, 4vw, 1.5rem);
+    text-align: center;
+    align-items: center;
+    min-width: 0;
+  }
+  .results__stat-value {
+    font-size: clamp(1.75rem, 7vw, 2.25rem);
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  .results__stat-label {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--color-body);
+    text-align: center;
+  }
+  .results__stat-note {
+    font-size: 0.75rem;
+    color: var(--color-mute);
+    text-align: center;
+  }
+
+  .results__insights {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+  @media (min-width: 640px) {
+    .results__insights { grid-template-columns: 1fr 1fr; }
+  }
+  .insight { padding: 1.5rem; }
+  .insight__title {
+    margin: 0 0 0.875rem;
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .insight__list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+  }
+  .insight__list :global(li) {
+    position: relative;
+    padding-left: 1.125rem;
+    font-size: 0.9375rem;
+    line-height: 1.45;
+    color: var(--color-body);
+  }
+  .insight__list :global(li::before) {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.5rem;
+    width: 6px;
+    height: 6px;
+    border-radius: 9999px;
+    background: var(--color-hairline-strong);
+  }
+  .insight--good .insight__list :global(li::before) { background: var(--color-status-cooking); }
+  .insight--work .insight__list :global(li::before) { background: var(--color-status-medium); }
+
+  .results__sidebar { display: none; }
+  @media (min-width: 1000px) {
+    .results__sidebar { display: block; }
+    .results__sidebar-sticky { position: sticky; top: 1.5rem; }
+  }
+
+  .results__ad-mid { margin-top: 1.75rem; }
+
+  .results__share {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--color-hairline);
+  }
+
+  .results__footer-actions {
+    display: flex;
+    justify-content: center;
+    margin-top: 2rem;
+  }
+</style>

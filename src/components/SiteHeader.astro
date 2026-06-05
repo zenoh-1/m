@@ -1,0 +1,67 @@
+---
+/**
+ * SiteHeader — Minimal sticky nav, Vercel-style.
+ */
+---
+
+<header class="nav">
+  <div class="container-page nav__inner">
+    <a href="/" class="nav__brand" aria-label="Cooked Finance home">
+      <span class="nav__logo" aria-hidden="true">🔥</span>
+      <span class="nav__name">Cooked<span class="nav__name-soft">Finance</span></span>
+    </a>
+    <a href="/#check" class="nav__cta" data-scroll>
+      <span class="nav__cta-full">Check My Score</span>
+      <span class="nav__cta-short" aria-hidden="true">Check Score</span>
+    </a>
+  </div>
+</header>
+
+<style>
+  .nav {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    border-bottom: 1px solid var(--color-hairline);
+    background: color-mix(in srgb, var(--color-canvas) 72%, transparent);
+    backdrop-filter: saturate(180%) blur(12px);
+  }
+  .nav__inner {
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .nav__brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+    color: var(--color-ink);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+  .nav__logo { font-size: 1.125rem; }
+  .nav__name-soft { color: var(--color-mute); }
+  .nav__cta {
+    display: inline-flex;
+    align-items: center;
+    height: 34px;
+    padding-inline: 0.875rem;
+    border-radius: var(--radius-pill);
+    background: var(--color-primary);
+    color: var(--color-on-primary);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: background-color 0.18s var(--ease-out-expo), transform 0.18s var(--ease-out-expo);
+  }
+  .nav__cta:hover { background: var(--color-primary-hover); transform: translateY(-1px); }
+
+  /* Swap to the shorter label on small screens. */
+  .nav__cta-short { display: none; }
+  @media (max-width: 420px) {
+    .nav__cta-full { display: none; }
+    .nav__cta-short { display: inline; }
+  }
+</style>

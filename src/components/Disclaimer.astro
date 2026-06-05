@@ -1,0 +1,23 @@
+---
+/**
+ * Disclaimer — Required on all pages.
+ */
+interface Props {
+  class?: string;
+}
+const { class: className = '' } = Astro.props;
+---
+
+<p class:list={['disclaimer', className]}>
+  For entertainment and educational purposes only. Not financial advice.
+</p>
+
+<style>
+  .disclaimer {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    line-height: 1.4;
+    color: var(--color-mute);
+    text-align: center;
+  }
+</style>

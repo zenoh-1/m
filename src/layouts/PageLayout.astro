@@ -1,0 +1,96 @@
+---
+/**
+ * PageLayout — Shared shell for standalone content pages (about, privacy,
+ * terms, contact). Wraps the base Layout with the site header/footer and a
+ * consistent page header (eyebrow + H1 + lead). Each page passes its own SEO
+ * title/description/path so canonical + meta stay unique per route (good MPA SEO).
+ */
+import Layout from './Layout.astro';
+import SiteHeader from '../components/SiteHeader.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+
+interface Props {
+  title: string;
+  description: string;
+  path: string;
+  eyebrow?: string;
+  heading: string;
+  lead?: string;
+  /** Optional "last updated" date string for legal pages. */
+  updated?: string;
+}
+
+const { title, description, path, eyebrow, heading, lead, updated } = Astro.props;
+---
+
+<Layout title={title} description={description} path={path}>
+  <span id="top"></span>
+  <SiteHeader />
+
+  <main class="page">
+    <div class="container-page">
+      <header class="page__head">
+        {eyebrow && <span class="eyebrow">{eyebrow}</span>}
+        <h1 class="page__title">{heading}</h1>
+        {lead && <p class="page__lead">{lead}</p>}
+        {updated && <p class="page__updated">Last updated: {updated}</p>}
+      </header>
+
+      <div class="prose page__body">
+        <slot />
+      </div>
+
+      <a href="/" class="page__back">← Back to the score calculator</a>
+    </div>
+  </main>
+
+  <SiteFooter />
+</Layout>
+
+<style>
+  .page {
+    padding-top: clamp(2.5rem, 7vh, 4.5rem);
+    padding-bottom: clamp(3rem, 8vh, 5rem);
+  }
+  .page__head {
+    max-width: 760px;
+    margin-inline: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 2.5rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid var(--color-hairline);
+  }
+  .page__title {
+    margin: 0;
+    font-size: clamp(2rem, 6vw, 3rem);
+    font-weight: 600;
+    letter-spacing: -0.035em;
+    line-height: 1.05;
+  }
+  .page__lead {
+    margin: 0;
+    font-size: clamp(1.0625rem, 2.5vw, 1.1875rem);
+    line-height: 1.6;
+    color: var(--color-body);
+  }
+  .page__updated {
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--color-mute);
+  }
+  .page__back {
+    display: inline-block;
+    margin-top: 3rem;
+    max-width: 760px;
+    margin-inline: auto;
+    width: 100%;
+    font-size: 0.9375rem;
+    color: var(--color-body);
+    text-decoration: none;
+    transition: color 0.18s var(--ease-out-expo);
+  }
+  .page__back:hover { color: var(--color-ink); }
+</style>

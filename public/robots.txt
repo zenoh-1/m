@@ -1,0 +1,6 @@
+# https://cookedfinance.com robots.txt
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://cookedfinance.com/sitemap-index.xml

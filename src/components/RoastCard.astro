@@ -1,0 +1,54 @@
+---
+/**
+ * RoastCard — Displays the personalized financial roast.
+ * The roast text is injected at runtime via [data-roast-text].
+ */
+---
+
+<div class="card roast">
+  <div class="roast__head">
+    <span class="roast__emoji" aria-hidden="true">🔥</span>
+    <span class="eyebrow">Your financial roast</span>
+  </div>
+  <blockquote class="roast__quote" data-roast-text>
+    &nbsp;
+  </blockquote>
+</div>
+
+<style>
+  .roast {
+    padding: clamp(1.5rem, 4vw, 2rem);
+    position: relative;
+    overflow: hidden;
+  }
+  .roast::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+      120% 80% at 0% 0%,
+      rgba(255, 77, 77, 0.08),
+      transparent 60%
+    );
+    pointer-events: none;
+  }
+  .roast__head {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    margin-bottom: 1rem;
+  }
+  .roast__emoji {
+    font-size: 1.25rem;
+    line-height: 1;
+  }
+  .roast__quote {
+    margin: 0;
+    font-size: clamp(1.25rem, 3.5vw, 1.625rem);
+    font-weight: 500;
+    line-height: 1.35;
+    letter-spacing: -0.02em;
+    color: var(--color-ink);
+    position: relative;
+  }
+</style>

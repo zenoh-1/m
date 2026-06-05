@@ -1,0 +1,138 @@
+---
+/**
+ * Faq — SEO-friendly FAQ accordion.
+ *
+ * Built from the shared FAQ_ITEMS list (single source of truth) so the visible
+ * Q&A always matches the FAQPage JSON-LD emitted in the <head>. Uses native
+ * <details>/<summary> for full keyboard accessibility with no JavaScript.
+ */
+import { FAQ_ITEMS } from '../lib/seo';
+---
+
+<section id="faq" class="faq" aria-labelledby="faq-heading">
+  <div class="container-page faq__inner">
+    <header class="faq__head">
+      <span class="eyebrow">FAQ</span>
+      <h2 id="faq-heading" class="faq__title">Frequently asked questions</h2>
+      <p class="faq__lead">
+        Everything about your financial health score, financial age, and how the
+        Cooked Score is calculated.
+      </p>
+    </header>
+
+    <ul class="faq__list">
+      {
+        FAQ_ITEMS.map((item) => (
+          <li class="faq__item">
+            <details class="faq__details">
+              <summary class="faq__q">
+                <span>{item.q}</span>
+                <svg
+                  class="faq__icon"
+                  width="18"
+                  height="18"
+                  viewBox="0 0 18 18"
+                  fill="none"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M9 3.75v10.5M3.75 9h10.5"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                  />
+                </svg>
+              </summary>
+              <div class="faq__a">
+                <p>{item.a}</p>
+              </div>
+            </details>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>
+
+<style>
+  .faq {
+    padding-block: clamp(3rem, 8vh, 5rem);
+    border-top: 1px solid var(--color-hairline);
+  }
+  .faq__inner { max-width: 760px; }
+
+  .faq__head {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 2rem;
+  }
+  .faq__title {
+    margin: 0;
+    font-size: clamp(1.75rem, 5vw, 2.5rem);
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+  }
+  .faq__lead {
+    margin: 0;
+    font-size: clamp(1.0625rem, 2.5vw, 1.1875rem);
+    line-height: 1.6;
+    color: var(--color-body);
+  }
+
+  .faq__list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+  }
+
+  .faq__details {
+    border: 1px solid var(--color-hairline);
+    border-radius: var(--radius-lg);
+    background: var(--color-surface);
+    overflow: hidden;
+    transition: border-color 0.18s var(--ease-out-expo);
+  }
+  .faq__details[open] { border-color: var(--color-hairline-strong); }
+  .faq__details:hover { border-color: var(--color-hairline-strong); }
+
+  .faq__q {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.125rem 1.25rem;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    color: var(--color-ink);
+    list-style: none;
+  }
+  .faq__q::-webkit-details-marker { display: none; }
+
+  .faq__icon {
+    flex-shrink: 0;
+    color: var(--color-body);
+    transition: transform 0.22s var(--ease-out-expo);
+  }
+  .faq__details[open] .faq__icon { transform: rotate(45deg); }
+
+  .faq__a {
+    padding: 0 1.25rem 1.25rem;
+  }
+  .faq__a p {
+    margin: 0;
+    font-size: 0.9375rem;
+    line-height: 1.65;
+    color: var(--color-body);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .faq__icon { transition: none; }
+  }
+</style>

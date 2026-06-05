@@ -1,0 +1,223 @@
+---
+/**
+ * AssessmentForm — Collects the 4 inputs:
+ *   Age (18–70), Annual Income, Savings + Investments, Total Debt.
+ *
+ * Pure markup + labels. Client logic (validation, formatting, scoring) is
+ * wired up in index.astro so the page stays a single client-side island.
+ */
+---
+
+<section id="check" class="assess">
+  <div class="container-page">
+    <div class="assess__head">
+      <span class="eyebrow">The quick check</span>
+      <h2 class="assess__title">Four numbers. One verdict.</h2>
+      <p class="assess__sub">
+        No accounts, no uploads, nothing leaves your browser. Round numbers are fine.
+      </p>
+    </div>
+
+    <form id="assessment-form" class="card assess__card" novalidate>
+      <div class="assess__grid">
+        <!-- Age -->
+        <div class="field">
+          <label class="field__label" for="age">
+            Age <span class="field__hint">18–70</span>
+          </label>
+          <input
+            class="field-input"
+            id="age"
+            name="age"
+            type="number"
+            inputmode="numeric"
+            min="18"
+            max="70"
+            step="1"
+            placeholder="e.g. 32"
+            required
+            autocomplete="off"
+            spellcheck="false"
+            enterkeyhint="next"
+          />
+          <p class="field__error" data-error-for="age" hidden></p>
+        </div>
+
+        <!-- Annual income -->
+        <div class="field">
+          <label class="field__label" for="income">Annual income</label>
+          <div class="field__money">
+            <span class="field__prefix">$</span>
+            <input
+              class="field-input field-input--money"
+              id="income"
+              name="income"
+              type="text"
+              inputmode="numeric"
+              placeholder="e.g. 65,000"
+              required
+              autocomplete="off"
+              spellcheck="false"
+              enterkeyhint="next"
+            />
+          </div>
+          <p class="field__error" data-error-for="income" hidden></p>
+        </div>
+
+        <!-- Savings + investments -->
+        <div class="field">
+          <label class="field__label" for="savings">
+            Savings + investments
+          </label>
+          <div class="field__money">
+            <span class="field__prefix">$</span>
+            <input
+              class="field-input field-input--money"
+              id="savings"
+              name="savings"
+              type="text"
+              inputmode="numeric"
+              placeholder="e.g. 20,000"
+              required
+              autocomplete="off"
+              spellcheck="false"
+              enterkeyhint="next"
+            />
+          </div>
+          <p class="field__hint-line">Cash, retirement, brokerage — anything liquid or invested.</p>
+          <p class="field__error" data-error-for="savings" hidden></p>
+        </div>
+
+        <!-- Total debt -->
+        <div class="field">
+          <label class="field__label" for="debt">Total debt</label>
+          <div class="field__money">
+            <span class="field__prefix">$</span>
+            <input
+              class="field-input field-input--money"
+              id="debt"
+              name="debt"
+              type="text"
+              inputmode="numeric"
+              placeholder="e.g. 12,000"
+              required
+              autocomplete="off"
+              spellcheck="false"
+              enterkeyhint="go"
+            />
+          </div>
+          <p class="field__hint-line">Cards, loans, mortgage — everything you owe.</p>
+          <p class="field__error" data-error-for="debt" hidden></p>
+        </div>
+      </div>
+
+      <button type="submit" class="btn-primary assess__submit">
+        Cook My Score
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </form>
+  </div>
+</section>
+
+<style>
+  .assess {
+    padding-block: clamp(2rem, 5vh, 3.5rem);
+    scroll-margin-top: 2rem;
+  }
+  .assess__head {
+    text-align: center;
+    margin-bottom: 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.625rem;
+  }
+  .assess__title {
+    font-size: clamp(1.75rem, 4vw, 2.25rem);
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    margin: 0;
+  }
+  .assess__sub {
+    margin: 0;
+    max-width: 42ch;
+    color: var(--color-body);
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+
+  .assess__card {
+    max-width: 640px;
+    margin-inline: auto;
+    padding: clamp(1.5rem, 4vw, 2.25rem);
+  }
+
+  .assess__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+  @media (min-width: 560px) {
+    .assess__grid { grid-template-columns: 1fr 1fr; }
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .field__label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--color-ink);
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+  }
+  .field__hint {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    color: var(--color-mute);
+    font-weight: 400;
+  }
+  .field__hint-line {
+    margin: 0;
+    font-size: 0.75rem;
+    color: var(--color-mute);
+    line-height: 1.4;
+  }
+
+  .field__money { position: relative; display: flex; align-items: center; }
+  .field__prefix {
+    position: absolute;
+    left: 1rem;
+    color: var(--color-mute);
+    font-size: 1rem;
+    pointer-events: none;
+  }
+
+  .field-input {
+    padding-inline: 0.875rem;
+  }
+  /* Money inputs: leave room for the "$" prefix (declared after the base
+     rule so the larger left padding wins). */
+  .field-input--money {
+    padding-left: 2.25rem;
+  }
+
+  .field__error {
+    margin: 0;
+    font-size: 0.75rem;
+    color: var(--color-status-apocalypse);
+  }
+  .field-input[aria-invalid='true'] {
+    border-color: var(--color-status-apocalypse);
+  }
+
+  .assess__submit {
+    margin-top: 1.75rem;
+    width: 100%;
+  }
+</style>

@@ -1,0 +1,372 @@
+/* ===========================================================================
+   global.css — Cooked Finance design system
+   Vercel-inspired, dark-first. Tokens adapted from DESIGN.md onto a dark canvas.
+   Tailwind CSS v4 (CSS-first config via @theme).
+   =========================================================================== */
+
+/* Self-hosted variable fonts (no external render-blocking requests). */
+@import '@fontsource-variable/geist';
+@import '@fontsource-variable/geist-mono';
+
+@import 'tailwindcss';
+
+/* Keep Tailwind from scanning the bundled docs/skills snapshots, which contain
+   example class names (e.g. bg-[url('/what_a_rush.png')]) that would otherwise
+   pollute the generated CSS and trigger build warnings. */
+@source not "../../.agents";
+@source not "../../.claude";
+
+@theme {
+  /* ── Fonts ─────────────────────────────────────────────────────────── */
+  --font-sans: 'Geist Variable', Inter, system-ui, -apple-system, sans-serif;
+  --font-mono: 'Geist Mono Variable', ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;
+
+  /* ── Surfaces (dark-first) ─────────────────────────────────────────── */
+  --color-canvas: #0a0a0a;          /* page background — near-black ink */
+  --color-canvas-soft: #111111;     /* slightly raised band */
+  --color-canvas-soft-2: #161616;   /* inset region */
+  --color-surface: #141414;         /* card surface */
+  --color-surface-2: #1a1a1a;       /* nested card / hover */
+
+  /* ── Hairlines & borders ───────────────────────────────────────────── */
+  --color-hairline: #262626;
+  --color-hairline-strong: #404040;
+
+  /* ── Text ──────────────────────────────────────────────────────────── */
+  --color-ink: #ededed;             /* primary text on dark */
+  --color-body: #a1a1a1;            /* secondary text */
+  --color-mute: #6f6f6f;            /* lowest-priority text */
+  --color-on-primary: #0a0a0a;      /* text on white CTA */
+
+  /* ── Brand / CTA (polarity-flipped: white is the primary on dark) ──── */
+  --color-primary: #ededed;
+  --color-primary-hover: #ffffff;
+
+  /* ── Vercel gradient stops (the decorative system) ─────────────────── */
+  --color-grad-blue: #007cf0;
+  --color-grad-cyan: #00dfd8;
+  --color-grad-violet: #7928ca;
+  --color-grad-pink: #ff0080;
+  --color-grad-coral: #ff4d4d;
+  --color-grad-amber: #f9cb28;
+  --color-link: #3291ff;
+
+  /* ── Status accents (cooked levels) ────────────────────────────────── */
+  --color-status-apocalypse: #ff4d4d;
+  --color-status-deepfried: #ff8a3d;
+  --color-status-medium: #f9cb28;
+  --color-status-stable: #00dfd8;
+  --color-status-cooking: #2bd576;
+
+  /* ── Radii (DESIGN.md scale) ───────────────────────────────────────── */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 24px;
+  --radius-pill: 100px;
+
+  /* ── Type scale (Vercel display sizing w/ negative tracking) ───────── */
+  --text-display-xl: 3.5rem;
+  --text-display-xl--line-height: 1.05;
+  --text-display-xl--letter-spacing: -0.04em;
+  --text-display-xl--font-weight: 600;
+
+  --text-display-lg: 2rem;
+  --text-display-lg--line-height: 1.15;
+  --text-display-lg--letter-spacing: -0.03em;
+  --text-display-lg--font-weight: 600;
+
+  --text-display-md: 1.5rem;
+  --text-display-md--line-height: 1.25;
+  --text-display-md--letter-spacing: -0.02em;
+  --text-display-md--font-weight: 600;
+
+  /* ── Easing & motion ───────────────────────────────────────────────── */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* ── Animations ────────────────────────────────────────────────────── */
+  --animate-fade-up: fade-up 0.7s var(--ease-out-expo) both;
+  --animate-fade-in: fade-in 0.8s var(--ease-out-expo) both;
+  --animate-float-slow: float-slow 16s ease-in-out infinite;
+}
+
+/* Keyframes for the theme animations above. */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes float-slow {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(0, -4%, 0) scale(1.06); }
+}
+
+/* ── Base layer ──────────────────────────────────────────────────────── */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+    color-scheme: dark;
+    /* Offset in-page anchor scrolling for the 60px sticky header. */
+    scroll-padding-top: 72px;
+  }
+
+  /* Guard against accidental horizontal overflow on small screens. */
+  html, body {
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  body {
+    background-color: var(--color-canvas);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Prevent double-tap zoom delay on interactive elements. */
+  button,
+  a,
+  input,
+  [role='button'] {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Balance headings to avoid widows/orphans. */
+  h1, h2, h3 {
+    text-wrap: balance;
+  }
+
+  /* Accessible skip link, visible on focus. */
+  .skip-link {
+    position: absolute;
+    left: 50%;
+    top: 0.5rem;
+    transform: translate(-50%, -150%);
+    z-index: 100;
+    padding: 0.5rem 1rem;
+    background: var(--color-surface);
+    color: var(--color-ink);
+    border: 1px solid var(--color-hairline-strong);
+    border-radius: var(--radius-pill);
+    font-size: 0.875rem;
+    text-decoration: none;
+    transition: transform 0.18s var(--ease-out-expo);
+  }
+  .skip-link:focus-visible {
+    transform: translate(-50%, 0);
+  }
+
+  ::selection {
+    background-color: var(--color-ink);
+    color: var(--color-canvas);
+  }
+
+  /* Visible, brand-consistent focus ring for keyboard users. */
+  :focus-visible {
+    outline: 2px solid var(--color-link);
+    outline-offset: 2px;
+    border-radius: var(--radius-xs);
+  }
+
+  /* Hide number-input spinners for a cleaner form. */
+  input[type='number']::-webkit-outer-spin-button,
+  input[type='number']::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  input[type='number'] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+  }
+}
+
+/* ── Reusable component primitives ───────────────────────────────────── */
+@layer components {
+  /* Centered content container with responsive gutters. */
+  .container-page {
+    width: 100%;
+    max-width: 1100px;
+    margin-inline: auto;
+    padding-inline: max(1.25rem, env(safe-area-inset-left));
+    padding-inline: max(1.25rem, env(safe-area-inset-left)) max(1.25rem, env(safe-area-inset-right));
+  }
+  @media (min-width: 768px) {
+    .container-page { padding-inline: 2rem; }
+  }
+  @media (max-width: 380px) {
+    .container-page { padding-inline: 1rem; }
+  }
+
+  /* Hairline-bordered card with subtle stacked elevation. */
+  .card {
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-hairline);
+    border-radius: var(--radius-lg);
+    box-shadow:
+      0 1px 1px rgba(0, 0, 0, 0.2),
+      0 2px 6px rgba(0, 0, 0, 0.18);
+  }
+
+  /* Primary pill CTA — white-on-dark (polarity-flipped Vercel primary). */
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    height: 48px;
+    padding-inline: 1.5rem;
+    border-radius: var(--radius-pill);
+    background-color: var(--color-primary);
+    color: var(--color-on-primary);
+    font-weight: 500;
+    font-size: 1rem;
+    line-height: 1;
+    transition:
+      transform 0.18s var(--ease-out-expo),
+      background-color 0.18s var(--ease-out-expo),
+      box-shadow 0.18s var(--ease-out-expo);
+  }
+  .btn-primary:hover {
+    background-color: var(--color-primary-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(255, 255, 255, 0.12);
+  }
+  .btn-primary:active { transform: translateY(0); }
+
+  /* Secondary pill — outlined on dark. */
+  .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    height: 48px;
+    padding-inline: 1.5rem;
+    border-radius: var(--radius-pill);
+    background-color: transparent;
+    color: var(--color-ink);
+    border: 1px solid var(--color-hairline-strong);
+    font-weight: 500;
+    font-size: 1rem;
+    line-height: 1;
+    transition:
+      transform 0.18s var(--ease-out-expo),
+      border-color 0.18s var(--ease-out-expo),
+      background-color 0.18s var(--ease-out-expo);
+  }
+  .btn-secondary:hover {
+    border-color: var(--color-ink);
+    background-color: var(--color-surface-2);
+    transform: translateY(-1px);
+  }
+
+  /* Mono eyebrow label — the technical voice. */
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: var(--color-body);
+  }
+
+  /* Form input matching the design system. */
+  .field-input {
+    width: 100%;
+    height: 52px;
+    background-color: var(--color-canvas-soft);
+    border: 1px solid var(--color-hairline);
+    border-radius: var(--radius-md);
+    color: var(--color-ink);
+    font-size: 1rem;
+    transition:
+      border-color 0.18s var(--ease-out-expo),
+      box-shadow 0.18s var(--ease-out-expo);
+  }
+  .field-input::placeholder { color: var(--color-mute); }
+  .field-input:focus {
+    outline: none;
+    border-color: var(--color-hairline-strong);
+    box-shadow: 0 0 0 3px rgba(50, 145, 255, 0.18);
+  }
+
+  /* ── Long-form content pages (privacy, terms, about, contact) ───────── */
+  .prose {
+    max-width: 760px;
+    margin-inline: auto;
+  }
+  .prose > * + * { margin-top: 1rem; }
+  .prose h2 {
+    margin-top: 2.5rem;
+    margin-bottom: 0.5rem;
+    font-size: clamp(1.375rem, 4vw, 1.75rem);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: var(--color-ink);
+    line-height: 1.2;
+  }
+  .prose h3 {
+    margin-top: 1.75rem;
+    margin-bottom: 0.25rem;
+    font-size: 1.125rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--color-ink);
+  }
+  .prose p,
+  .prose li {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--color-body);
+  }
+  .prose a {
+    color: var(--color-link);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .prose a:hover { color: var(--color-ink); }
+  .prose strong { color: var(--color-ink); font-weight: 600; }
+  .prose ul,
+  .prose ol {
+    padding-left: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .prose ul { list-style: none; padding-left: 0; }
+  .prose ul > li {
+    position: relative;
+    padding-left: 1.375rem;
+  }
+  .prose ul > li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.65rem;
+    width: 7px;
+    height: 7px;
+    border-radius: 9999px;
+    background: linear-gradient(135deg, var(--color-grad-coral), var(--color-grad-amber));
+  }
+  .prose ol { list-style: decimal; padding-left: 1.5rem; }
+  .prose ol > li { padding-left: 0.25rem; }
+}
+
+/* ── Respect reduced motion ──────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}

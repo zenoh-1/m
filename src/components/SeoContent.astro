@@ -1,0 +1,182 @@
+---
+/**
+ * SeoContent — Long-form, human-written SEO section (~700 words).
+ * Targets the primary keyword "financial health score" and supports the
+ * secondary keywords naturally. Semantic H2/H3 hierarchy, premium styling.
+ */
+---
+
+<section id="learn" class="seo" aria-labelledby="seo-heading">
+  <div class="container-page seo__inner">
+    <header class="seo__head">
+      <span class="eyebrow">The guide</span>
+      <h2 id="seo-heading" class="seo__title">
+        Understanding your financial health score
+      </h2>
+      <p class="seo__lead">
+        Your money picture is more than one account balance. A financial health
+        score pulls savings, debt, income, and net worth into a single number
+        you can actually act on — here's how ours works.
+      </p>
+    </header>
+
+    <div class="seo__prose">
+      <h3>What is a financial health score?</h3>
+      <p>
+        A financial health score is a single, easy-to-read number that captures
+        how strong your overall money situation is. Rather than checking a
+        savings balance here and a loan statement there, this kind of personal
+        finance score blends the most important signals — what you have saved,
+        what you owe, and how that compares to people in your stage of life — into
+        one benchmark. Think of it as a money health check or financial checkup:
+        a quick read on your financial wellness that you can track over time and
+        compare against realistic targets.
+      </p>
+
+      <h3>How the Financial Cooked Score works</h3>
+      <p>
+        The Cooked Score is our financial fitness calculator output, expressed on
+        a simple 0–100 scale. It is built from four factors, weighted by how much
+        they actually reflect long-term financial health:
+      </p>
+      <ul>
+        <li>
+          <strong>Savings-to-income ratio</strong> — the biggest driver. More
+          savings relative to your income means a stronger cushion and a higher
+          score.
+        </li>
+        <li>
+          <strong>Debt-to-income ratio</strong> — the second-heaviest factor.
+          Carrying a lot of debt for your income pulls the score down.
+        </li>
+        <li>
+          <strong>Net savings</strong> — your savings and investments minus total
+          debt, the foundation of your net worth score.
+        </li>
+        <li>
+          <strong>Age-adjusted progress</strong> — how your savings stack up
+          against typical milestones for your age.
+        </li>
+      </ul>
+      <p>
+        Because savings and debt carry the most weight, this is not a tool where a
+        big paycheck alone wins. A high earner who saves little can still score
+        below a modest earner with a healthy emergency fund and little debt — which
+        is exactly how real financial wellness works.
+      </p>
+
+      <h3>What Financial Age means</h3>
+      <p>
+        Financial Age is the headline result of our financial age calculator. It
+        translates your savings progress into an age: if you have banked more than
+        is typical for someone your age, your financial age comes out younger than
+        your real age. If you are behind on savings or weighed down by debt, it
+        reads older. It is an intuitive way to see whether you are ahead of or
+        behind the curve on retirement readiness without wading through
+        spreadsheets.
+      </p>
+
+      <h3>How percentile comparisons work</h3>
+      <p>
+        Numbers mean more in context, so the results include a percentile that
+        shows how you compare to other Americans your age. This financial
+        percentile calculator maps your net worth onto age-based benchmarks
+        inspired by the Federal Reserve's Survey of Consumer Finances, then
+        estimates the share of peers you are financially ahead of — for example,
+        "ahead of 68% of Americans your age." It turns an abstract score into a
+        clear sense of where you stand.
+      </p>
+
+      <h3>How savings, debt, and income affect your score</h3>
+      <p>
+        The three levers behave differently. <strong>Savings</strong> have the
+        largest positive impact: every bit you set aside improves your
+        savings-to-income ratio and your net worth. <strong>Debt</strong> works in
+        the opposite direction — a high debt-to-income ratio, or owing more than
+        you have saved, drags both your score and your percentile down.
+        <strong>Income</strong> plays a supporting role: it makes a given amount of
+        debt more manageable, but it never guarantees a good score on its own. The
+        fastest way to climb is almost always to grow savings and pay down
+        high-interest debt.
+      </p>
+
+      <h3>Using your results</h3>
+      <p>
+        Treat your Cooked Score as a starting point for a financial health
+        assessment, not a verdict. Run the check, note your score, percentile, and
+        financial age, then revisit after a few months or a major change — a raise,
+        a new loan, a fully funded emergency fund. Watching the number move is the
+        most motivating part: as you save more and owe less, your financial fitness
+        improves and the score follows.
+      </p>
+    </div>
+  </div>
+</section>
+
+<style>
+  .seo {
+    padding-block: clamp(3rem, 8vh, 5rem);
+    border-top: 1px solid var(--color-hairline);
+  }
+  .seo__inner { max-width: 760px; }
+
+  .seo__head {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 2rem;
+  }
+  .seo__title {
+    margin: 0;
+    font-size: clamp(1.75rem, 5vw, 2.5rem);
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+  }
+  .seo__lead {
+    margin: 0;
+    font-size: clamp(1.0625rem, 2.5vw, 1.1875rem);
+    line-height: 1.6;
+    color: var(--color-body);
+  }
+
+  .seo__prose h3 {
+    margin: 2rem 0 0.75rem;
+    font-size: 1.25rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: var(--color-ink);
+  }
+  .seo__prose p {
+    margin: 0 0 1rem;
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--color-body);
+  }
+  .seo__prose strong { color: var(--color-ink); font-weight: 600; }
+  .seo__prose ul {
+    margin: 0 0 1rem;
+    padding-left: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+  }
+  .seo__prose li {
+    position: relative;
+    padding-left: 1.375rem;
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--color-body);
+  }
+  .seo__prose li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.6rem;
+    width: 7px;
+    height: 7px;
+    border-radius: 9999px;
+    background: linear-gradient(135deg, var(--color-grad-coral), var(--color-grad-amber));
+  }
+</style>

@@ -1,0 +1,141 @@
+---
+/**
+ * SiteFooter — Multi-column footer with site navigation + required disclaimer.
+ * Surfaces the standalone MPA pages (About, Privacy, Terms, Contact) site-wide
+ * for discoverability and internal linking (good for SEO crawlability).
+ */
+import Disclaimer from './Disclaimer.astro';
+const year = new Date().getFullYear();
+---
+
+<footer class="footer">
+  <div class="container-page">
+    <div class="footer__top">
+      <div class="footer__brand-col">
+        <a href="/" class="footer__brand" aria-label="Cooked Finance home">
+          <span class="footer__logo" aria-hidden="true">🔥</span>
+          <span class="footer__name">Cooked<span class="footer__name-soft">Finance</span></span>
+        </a>
+        <p class="footer__tagline">
+          Your free financial health score in under 60 seconds.
+        </p>
+      </div>
+
+      <nav class="footer__cols" aria-label="Footer">
+        <div class="footer__col">
+          <h2 class="footer__col-title">Tool</h2>
+          <a href="/#check" class="footer__link">Check My Score</a>
+          <a href="/#learn" class="footer__link">How It Works</a>
+          <a href="/#faq" class="footer__link">FAQ</a>
+        </div>
+        <div class="footer__col">
+          <h2 class="footer__col-title">Company</h2>
+          <a href="/about" class="footer__link">About Us</a>
+          <a href="/contact" class="footer__link">Contact Us</a>
+        </div>
+        <div class="footer__col">
+          <h2 class="footer__col-title">Legal</h2>
+          <a href="/privacy" class="footer__link">Privacy Policy</a>
+          <a href="/terms" class="footer__link">Terms &amp; Conditions</a>
+        </div>
+      </nav>
+    </div>
+
+    <div class="footer__bottom">
+      <Disclaimer class="footer__disclaimer" />
+      <p class="footer__meta">
+        <span>© {year} cookedfinance.com</span>
+        <span class="footer__sep" aria-hidden="true">·</span>
+        <span>Made for fun, not for your accountant.</span>
+      </p>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    border-top: 1px solid var(--color-hairline);
+    padding-block: clamp(2.5rem, 6vh, 4rem);
+    margin-top: 2rem;
+  }
+
+  .footer__top {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+    padding-bottom: 2.5rem;
+    border-bottom: 1px solid var(--color-hairline);
+  }
+  @media (min-width: 720px) {
+    .footer__top { grid-template-columns: 1.2fr 2fr; gap: 2rem; }
+  }
+
+  .footer__brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+    color: var(--color-ink);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    font-size: 1.0625rem;
+  }
+  .footer__logo { font-size: 1.125rem; }
+  .footer__name-soft { color: var(--color-mute); }
+  .footer__tagline {
+    margin: 0.875rem 0 0;
+    max-width: 28ch;
+    font-size: 0.9375rem;
+    line-height: 1.5;
+    color: var(--color-body);
+  }
+
+  .footer__cols {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem 1rem;
+  }
+  @media (min-width: 480px) {
+    .footer__cols { grid-template-columns: repeat(3, 1fr); }
+  }
+  .footer__col {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  .footer__col-title {
+    margin: 0 0 0.25rem;
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-mute);
+  }
+  .footer__link {
+    font-size: 0.9375rem;
+    color: var(--color-body);
+    text-decoration: none;
+    transition: color 0.18s var(--ease-out-expo);
+    width: fit-content;
+  }
+  .footer__link:hover { color: var(--color-ink); }
+
+  .footer__bottom {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    padding-top: 2rem;
+  }
+  .footer__meta {
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem;
+    font-size: 0.8125rem;
+    color: var(--color-mute);
+  }
+  .footer__sep { color: var(--color-hairline-strong); }
+</style>

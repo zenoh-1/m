@@ -1,11 +1,449 @@
 ---
-import Welcome from '../components/Welcome.astro';
 import Layout from '../layouts/Layout.astro';
-
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+import SiteHeader from '../components/SiteHeader.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+import Hero from '../components/Hero.astro';
+import AdSlot from '../components/AdSlot.astro';
+import AssessmentForm from '../components/AssessmentForm.astro';
+import ResultsDashboard from '../components/ResultsDashboard.astro';
+import SeoContent from '../components/SeoContent.astro';
+import Faq from '../components/Faq.astro';
 ---
 
-<Layout>
-	<Welcome />
+<Layout path="/" structuredData={true}>
+  <span id="top"></span>
+  <SiteHeader />
+
+  <main>
+    <Hero />
+
+    <!-- Ad placeholder below the hero -->
+    <div class="container-page home-ad">
+      <AdSlot minHeight={100} slot="home-below-hero" />
+    </div>
+
+    <AssessmentForm />
+
+    <ResultsDashboard />
+
+    <SeoContent />
+
+    <Faq />
+  </main>
+
+  <SiteFooter />
 </Layout>
+
+<style>
+  .home-ad { margin-block: 1rem 2rem; }
+</style>
+
+<script>
+  import { calculateScore, type StatusKey } from '../lib/scoring';
+  import { getRoast, getInsights } from '../lib/roasts';
+  import { formatUSD, formatCompactUSD } from '../lib/format';
+
+  const STORAGE_KEY = 'cookedfinance:lastResult';
+
+  // ── Status → color theming for gauge + badge ────────────────────────────
+  const STATUS_THEME: Record<StatusKey, { from: string; to: string; glow: string; color: string; bg: string }> = {
+    apocalypse:  { from: '#ff7a7a', to: '#ff4d4d', glow: 'rgba(255,77,77,0.45)',  color: '#ff6b6b', bg: 'rgba(255,77,77,0.10)' },
+    'deep-fried':{ from: '#ffb15c', to: '#ff8a3d', glow: 'rgba(255,138,61,0.45)', color: '#ff9d4d', bg: 'rgba(255,138,61,0.10)' },
+    'medium-rare':{ from: '#ffe07a', to: '#f9cb28', glow: 'rgba(249,203,40,0.40)', color: '#f9cb28', bg: 'rgba(249,203,40,0.10)' },
+    stable:      { from: '#00dfd8', to: '#19b3ff', glow: 'rgba(0,223,216,0.40)',  color: '#34e3dd', bg: 'rgba(0,223,216,0.10)' },
+    cooking:     { from: '#2bd576', to: '#00dfa8', glow: 'rgba(43,213,118,0.45)', color: '#2bd576', bg: 'rgba(43,213,118,0.10)' },
+  };
+
+  // ── Helpers ──────────────────────────────────────────────────────────────
+  const $ = <T extends Element = HTMLElement>(sel: string, root: ParentNode = document) =>
+    root.querySelector<T>(sel);
+
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function parseMoney(value: string): number {
+    return Math.max(0, Number(String(value).replace(/[^0-9.]/g, '')) || 0);
+  }
+
+  // Live-format money inputs with thousands separators.
+  function attachMoneyFormatting() {
+    document.querySelectorAll<HTMLInputElement>('.field-input--money').forEach((input) => {
+      input.addEventListener('input', () => {
+        const digits = input.value.replace(/[^0-9]/g, '');
+        input.value = digits ? Number(digits).toLocaleString('en-US') : '';
+      });
+    });
+  }
+
+  // ── Validation ─────────────────────────────────────────────────────────
+  function setError(name: string, message: string | null) {
+    const input = document.getElementById(name) as HTMLInputElement | null;
+    const errEl = document.querySelector<HTMLElement>(`[data-error-for="${name}"]`);
+    if (!input || !errEl) return;
+    if (message) {
+      input.setAttribute('aria-invalid', 'true');
+      errEl.textContent = message;
+      errEl.hidden = false;
+    } else {
+      input.removeAttribute('aria-invalid');
+      errEl.textContent = '';
+      errEl.hidden = true;
+    }
+  }
+
+  function validate(age: number, income: number, savings: number, debt: number): boolean {
+    let ok = true;
+    setError('age', null);
+    setError('income', null);
+    setError('savings', null);
+    setError('debt', null);
+
+    if (!age || age < 18 || age > 70) {
+      setError('age', 'Enter an age between 18 and 70.');
+      ok = false;
+    }
+    if (income <= 0) {
+      setError('income', 'Enter your annual income.');
+      ok = false;
+    }
+    if (savings < 0) { setError('savings', 'Savings can’t be negative.'); ok = false; }
+    if (debt < 0) { setError('debt', 'Debt can’t be negative.'); ok = false; }
+    return ok;
+  }
+
+  // ── Count-up animation ───────────────────────────────────────────────────
+  function animateNumber(el: HTMLElement, to: number, duration = 1400) {
+    if (prefersReduced) { el.textContent = String(to); return; }
+    const start = performance.now();
+    const from = 0;
+    function tick(now: number) {
+      const t = Math.min(1, (now - start) / duration);
+      const eased = 1 - Math.pow(1 - t, 3); // easeOutCubic
+      el.textContent = String(Math.round(from + (to - from) * eased));
+      if (t < 1) requestAnimationFrame(tick);
+      else el.textContent = String(to);
+    }
+    requestAnimationFrame(tick);
+  }
+
+  // ── Render results ─────────────────────────────────────────────────────
+  type Result = ReturnType<typeof calculateScore>;
+
+  function render(result: Result) {
+    const roast = getRoast(result);
+    const insights = getInsights(result);
+    const theme = STATUS_THEME[result.status.key];
+
+    const results = $('[data-results]') as HTMLElement;
+    results.hidden = false;
+
+    // Gauge theming + animation
+    const gauge = $('[data-gauge]') as HTMLElement;
+    const arc = $('[data-gauge-arc]') as SVGCircleElement | null;
+    const number = $('[data-gauge-number]') as HTMLElement;
+    gauge.style.setProperty('--gauge-from', theme.from);
+    gauge.style.setProperty('--gauge-to', theme.to);
+    gauge.style.setProperty('--gauge-glow', theme.glow);
+
+    if (arc) {
+      const arcLength = Number(($('[data-arc-length]') as HTMLElement)?.dataset.arcLength || 0);
+      const offset = arcLength * (1 - result.score / 100);
+      // Force a reflow so the transition runs from full → target.
+      arc.style.strokeDashoffset = String(arcLength);
+      requestAnimationFrame(() => {
+        if (prefersReduced) arc.style.transition = 'none';
+        arc.style.strokeDashoffset = String(offset);
+      });
+    }
+    animateNumber(number, result.score);
+
+    // Status badge
+    const badge = $('[data-status-badge]') as HTMLElement;
+    badge.style.setProperty('--status-color', theme.color);
+    badge.style.setProperty('--status-bg', theme.bg);
+    ($('[data-status-emoji]') as HTMLElement).textContent = result.status.emoji;
+    ($('[data-status-label]') as HTMLElement).textContent = result.status.label;
+
+    // Percentile
+    ($('[data-percentile-text]') as HTMLElement).innerHTML =
+      `You're ahead of <strong>${result.percentile}%</strong> of Americans your age.`;
+
+    // Stats
+    ($('[data-finage]') as HTMLElement).textContent = String(result.financialAge);
+    const finageNote = $('[data-finage-note]') as HTMLElement;
+    const diff = result.financialAge - result.input.age;
+    finageNote.textContent =
+      diff <= -1 ? `${Math.abs(diff)} yrs younger than you` :
+      diff >= 1 ? `${diff} yrs older than you` :
+      'Right on pace';
+    ($('[data-networth]') as HTMLElement).textContent = formatCompactUSD(result.metrics.netWorth);
+
+    // Roast
+    ($('[data-roast-text]') as HTMLElement).textContent = roast;
+
+    // Insights
+    const strengthsEl = $('[data-strengths]') as HTMLElement;
+    const improvementsEl = $('[data-improvements]') as HTMLElement;
+    strengthsEl.innerHTML = '';
+    improvementsEl.innerHTML = '';
+    (insights.strengths.length ? insights.strengths : ['Every journey starts somewhere.']).forEach((s) => {
+      const li = document.createElement('li'); li.textContent = s; strengthsEl.appendChild(li);
+    });
+    (insights.improvements.length ? insights.improvements : ['Keep doing what you’re doing.']).forEach((s) => {
+      const li = document.createElement('li'); li.textContent = s; improvementsEl.appendChild(li);
+    });
+
+    // Share card
+    ($('[data-share-score]') as HTMLElement).textContent = String(result.score);
+    ($('[data-share-badge]') as HTMLElement).textContent = `${result.status.emoji} ${result.status.label}`;
+    ($('[data-share-roast]') as HTMLElement).textContent = roast;
+    ($('[data-share-percentile]') as HTMLElement).textContent = `${result.percentile}%`;
+    ($('[data-share-finage]') as HTMLElement).textContent = String(result.financialAge);
+
+    setupSharing(result, roast);
+
+    // Reveal + scroll
+    results.scrollIntoView({ behavior: prefersReduced ? 'auto' : 'smooth', block: 'start' });
+  }
+
+  // ── Sharing ──────────────────────────────────────────────────────────────
+  function shareText(result: Result, roast: string): string {
+    return `I scored ${result.score}/100 on the Cooked Finance test ${result.status.emoji} (${result.status.label}). "${roast}" — are you financially cooked?`;
+  }
+
+  function setupSharing(result: Result, roast: string) {
+    const url = 'https://cookedfinance.com';
+    const text = shareText(result, roast);
+    const enc = encodeURIComponent;
+
+    const x = $('[data-share-x]') as HTMLAnchorElement;
+    x.href = `https://twitter.com/intent/tweet?text=${enc(text)}&url=${enc(url)}`;
+    const reddit = $('[data-share-reddit]') as HTMLAnchorElement;
+    reddit.href = `https://www.reddit.com/submit?url=${enc(url)}&title=${enc(text)}`;
+    const linkedin = $('[data-share-linkedin]') as HTMLAnchorElement;
+    linkedin.href = `https://www.linkedin.com/sharing/share-offsite/?url=${enc(url)}`;
+
+    const copyBtn = $('[data-copy-link]') as HTMLButtonElement;
+    copyBtn.onclick = async () => {
+      try {
+        await navigator.clipboard.writeText(`${text} ${url}`);
+        toast('Copied! Paste it anywhere (Discord, etc.)');
+      } catch { toast('Copy failed — long-press to copy.'); }
+    };
+
+    const nativeBtn = $('[data-share-native]') as HTMLButtonElement;
+    if ('share' in navigator) {
+      nativeBtn.onclick = async () => {
+        try { await (navigator as Navigator).share({ title: 'Cooked Finance', text, url }); }
+        catch { /* user cancelled */ }
+      };
+    } else {
+      nativeBtn.hidden = true;
+    }
+
+    const dlBtn = $('[data-download-share]') as HTMLButtonElement;
+    dlBtn.onclick = () => downloadShareImage(result, roast);
+  }
+
+  function toast(msg: string) {
+    const el = $('[data-share-toast]') as HTMLElement;
+    el.textContent = msg;
+    el.hidden = false;
+    window.setTimeout(() => { el.hidden = true; }, 2600);
+  }
+
+  // ── Canvas share image (1200×630 PNG) ────────────────────────────────────
+  function downloadShareImage(result: Result, roast: string) {
+    const canvas = $('[data-share-canvas]') as HTMLCanvasElement;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    const W = 1200, H = 630;
+    const theme = STATUS_THEME[result.status.key];
+
+    // Background
+    ctx.fillStyle = '#0a0a0a';
+    ctx.fillRect(0, 0, W, H);
+    // Gradient glows
+    const g1 = ctx.createRadialGradient(W, 0, 0, W, 0, 760);
+    g1.addColorStop(0, 'rgba(121,40,202,0.45)');
+    g1.addColorStop(1, 'rgba(121,40,202,0)');
+    ctx.fillStyle = g1; ctx.fillRect(0, 0, W, H);
+    const g2 = ctx.createRadialGradient(0, H, 0, 0, H, 720);
+    g2.addColorStop(0, 'rgba(0,124,240,0.35)');
+    g2.addColorStop(1, 'rgba(0,124,240,0)');
+    ctx.fillStyle = g2; ctx.fillRect(0, 0, W, H);
+
+    const pad = 72;
+    ctx.textBaseline = 'alphabetic';
+
+    // Brand
+    ctx.fillStyle = '#a1a1a1';
+    ctx.font = '500 26px "Geist Mono Variable", monospace';
+    ctx.fillText('cookedfinance.com', pad, pad + 12);
+
+    // Badge (top-right)
+    const badgeText = `${result.status.emoji} ${result.status.label}`;
+    ctx.font = '500 26px "Geist Variable", sans-serif';
+    const bw = ctx.measureText(badgeText).width + 44;
+    const bx = W - pad - bw, by = pad - 18;
+    roundRect(ctx, bx, by, bw, 50, 25);
+    ctx.fillStyle = 'rgba(255,255,255,0.06)'; ctx.fill();
+    ctx.strokeStyle = theme.color; ctx.lineWidth = 1.5; ctx.stroke();
+    ctx.fillStyle = '#ededed';
+    ctx.fillText(badgeText, bx + 22, by + 33);
+
+    // Big score
+    ctx.fillStyle = '#ededed';
+    ctx.font = '600 180px "Geist Variable", sans-serif';
+    const scoreStr = String(result.score);
+    ctx.fillText(scoreStr, pad - 4, 340);
+    const sw = ctx.measureText(scoreStr).width;
+    ctx.fillStyle = '#6f6f6f';
+    ctx.font = '500 54px "Geist Variable", sans-serif';
+    ctx.fillText('/100', pad + sw + 8, 340);
+    ctx.fillStyle = '#a1a1a1';
+    ctx.font = '500 24px "Geist Mono Variable", monospace';
+    ctx.fillText('COOKED SCORE', pad, 386);
+
+    // Roast (wrapped)
+    ctx.fillStyle = '#ededed';
+    ctx.font = '500 34px "Geist Variable", sans-serif';
+    wrapText(ctx, `“${roast}”`, pad, 452, W - pad * 2, 44, 2);
+
+    // Stats row
+    const statsY = 560;
+    ctx.fillStyle = '#ededed';
+    ctx.font = '600 40px "Geist Variable", sans-serif';
+    ctx.fillText(`${result.percentile}%`, pad, statsY);
+    ctx.fillText(String(result.financialAge), pad + 320, statsY);
+    ctx.fillStyle = '#6f6f6f';
+    ctx.font = '500 20px "Geist Mono Variable", monospace';
+    ctx.fillText('AHEAD OF AMERICANS', pad, statsY + 28);
+    ctx.fillText('FINANCIAL AGE', pad + 320, statsY + 28);
+
+    const link = document.createElement('a');
+    link.download = `cooked-score-${result.score}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+    toast('Image downloaded — share it anywhere!');
+  }
+
+  function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y, x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r);
+    ctx.arcTo(x, y, x + w, y, r);
+    ctx.closePath();
+  }
+
+  function wrapText(
+    ctx: CanvasRenderingContext2D, text: string, x: number, y: number,
+    maxWidth: number, lineHeight: number, maxLines: number,
+  ) {
+    const words = text.split(' ');
+    let line = '';
+    let lines = 0;
+    for (let i = 0; i < words.length; i++) {
+      const test = line + words[i] + ' ';
+      if (ctx.measureText(test).width > maxWidth && line !== '') {
+        ctx.fillText(line.trim(), x, y);
+        line = words[i] + ' ';
+        y += lineHeight;
+        lines++;
+        if (lines >= maxLines - 1) {
+          // Last allowed line: dump remaining (trim with ellipsis if needed).
+          let rest = words.slice(i).join(' ');
+          while (ctx.measureText(rest + '…').width > maxWidth && rest.length > 0) {
+            rest = rest.slice(0, -1);
+          }
+          ctx.fillText(rest + (i < words.length ? '' : ''), x, y);
+          return;
+        }
+      } else {
+        line = test;
+      }
+    }
+    ctx.fillText(line.trim(), x, y);
+  }
+
+  // ── Persistence ──────────────────────────────────────────────────────────
+  function save(result: Result) {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(result.input)); } catch {}
+  }
+  function restore() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return;
+      const input = JSON.parse(raw);
+      // Pre-fill form
+      const ageEl = document.getElementById('age') as HTMLInputElement | null;
+      const incEl = document.getElementById('income') as HTMLInputElement | null;
+      const savEl = document.getElementById('savings') as HTMLInputElement | null;
+      const debtEl = document.getElementById('debt') as HTMLInputElement | null;
+      if (ageEl && input.age) ageEl.value = String(input.age);
+      if (incEl && input.income) incEl.value = Number(input.income).toLocaleString('en-US');
+      if (savEl && input.savings != null) savEl.value = Number(input.savings).toLocaleString('en-US');
+      if (debtEl && input.debt != null) debtEl.value = Number(input.debt).toLocaleString('en-US');
+      // Render last result automatically.
+      render(calculateScore(input));
+    } catch {}
+  }
+
+  // ── Smooth-scroll for in-page anchors ────────────────────────────────────
+  function setupScrollLinks() {
+    document.querySelectorAll<HTMLAnchorElement>('[data-scroll]').forEach((a) => {
+      a.addEventListener('click', (e) => {
+        const href = a.getAttribute('href');
+        if (!href) return;
+        // Accept "#check" and "/#check"; only intercept when the target exists
+        // on the current page (i.e. we're on the homepage).
+        const hashIndex = href.indexOf('#');
+        if (hashIndex === -1) return;
+        const id = href.slice(hashIndex);
+        const target = document.querySelector(id);
+        if (!target) return; // let the browser navigate (e.g. from another page)
+        e.preventDefault();
+        target.scrollIntoView({ behavior: prefersReduced ? 'auto' : 'smooth', block: 'start' });
+        (target as HTMLElement).querySelector<HTMLInputElement>('input')?.focus({ preventScroll: true });
+      });
+    });
+  }
+
+  // ── Wire up ──────────────────────────────────────────────────────────────
+  function init() {
+    attachMoneyFormatting();
+    setupScrollLinks();
+
+    const form = document.getElementById('assessment-form') as HTMLFormElement | null;
+    form?.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const age = parseInt((document.getElementById('age') as HTMLInputElement).value, 10);
+      const income = parseMoney((document.getElementById('income') as HTMLInputElement).value);
+      const savings = parseMoney((document.getElementById('savings') as HTMLInputElement).value);
+      const debt = parseMoney((document.getElementById('debt') as HTMLInputElement).value);
+
+      if (!validate(age, income, savings, debt)) {
+        document.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus();
+        return;
+      }
+      const result = calculateScore({ age, income, savings, debt });
+      save(result);
+      render(result);
+    });
+
+    // Retake → back to form
+    ($('[data-retake]') as HTMLButtonElement | null)?.addEventListener('click', () => {
+      document.getElementById('check')?.scrollIntoView({ behavior: prefersReduced ? 'auto' : 'smooth' });
+      (document.getElementById('age') as HTMLInputElement | null)?.focus({ preventScroll: true });
+    });
+
+    restore();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+</script>

@@ -1,0 +1,62 @@
+---
+/**
+ * AdSlot — Clean, reserved Google AdSense placeholder.
+ *
+ * Reserves layout space from day one to avoid CLS (layout shift) and keep
+ * Lighthouse high. When AdSense is approved, replace the inner placeholder
+ * with the <ins class="adsbygoogle"> unit and push() call. The reserved
+ * min-height keeps the page from jumping when the ad loads.
+ */
+interface Props {
+  /** Label shown in the placeholder (dev only cue). */
+  label?: string;
+  /** Reserved height in px to prevent layout shift. */
+  minHeight?: number;
+  /** Optional extra classes. */
+  class?: string;
+  /** AdSense slot id (wire up later). */
+  slot?: string;
+}
+
+const {
+  label = 'Advertisement',
+  minHeight = 100,
+  class: className = '',
+  slot,
+} = Astro.props;
+---
+
+<aside
+  class:list={['ad-slot', className]}
+  style={`min-height:${minHeight}px`}
+  data-ad-slot={slot}
+  aria-label="Advertisement"
+>
+  <span class="ad-slot__tag">{label}</span>
+  <!--
+    AdSense unit goes here once approved, e.g.:
+    <ins class="adsbygoogle" style="display:block"
+         data-ad-client="ca-pub-XXXX" data-ad-slot={slot}
+         data-ad-format="auto" data-full-width-responsive="true"></ins>
+    <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+  -->
+</aside>
+
+<style>
+  .ad-slot {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    border: 1px dashed var(--color-hairline);
+    border-radius: var(--radius-md);
+    background: var(--color-canvas-soft);
+    color: var(--color-mute);
+  }
+  .ad-slot__tag {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+</style>

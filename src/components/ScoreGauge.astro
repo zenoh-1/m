@@ -1,0 +1,123 @@
+---
+/**
+ * ScoreGauge — Large animated 0–100 circular gauge.
+ *
+ * Renders an SVG arc that the client script animates (stroke-dashoffset +
+ * count-up number). Status color is driven by a CSS variable set at runtime.
+ * The gauge ring spans 270° for a classic "speedometer" feel.
+ */
+interface Props {
+  /** id suffix so multiple gauges can coexist */
+  id?: string;
+}
+const { id = 'score' } = Astro.props;
+
+// Geometry
+const size = 240;
+const stroke = 16;
+const r = (size - stroke) / 2;
+const cx = size / 2;
+const cy = size / 2;
+const circumference = 2 * Math.PI * r;
+// 270° sweep (gap at the bottom), rotated so the gap is centered at bottom.
+const sweep = 0.75; // 270 / 360
+const arcLength = circumference * sweep;
+---
+
+<div class="gauge" data-gauge data-target="0">
+  <svg
+    class="gauge__svg"
+    viewBox={`0 0 ${size} ${size}`}
+    role="img"
+    aria-label="Financial Cooked Score gauge"
+  >
+    <defs>
+      <linearGradient id={`grad-${id}`} x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="var(--gauge-from, #00dfd8)" />
+        <stop offset="100%" stop-color="var(--gauge-to, #2bd576)" />
+      </linearGradient>
+    </defs>
+
+    <!-- Track -->
+    <circle
+      class="gauge__track"
+      cx={cx}
+      cy={cy}
+      r={r}
+      fill="none"
+      stroke="var(--color-hairline)"
+      stroke-width={stroke}
+      stroke-linecap="round"
+      stroke-dasharray={`${arcLength} ${circumference}`}
+      transform={`rotate(135 ${cx} ${cy})`}
+    />
+
+    <!-- Progress -->
+    <circle
+      class="gauge__progress"
+      data-gauge-arc
+      cx={cx}
+      cy={cy}
+      r={r}
+      fill="none"
+      stroke={`url(#grad-${id})`}
+      stroke-width={stroke}
+      stroke-linecap="round"
+      stroke-dasharray={`${arcLength} ${circumference}`}
+      stroke-dashoffset={arcLength}
+      transform={`rotate(135 ${cx} ${cy})`}
+    />
+  </svg>
+
+  <div class="gauge__center">
+    <span class="gauge__number" data-gauge-number>0</span>
+    <span class="gauge__total">out of 100</span>
+  </div>
+
+  <!-- Data passed to the client script for arc math -->
+  <span hidden data-arc-length={arcLength}></span>
+</div>
+
+<style>
+  .gauge {
+    position: relative;
+    width: 240px;
+    max-width: 72vw;
+    aspect-ratio: 1;
+    margin-inline: auto;
+  }
+  .gauge__svg {
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+  .gauge__progress {
+    transition: stroke-dashoffset 1.4s var(--ease-out-expo);
+    filter: drop-shadow(0 0 10px var(--gauge-glow, rgba(43, 213, 118, 0.4)));
+  }
+  .gauge__center {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.125rem;
+    pointer-events: none;
+  }
+  .gauge__number {
+    font-size: 4rem;
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: -0.04em;
+    color: var(--color-ink);
+    font-variant-numeric: tabular-nums;
+  }
+  .gauge__total {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-mute);
+  }
+</style>

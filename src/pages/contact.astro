@@ -1,0 +1,122 @@
+---
+import PageLayout from '../layouts/PageLayout.astro';
+
+const email = 'hello@cookedfinance.com';
+---
+
+<PageLayout
+  title="Contact Us | Cooked Finance"
+  description="Get in touch with the Cooked Finance team. Questions, feedback, partnership ideas, or press — we'd love to hear from you."
+  path="/contact"
+  eyebrow="Contact"
+  heading="Get in touch."
+  lead="Feedback, ideas, bug reports, or just want to tell us your score? Drop us a line."
+>
+  <h2>Email us</h2>
+  <p>
+    The fastest way to reach us is by email at
+    <a href={`mailto:${email}`}>{email}</a>. We read everything and try to reply
+    within a couple of business days.
+  </p>
+
+  <h2>Send a message</h2>
+  <p>
+    Prefer a form? Fill this out and your email app will open with everything
+    ready to send.
+  </p>
+
+  <form id="contact-form" class="card contact-form" novalidate>
+    <div class="contact-field">
+      <label class="contact-label" for="name">Name</label>
+      <input class="field-input" id="name" name="name" type="text" autocomplete="name" placeholder="e.g. Alex Carter" required />
+    </div>
+
+    <div class="contact-field">
+      <label class="contact-label" for="email">Email</label>
+      <input class="field-input" id="email" name="email" type="email" inputmode="email" autocomplete="email" placeholder="e.g. you@example.com" spellcheck="false" required />
+    </div>
+
+    <div class="contact-field">
+      <label class="contact-label" for="message">Message</label>
+      <textarea class="field-input contact-textarea" id="message" name="message" rows="5" placeholder="What's on your mind?" required></textarea>
+    </div>
+
+    <p class="contact-error" data-contact-error hidden></p>
+
+    <button type="submit" class="btn-primary contact-submit">
+      Open Email Draft
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+        <path d="M2 4.5 8 9l6-4.5M2.5 3.5h11a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1h-11a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1Z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+  </form>
+
+  <h2>Other things</h2>
+  <ul>
+    <li><strong>Press & partnerships:</strong> use the same email with "Press" in the subject.</li>
+    <li><strong>Privacy questions:</strong> see our <a href="/privacy">Privacy Policy</a>.</li>
+    <li><strong>Terms:</strong> see our <a href="/terms">Terms &amp; Conditions</a>.</li>
+  </ul>
+</PageLayout>
+
+<style>
+  .contact-form {
+    padding: clamp(1.5rem, 4vw, 2rem);
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    margin-top: 1rem;
+    /* Override .prose list/anchor flow spacing inside the form. */
+  }
+  .contact-field { display: flex; flex-direction: column; gap: 0.5rem; }
+  .contact-label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--color-ink);
+  }
+  .contact-textarea {
+    height: auto;
+    min-height: 120px;
+    padding: 0.75rem 0.875rem;
+    resize: vertical;
+    line-height: 1.5;
+    font-family: inherit;
+  }
+  .field-input { padding-inline: 0.875rem; }
+  .contact-error {
+    margin: 0;
+    font-size: 0.8125rem;
+    color: var(--color-status-apocalypse);
+  }
+  .contact-submit { align-self: flex-start; }
+</style>
+
+<script>
+  const form = document.getElementById('contact-form') as HTMLFormElement | null;
+  const errEl = document.querySelector<HTMLElement>('[data-contact-error]');
+
+  form?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const name = (document.getElementById('name') as HTMLInputElement).value.trim();
+    const email = (document.getElementById('email') as HTMLInputElement).value.trim();
+    const message = (document.getElementById('message') as HTMLTextAreaElement).value.trim();
+
+    const showError = (msg: string) => {
+      if (errEl) { errEl.textContent = msg; errEl.hidden = false; }
+    };
+    if (errEl) errEl.hidden = true;
+
+    if (!name || !email || !message) {
+      showError('Please fill in your name, email, and message.');
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      showError('Please enter a valid email address.');
+      return;
+    }
+
+    const subject = encodeURIComponent(`Cooked Finance — message from ${name}`);
+    const body = encodeURIComponent(`${message}\n\n— ${name} (${email})`);
+    window.location.href = `mailto:hello@cookedfinance.com?subject=${subject}&body=${body}`;
+  });
+</script>
