@@ -1,0 +1,55 @@
+---
+interface LinkItem {
+  href: string;
+  label: string;
+  description: string;
+}
+
+interface Props {
+  links: LinkItem[];
+}
+
+const { links } = Astro.props;
+---
+
+<nav class="related" aria-labelledby="related-reading-title">
+  <h2 id="related-reading-title">Keep going</h2>
+  <ul>
+    {links.map((link) => (
+      <li>
+        <a href={link.href}>{link.label}</a>
+        <span>{link.description}</span>
+      </li>
+    ))}
+  </ul>
+</nav>
+
+<style>
+  .related {
+    margin-top: 3rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--color-hairline);
+  }
+  .related ul {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+    gap: 0.75rem;
+    padding: 0;
+    list-style: none;
+  }
+  .related li {
+    padding: 1rem;
+    border: 1px solid var(--color-hairline);
+    border-radius: var(--radius-md);
+    background: var(--color-canvas-soft);
+  }
+  .related li::before { display: none; }
+  .related a { display: inline-block; font-weight: 600; }
+  .related span {
+    display: block;
+    margin-top: 0.35rem;
+    color: var(--color-body);
+    font-size: 0.9rem;
+    line-height: 1.5;
+  }
+</style>

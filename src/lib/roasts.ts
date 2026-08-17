@@ -1,174 +1,190 @@
 /**
- * roasts.ts — Rule-based Financial Roast engine. No AI APIs.
+ * Optional, rule-based humor for the Cooked Finance result.
  *
- * Picks a roast from 30–40 family-friendly, lighthearted templates based on
- * the user's score, ratios, and status. Also derives short Strengths and
- * Areas-To-Improve lists for the results dashboard.
- *
- * For entertainment and educational purposes only. Not financial advice.
+ * No API is called and no financial values leave the browser. The lines are
+ * intentionally gentle: they joke about the dashboard, never a person's
+ * worth, intelligence, or circumstances.
  */
 
 import type { ScoreResult } from './scoring';
 
 interface RoastTemplate {
-  /** The roast line itself. */
   text: string;
-  /**
-   * Predicate deciding whether this roast is eligible for a given result.
-   * If omitted, the roast is always eligible (general pool).
-   */
-  when?: (r: ScoreResult) => boolean;
+  when?: (result: ScoreResult) => boolean;
 }
 
-const r2 = (r: ScoreResult) => r.metrics; // shorthand
+const hasMetric = (value: number | null): value is number => value !== null;
 
-/**
- * 36 roast templates. Each is tagged with the situation it fits best.
- * Eligibility predicates keep them feeling personalized; a deterministic
- * picker (below) chooses one so the same input always yields the same roast.
- */
 const ROASTS: RoastTemplate[] = [
-  // ── Thin savings ──────────────────────────────────────────────
-  { text: 'Your savings account appears to be practicing minimalism.', when: (r) => r2(r).savingsToIncomeRatio < 0.5 },
-  { text: "Your emergency fund is the emergency.", when: (r) => r2(r).savingsToIncomeRatio < 0.25 },
-  { text: 'Your savings are so lean they qualify as a fasting routine.', when: (r) => r2(r).savingsToIncomeRatio < 0.5 },
-  { text: "Your nest egg is more of a nest crumb.", when: (r) => r2(r).savingsToIncomeRatio < 0.75 },
-  { text: 'Compound interest called. It wants something to compound.', when: (r) => r2(r).savingsToIncomeRatio < 1 },
-  { text: 'Your rainy-day fund covers roughly one light drizzle.', when: (r) => r2(r).savingsToIncomeRatio < 0.5 },
+  // Cash-buffer nudges
+  {
+    text: 'Your cash cushion is still in travel-pillow mode.',
+    when: (result) =>
+      hasMetric(result.metrics.cashBufferMonths) &&
+      result.metrics.cashBufferMonths < 1,
+  },
+  {
+    text: 'The rainy-day fund has an umbrella. It is still shopping for the raincoat.',
+    when: (result) =>
+      hasMetric(result.metrics.cashBufferMonths) &&
+      result.metrics.cashBufferMonths >= 1 &&
+      result.metrics.cashBufferMonths < 3,
+  },
+  {
+    text: 'Your emergency fund has started preheating—give it a little more time.',
+    when: (result) =>
+      hasMetric(result.metrics.cashBufferMonths) &&
+      result.metrics.cashBufferMonths < 3,
+  },
+  {
+    text: 'That cash buffer could handle a plot twist or two.',
+    when: (result) =>
+      hasMetric(result.metrics.cashBufferMonths) &&
+      result.metrics.cashBufferMonths >= 3,
+  },
 
-  // ── Heavy debt ────────────────────────────────────────────────
-  { text: 'Your debt is putting in overtime.', when: (r) => r2(r).debtToIncomeRatio > 1.5 },
-  { text: 'Your debt has better month-over-month growth than most startups.', when: (r) => r2(r).debtToIncomeRatio > 2 },
-  { text: "Your debt-to-income ratio is doing cardio — uphill.", when: (r) => r2(r).debtToIncomeRatio > 1 },
-  { text: 'You and your debt have a more committed relationship than most marriages.', when: (r) => r2(r).debtToIncomeRatio > 1.5 },
-  { text: 'Your debt sends you a calendar invite every month and you always accept.', when: (r) => r2(r).debtToIncomeRatio > 1 },
-  { text: 'Minimum payments are a lifestyle for you, not a fallback.', when: (r) => r2(r).debtToIncomeRatio > 2 },
+  // Monthly debt-payment pressure
+  {
+    text: 'Your debt payments are using a few too many burners.',
+    when: (result) =>
+      hasMetric(result.metrics.debtToIncomeRatio) &&
+      result.metrics.debtToIncomeRatio > 0.43,
+  },
+  {
+    text: 'Debt has a recurring reservation in the monthly budget.',
+    when: (result) =>
+      hasMetric(result.metrics.debtToIncomeRatio) &&
+      result.metrics.debtToIncomeRatio > 0.3,
+  },
+  {
+    text: 'Your debt payments are present, but at least they are not running the kitchen.',
+    when: (result) =>
+      hasMetric(result.metrics.debtToIncomeRatio) &&
+      result.metrics.debtToIncomeRatio > 0.1 &&
+      result.metrics.debtToIncomeRatio <= 0.3,
+  },
+  {
+    text: 'Debt is barely getting a speaking role in this budget.',
+    when: (result) =>
+      hasMetric(result.metrics.debtToIncomeRatio) &&
+      result.metrics.debtToIncomeRatio <= 0.1,
+  },
 
-  // ── Negative net worth ────────────────────────────────────────
-  { text: 'Your net worth is currently a group project where you do all the owing.', when: (r) => r2(r).netWorth < 0 },
-  { text: 'Technically, you own less than nothing. Impressively committed.', when: (r) => r2(r).netWorth < 0 },
-  { text: 'Your balance sheet reads like a horror novel with a cliffhanger ending.', when: (r) => r2(r).netWorth < -10000 },
+  // Savings habit
+  {
+    text: 'Your savings habit has entered the chat. Now it needs a recurring calendar invite.',
+    when: (result) =>
+      hasMetric(result.metrics.savingsRate) && result.metrics.savingsRate < 0.05,
+  },
+  {
+    text: 'The savings habit is simmering; one small automatic increase would add seasoning.',
+    when: (result) =>
+      hasMetric(result.metrics.savingsRate) &&
+      result.metrics.savingsRate >= 0.05 &&
+      result.metrics.savingsRate < 0.15,
+  },
+  {
+    text: 'Future you noticed the monthly savings habit and approves.',
+    when: (result) =>
+      hasMetric(result.metrics.savingsRate) && result.metrics.savingsRate >= 0.15,
+  },
 
-  // ── High income, weak habits ──────────────────────────────────
-  { text: "Big paycheck, tiny savings. The money is clearly in witness protection.", when: (r) => r.input.income > 90000 && r2(r).savingsToIncomeRatio < 1 },
-  { text: 'You earn like a CEO and save like an intern.', when: (r) => r.input.income > 100000 && r2(r).savingsToIncomeRatio < 1.5 },
-  { text: 'Your income is impressive. Your savings are doing improv.', when: (r) => r.input.income > 80000 && r2(r).savingsToIncomeRatio < 1 },
+  // Long-term progress
+  {
+    text: 'Future you left a polite note about retirement contributions.',
+    when: (result) =>
+      hasMetric(result.metrics.retirementProgressRatio) &&
+      result.metrics.retirementProgressRatio < 0.5,
+  },
+  {
+    text: 'The retirement pot is cooking; this recipe just takes a while.',
+    when: (result) =>
+      hasMetric(result.metrics.retirementProgressRatio) &&
+      result.metrics.retirementProgressRatio >= 0.5 &&
+      result.metrics.retirementProgressRatio < 1,
+  },
+  {
+    text: 'The broad retirement guidepost saw your balance and gave a respectful nod.',
+    when: (result) =>
+      hasMetric(result.metrics.retirementProgressRatio) &&
+      result.metrics.retirementProgressRatio >= 1,
+  },
 
-  // ── Mid / mixed ───────────────────────────────────────────────
-  { text: "You're not cooked, but the oven is preheating.", when: (r) => r.score >= 41 && r.score <= 60 },
-  { text: 'Medium rare: a little pink in the middle, but edible.', when: (r) => r.score >= 41 && r.score <= 60 },
-  { text: 'You are balancing on a financial seesaw with snacks in both hands.', when: (r) => r.score >= 41 && r.score <= 60 },
-  { text: 'Solidly average. The beige wall of personal finance.', when: (r) => r.score >= 45 && r.score <= 58 },
+  // Overall bands
+  {
+    text: 'The dashboard found the starting point. No dramatic montage required.',
+    when: (result) => result.status.key === 'needs-attention',
+  },
+  {
+    text: 'A few numbers are running hot, but the fire extinguisher can stay on the wall.',
+    when: (result) => result.status.key === 'running-hot',
+  },
+  {
+    text: 'Halfway between “I have a system” and “where did that subscription come from?”',
+    when: (result) => result.status.key === 'finding-balance',
+  },
+  {
+    text: 'Steady heat: not flashy, just annoyingly effective.',
+    when: (result) => result.status.key === 'steady-heat',
+  },
+  {
+    text: 'Your finances brought mise en place to a potluck.',
+    when: (result) => result.status.key === 'cooking-confidently',
+  },
+  {
+    text: 'Your spreadsheet probably has its own mise en place.',
+    when: (result) => result.score >= 85,
+  },
+  {
+    text: 'Future you may actually answer your messages.',
+    when: (result) => result.score >= 70,
+  },
 
-  // ── Low scores, general ───────────────────────────────────────
-  { text: "Good news: there's nowhere to go but up.", when: (r) => r.score <= 25 },
-  { text: 'Your finances are speedrunning the tutorial level.', when: (r) => r.score <= 30 },
-  { text: 'The smoke alarm is going off and it is your budget.', when: (r) => r.score <= 20 },
-  { text: 'Your portfolio diversification strategy is "vibes."', when: (r) => r.score <= 35 },
-
-  // ── Strong / responsible ──────────────────────────────────────
-  { text: 'Unexpectedly responsible. Suspicious.', when: (r) => r.score >= 75 },
-  { text: 'You have an emergency fund AND no drama. Show-off.', when: (r) => r.score >= 80 && r2(r).debtToIncomeRatio < 0.5 },
-  { text: 'Your spreadsheet probably has a spreadsheet.', when: (r) => r.score >= 80 },
-  { text: 'You are the friend who actually splits the bill correctly.', when: (r) => r.score >= 70 },
-  { text: 'Future you just sent a thank-you note.', when: (r) => r.score >= 78 },
-  { text: 'Calm, liquid, and debt-light. Are you even real?', when: (r) => r.score >= 85 && r2(r).debtToIncomeRatio < 0.4 },
-
-  // ── Strong savings specifically ───────────────────────────────
-  { text: 'Your savings are flexing and honestly they earned it.', when: (r) => r2(r).savingsToIncomeRatio >= 3 },
-  { text: 'You have a runway most airports would envy.', when: (r) => r2(r).savingsToIncomeRatio >= 4 },
-
-  // ── Near-universal fallbacks (kept off the very top tier so high
-  //    scorers always get a celebratory line) ─────────────────────
-  { text: 'Money comes, money goes, mostly it goes.', when: (r) => r.score < 78 },
-  { text: 'Your wallet and your dreams are currently in different tax brackets.', when: (r) => r.score < 78 },
-  { text: 'Numbers crunched. Verdict served.' },
+  // Safe fallbacks
+  { text: 'Numbers checked. Apron optional.' },
+  { text: 'The calculator has spoken, very politely.' },
+  { text: 'Financial temperature taken. No thermometer was harmed.' },
 ];
 
-/**
- * Deterministically pick a roast: filter to eligible templates, then choose
- * one using a stable hash of the input so results are reproducible and
- * shareable (same numbers → same roast).
- */
+/** Return the same eligible line for the same normalized input and score. */
 export function getRoast(result: ScoreResult): string {
-  const eligible = ROASTS.filter((t) => !t.when || t.when(result));
+  const eligible = ROASTS.filter(
+    (template) => !template.when || template.when(result),
+  );
   const pool = eligible.length > 0 ? eligible : ROASTS;
-
-  const seed = hashInput(result);
-  const idx = seed % pool.length;
-  return pool[idx].text;
+  return pool[hashInput(result) % pool.length].text;
 }
 
-function hashInput(r: ScoreResult): number {
-  const { age, income, savings, debt } = r.input;
-  // Simple stable integer hash.
-  let h = 2166136261;
-  const parts = [age, income, savings, debt, r.score];
-  for (const p of parts) {
-    h ^= p | 0;
-    h = Math.imul(h, 16777619);
+function hashInput(result: ScoreResult): number {
+  const input = result.input;
+  const seed = [
+    input.age,
+    input.annualIncome,
+    input.monthlyEssentialExpenses,
+    input.liquidSavings,
+    input.monthlyDebtPayments,
+    input.retirementInvestments,
+    input.monthlySavings,
+    result.score,
+  ].join('|');
+
+  let hash = 2166136261;
+  for (let index = 0; index < seed.length; index += 1) {
+    hash ^= seed.charCodeAt(index);
+    hash = Math.imul(hash, 16777619);
   }
-  return Math.abs(h);
+  return hash >>> 0;
 }
 
+/** Compatibility helper for dashboards that prefer two string lists. */
 export interface InsightLists {
   strengths: string[];
   improvements: string[];
 }
 
-/**
- * Derive short, scannable Strengths and Areas-To-Improve lists from the
- * computed ratios. Caps each list at 3 items for a clean dashboard.
- */
 export function getInsights(result: ScoreResult): InsightLists {
-  const { savingsToIncomeRatio, debtToIncomeRatio, netWorth } = result.metrics;
-  const { savingsMultipleTarget } = result.metrics;
-  const strengths: string[] = [];
-  const improvements: string[] = [];
-
-  // Savings depth
-  if (savingsToIncomeRatio >= savingsMultipleTarget && savingsMultipleTarget > 0) {
-    strengths.push('Savings are on or ahead of schedule for your age');
-  } else if (savingsToIncomeRatio >= 1) {
-    strengths.push('You have a meaningful savings cushion built up');
-  } else {
-    improvements.push('Build savings toward 3–6 months of expenses');
-  }
-
-  // Debt load
-  if (debtToIncomeRatio <= 0.35) {
-    strengths.push('Low debt relative to income');
-  } else if (debtToIncomeRatio <= 1) {
-    strengths.push('Debt is manageable relative to income');
-  } else {
-    improvements.push('Pay down high debt — it is dragging your score');
-  }
-
-  // Net worth
-  if (netWorth > 0) {
-    strengths.push('Positive net worth (savings beat debt)');
-  } else {
-    improvements.push('Get to positive net worth: savings above total debt');
-  }
-
-  // Emergency fund nuance
-  if (savingsToIncomeRatio < 0.25) {
-    improvements.push('Start an emergency fund, even a small one');
-  }
-
-  // Percentile encouragement
-  if (result.percentile >= 75) {
-    strengths.push(`Ahead of ${result.percentile}% of Americans your age`);
-  } else if (result.percentile <= 30) {
-    improvements.push('Automate monthly contributions to catch up over time');
-  }
-
   return {
-    strengths: dedupe(strengths).slice(0, 3),
-    improvements: dedupe(improvements).slice(0, 3),
+    strengths: result.strengths.map((strength) => strength.title),
+    improvements: result.nextMoves.map((move) => move.title),
   };
-}
-
-function dedupe(arr: string[]): string[] {
-  return Array.from(new Set(arr));
 }

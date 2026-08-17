@@ -1,141 +1,82 @@
 ---
-/**
- * SiteFooter — Multi-column footer with site navigation + required disclaimer.
- * Surfaces the standalone MPA pages (About, Privacy, Terms, Contact) site-wide
- * for discoverability and internal linking (good for SEO crawlability).
- */
-import Disclaimer from './Disclaimer.astro';
+import BrandMark from './BrandMark.astro';
 const year = new Date().getFullYear();
 ---
 
 <footer class="footer">
   <div class="container-page">
     <div class="footer__top">
-      <div class="footer__brand-col">
+      <div class="footer__brand-block">
         <a href="/" class="footer__brand" aria-label="Cooked Finance home">
-          <span class="footer__logo" aria-hidden="true">🔥</span>
-          <span class="footer__name">Cooked<span class="footer__name-soft">Finance</span></span>
+          <BrandMark size={40} />
+          <span translate="no">Cooked Finance</span>
         </a>
-        <p class="footer__tagline">
-          Your free financial health score in under 60 seconds.
-        </p>
+        <p>A private financial heat check with transparent math and practical next steps.</p>
+        <span class="footer__status">Independent · Educational · Currently ad-free</span>
       </div>
 
-      <nav class="footer__cols" aria-label="Footer">
-        <div class="footer__col">
-          <h2 class="footer__col-title">Tool</h2>
-          <a href="/#check" class="footer__link">Check My Score</a>
-          <a href="/#learn" class="footer__link">How It Works</a>
-          <a href="/#faq" class="footer__link">FAQ</a>
+      <nav class="footer__nav" aria-label="Footer navigation">
+        <div>
+          <h2>Use</h2>
+          <a href="/#check">Financial Heat Check</a>
+          <a href="/calculators/">Calculators</a>
+          <a href="/score-ranges/">Score Ranges</a>
+          <a href="/methodology/">Methodology</a>
         </div>
-        <div class="footer__col">
-          <h2 class="footer__col-title">Company</h2>
-          <a href="/about" class="footer__link">About Us</a>
-          <a href="/contact" class="footer__link">Contact Us</a>
+        <div>
+          <h2>Learn</h2>
+          <a href="/financial-health-score/">Financial Health</a>
+          <a href="/benchmarks/net-worth-by-age/">Benchmarks</a>
+          <a href="/guides/">Guides</a>
+          <a href="/about/">About</a>
         </div>
-        <div class="footer__col">
-          <h2 class="footer__col-title">Legal</h2>
-          <a href="/privacy" class="footer__link">Privacy Policy</a>
-          <a href="/terms" class="footer__link">Terms &amp; Conditions</a>
+        <div>
+          <h2>Trust</h2>
+          <a href="/editorial-policy/">Editorial Policy</a>
+          <a href="/source-policy/">Source Policy</a>
+          <a href="/corrections-policy/">Corrections</a>
+          <a href="/advertising-policy/">Advertising Policy</a>
+          <a href="/privacy/">Privacy</a>
         </div>
       </nav>
     </div>
 
     <div class="footer__bottom">
-      <Disclaimer class="footer__disclaimer" />
-      <p class="footer__meta">
-        <span>© {year} cookedfinance.com</span>
-        <span class="footer__sep" aria-hidden="true">·</span>
-        <span>Made for fun, not for your accountant.</span>
-      </p>
+      <p>© {year} Cooked Finance. Educational information only—not financial advice.</p>
+      <div>
+        <a href="/terms/">Terms</a>
+        <a href="/contact/">Contact</a>
+        <button type="button" data-open-privacy>Privacy Choices</button>
+      </div>
     </div>
   </div>
 </footer>
 
+<script>
+  document.querySelectorAll('[data-open-privacy]').forEach((button) => {
+    button.addEventListener('click', () => document.dispatchEvent(new Event('cooked:privacy-choices')));
+  });
+</script>
+
 <style>
-  .footer {
-    border-top: 1px solid var(--color-hairline);
-    padding-block: clamp(2.5rem, 6vh, 4rem);
-    margin-top: 2rem;
+  .footer { padding: clamp(3.5rem, 8vw, 6.5rem) 0 max(2rem, env(safe-area-inset-bottom)); border-top: 1px solid var(--color-hairline); background: #e9dfcf; }
+  .footer__top { display: grid; grid-template-columns: minmax(15rem, 0.85fr) minmax(0, 1.4fr); gap: clamp(2.5rem, 8vw, 7rem); }
+  .footer__brand { display: inline-flex; align-items: center; gap: 0.75rem; color: var(--color-ink); font-weight: 780; letter-spacing: -0.025em; text-decoration: none; }
+  .footer__brand-block p { max-width: 31ch; margin: 1.1rem 0; color: var(--color-body); line-height: 1.6; }
+  .footer__status { display: inline-flex; color: var(--color-sage); font-family: var(--font-mono); font-size: 0.68rem; font-weight: 650; letter-spacing: 0.04em; text-transform: uppercase; }
+  .footer__nav { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.5rem; }
+  .footer__nav > div { display: flex; flex-direction: column; gap: 0.65rem; }
+  .footer__nav h2 { margin: 0 0 0.35rem; color: var(--color-ink); font-size: 0.75rem; letter-spacing: 0.07em; text-transform: uppercase; }
+  .footer__nav a { width: fit-content; color: var(--color-body); font-size: 0.85rem; text-decoration: none; }
+  .footer__nav a:hover { color: var(--color-ink); text-decoration: underline; text-underline-offset: 0.2em; }
+  .footer__bottom { margin-top: clamp(2.5rem, 6vw, 5rem); padding-top: 1.2rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; border-top: 1px solid var(--color-hairline-strong); color: var(--color-mute); font-size: 0.75rem; }
+  .footer__bottom p { margin: 0; }
+  .footer__bottom div { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem; }
+  .footer__bottom a, .footer__bottom button { padding: 0; border: 0; background: none; color: var(--color-body); font: inherit; text-decoration: underline; text-underline-offset: 0.18em; }
+  .footer__bottom a:hover, .footer__bottom button:hover { color: var(--color-ink); }
+  @media (max-width: 800px) {
+    .footer__top { grid-template-columns: 1fr; }
+    .footer__bottom { align-items: flex-start; flex-direction: column; }
   }
-
-  .footer__top {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 2.5rem;
-    padding-bottom: 2.5rem;
-    border-bottom: 1px solid var(--color-hairline);
-  }
-  @media (min-width: 720px) {
-    .footer__top { grid-template-columns: 1.2fr 2fr; gap: 2rem; }
-  }
-
-  .footer__brand {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    text-decoration: none;
-    color: var(--color-ink);
-    font-weight: 600;
-    letter-spacing: -0.02em;
-    font-size: 1.0625rem;
-  }
-  .footer__logo { font-size: 1.125rem; }
-  .footer__name-soft { color: var(--color-mute); }
-  .footer__tagline {
-    margin: 0.875rem 0 0;
-    max-width: 28ch;
-    font-size: 0.9375rem;
-    line-height: 1.5;
-    color: var(--color-body);
-  }
-
-  .footer__cols {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 2rem 1rem;
-  }
-  @media (min-width: 480px) {
-    .footer__cols { grid-template-columns: repeat(3, 1fr); }
-  }
-  .footer__col {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-  }
-  .footer__col-title {
-    margin: 0 0 0.25rem;
-    font-family: var(--font-mono);
-    font-size: 0.6875rem;
-    font-weight: 400;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: var(--color-mute);
-  }
-  .footer__link {
-    font-size: 0.9375rem;
-    color: var(--color-body);
-    text-decoration: none;
-    transition: color 0.18s var(--ease-out-expo);
-    width: fit-content;
-  }
-  .footer__link:hover { color: var(--color-ink); }
-
-  .footer__bottom {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.75rem;
-    padding-top: 2rem;
-  }
-  .footer__meta {
-    margin: 0;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 0.5rem;
-    font-size: 0.8125rem;
-    color: var(--color-mute);
-  }
-  .footer__sep { color: var(--color-hairline-strong); }
+  @media (max-width: 520px) { .footer__nav { grid-template-columns: 1fr 1fr; } }
 </style>

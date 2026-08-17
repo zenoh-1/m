@@ -1,138 +1,48 @@
 ---
-/**
- * Faq — SEO-friendly FAQ accordion.
- *
- * Built from the shared FAQ_ITEMS list (single source of truth) so the visible
- * Q&A always matches the FAQPage JSON-LD emitted in the <head>. Uses native
- * <details>/<summary> for full keyboard accessibility with no JavaScript.
- */
 import { FAQ_ITEMS } from '../lib/seo';
 ---
 
-<section id="faq" class="faq" aria-labelledby="faq-heading">
-  <div class="container-page faq__inner">
-    <header class="faq__head">
-      <span class="eyebrow">FAQ</span>
-      <h2 id="faq-heading" class="faq__title">Frequently asked questions</h2>
-      <p class="faq__lead">
-        Everything about your financial health score, financial age, and how the
-        Cooked Score is calculated.
-      </p>
-    </header>
+<section id="faq" class="section faq" aria-labelledby="faq-heading">
+  <div class="container-page faq__grid">
+    <div class="faq__intro">
+      <span class="eyebrow">Good Questions</span>
+      <h2 id="faq-heading">Before You Hand Over Seven Numbers</h2>
+      <p>Short answers about privacy, accuracy, and what this tool is actually designed to do.</p>
+      <a href="/contact/">Still wondering about something? Contact us →</a>
+    </div>
 
-    <ul class="faq__list">
-      {
-        FAQ_ITEMS.map((item) => (
-          <li class="faq__item">
-            <details class="faq__details">
-              <summary class="faq__q">
-                <span>{item.q}</span>
-                <svg
-                  class="faq__icon"
-                  width="18"
-                  height="18"
-                  viewBox="0 0 18 18"
-                  fill="none"
-                  aria-hidden="true"
-                >
-                  <path
-                    d="M9 3.75v10.5M3.75 9h10.5"
-                    stroke="currentColor"
-                    stroke-width="1.5"
-                    stroke-linecap="round"
-                  />
-                </svg>
-              </summary>
-              <div class="faq__a">
-                <p>{item.a}</p>
-              </div>
-            </details>
-          </li>
-        ))
-      }
-    </ul>
+    <div class="faq__items">
+      {FAQ_ITEMS.map((item, index) => (
+        <details open={index === 0}>
+          <summary>
+            <span>{item.q}</span>
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+              <path d="M4 7l5 5 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </summary>
+          <p>{item.a}</p>
+        </details>
+      ))}
+    </div>
   </div>
 </section>
 
 <style>
-  .faq {
-    padding-block: clamp(3rem, 8vh, 5rem);
-    border-top: 1px solid var(--color-hairline);
-  }
-  .faq__inner { max-width: 760px; }
-
-  .faq__head {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-    margin-bottom: 2rem;
-  }
-  .faq__title {
-    margin: 0;
-    font-size: clamp(1.75rem, 5vw, 2.5rem);
-    font-weight: 600;
-    letter-spacing: -0.03em;
-    line-height: 1.1;
-  }
-  .faq__lead {
-    margin: 0;
-    font-size: clamp(1.0625rem, 2.5vw, 1.1875rem);
-    line-height: 1.6;
-    color: var(--color-body);
-  }
-
-  .faq__list {
-    margin: 0;
-    padding: 0;
-    list-style: none;
-    display: flex;
-    flex-direction: column;
-    gap: 0.625rem;
-  }
-
-  .faq__details {
-    border: 1px solid var(--color-hairline);
-    border-radius: var(--radius-lg);
-    background: var(--color-surface);
-    overflow: hidden;
-    transition: border-color 0.18s var(--ease-out-expo);
-  }
-  .faq__details[open] { border-color: var(--color-hairline-strong); }
-  .faq__details:hover { border-color: var(--color-hairline-strong); }
-
-  .faq__q {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    padding: 1.125rem 1.25rem;
-    cursor: pointer;
-    font-size: 1rem;
-    font-weight: 500;
-    letter-spacing: -0.01em;
-    color: var(--color-ink);
-    list-style: none;
-  }
-  .faq__q::-webkit-details-marker { display: none; }
-
-  .faq__icon {
-    flex-shrink: 0;
-    color: var(--color-body);
-    transition: transform 0.22s var(--ease-out-expo);
-  }
-  .faq__details[open] .faq__icon { transform: rotate(45deg); }
-
-  .faq__a {
-    padding: 0 1.25rem 1.25rem;
-  }
-  .faq__a p {
-    margin: 0;
-    font-size: 0.9375rem;
-    line-height: 1.65;
-    color: var(--color-body);
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .faq__icon { transition: none; }
+  .faq__grid { display: grid; grid-template-columns: minmax(16rem, 0.75fr) minmax(0, 1.25fr); gap: clamp(2.5rem, 9vw, 8rem); align-items: start; }
+  .faq__intro { position: sticky; top: 7rem; }
+  .faq__intro h2 { max-width: 10ch; margin: 0.75rem 0 0; font-family: var(--font-serif); font-size: clamp(2.4rem, 5vw, 4rem); font-weight: 500; letter-spacing: -0.045em; line-height: 0.98; }
+  .faq__intro p { max-width: 35ch; margin: 1rem 0; color: var(--color-body); line-height: 1.65; }
+  .faq__intro a { color: var(--color-ember-deep); font-size: 0.85rem; font-weight: 680; text-underline-offset: 0.2em; }
+  .faq__items { border-top: 1px solid var(--color-hairline-strong); }
+  details { border-bottom: 1px solid var(--color-hairline); }
+  summary { min-height: 68px; display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 1rem; padding: 0.9rem 0; color: var(--color-ink); font-size: 0.98rem; font-weight: 680; list-style: none; cursor: pointer; }
+  summary::-webkit-details-marker { display: none; }
+  summary svg { transition: transform 180ms var(--ease-out-expo); }
+  details[open] summary svg { transform: rotate(180deg); }
+  details p { margin: -0.15rem 2.5rem 1.2rem 0; color: var(--color-body); font-size: 0.9rem; line-height: 1.65; }
+  @media (max-width: 760px) {
+    .faq__grid { grid-template-columns: 1fr; }
+    .faq__intro { position: static; }
+    .faq__intro h2 { max-width: 14ch; }
   }
 </style>

@@ -10,52 +10,53 @@ const email = 'hello@cookedfinance.com';
   path="/contact"
   eyebrow="Contact"
   heading="Get in touch."
-  lead="Feedback, ideas, bug reports, or just want to tell us your score? Drop us a line."
+  lead="Send a correction, source update, bug report, accessibility issue, or general question."
+  updated="August 17, 2026"
 >
   <h2>Email us</h2>
   <p>
-    The fastest way to reach us is by email at
-    <a href={`mailto:${email}`}>{email}</a>. We read everything and try to reply
-    within a couple of business days.
+    The most direct way to reach us is by email at
+    <a href={`mailto:${email}`}>{email}</a>.
   </p>
 
   <h2>Send a message</h2>
   <p>
     Prefer a form? Fill this out and your email app will open with everything
-    ready to send.
+    ready to send. The form itself does not submit anything to Cooked Finance.
   </p>
 
-  <form id="contact-form" class="card contact-form" novalidate>
+  <div id="contact-form" class="card contact-form" role="form" aria-label="Contact Cooked Finance">
     <div class="contact-field">
       <label class="contact-label" for="name">Name</label>
-      <input class="field-input" id="name" name="name" type="text" autocomplete="name" placeholder="e.g. Alex Carter" required />
+      <input class="field-input" id="name" type="text" autocomplete="name" placeholder="Alex Carter…" required aria-describedby="name-error" />
+      <p class="contact-error" id="name-error" data-error-for="name" aria-live="polite"></p>
     </div>
 
     <div class="contact-field">
       <label class="contact-label" for="email">Email</label>
-      <input class="field-input" id="email" name="email" type="email" inputmode="email" autocomplete="email" placeholder="e.g. you@example.com" spellcheck="false" required />
+      <input class="field-input" id="email" type="email" inputmode="email" autocomplete="email" placeholder="you@example.com…" spellcheck="false" required aria-describedby="email-error" />
+      <p class="contact-error" id="email-error" data-error-for="email" aria-live="polite"></p>
     </div>
 
     <div class="contact-field">
       <label class="contact-label" for="message">Message</label>
-      <textarea class="field-input contact-textarea" id="message" name="message" rows="5" placeholder="What's on your mind?" required></textarea>
+      <textarea class="field-input contact-textarea" id="message" rows="5" autocomplete="off" placeholder="Example: I found a source issue on…" required aria-describedby="message-error"></textarea>
+      <p class="contact-error" id="message-error" data-error-for="message" aria-live="polite"></p>
     </div>
 
-    <p class="contact-error" data-contact-error hidden></p>
-
-    <button type="submit" class="btn-primary contact-submit">
+    <button type="button" class="btn-primary contact-submit" data-open-email-draft>
       Open Email Draft
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
         <path d="M2 4.5 8 9l6-4.5M2.5 3.5h11a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1h-11a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1Z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
     </button>
-  </form>
+  </div>
 
   <h2>Other things</h2>
   <ul>
-    <li><strong>Press & partnerships:</strong> use the same email with "Press" in the subject.</li>
-    <li><strong>Privacy questions:</strong> see our <a href="/privacy">Privacy Policy</a>.</li>
-    <li><strong>Terms:</strong> see our <a href="/terms">Terms &amp; Conditions</a>.</li>
+    <li><strong>Corrections:</strong> include the page URL, disputed passage, and a primary source when possible.</li>
+    <li><strong>Privacy questions:</strong> see our <a href="/privacy/">Privacy Policy</a>.</li>
+    <li><strong>Terms:</strong> see our <a href="/terms/">Terms &amp; Conditions</a>.</li>
   </ul>
 </PageLayout>
 
@@ -82,41 +83,78 @@ const email = 'hello@cookedfinance.com';
     line-height: 1.5;
     font-family: inherit;
   }
-  .field-input { padding-inline: 0.875rem; }
+  .field-input { padding-inline: 0.875rem; border-color: var(--color-body); }
+  .field-input::placeholder { color: var(--color-body); opacity: 1; }
   .contact-error {
     margin: 0;
     font-size: 0.8125rem;
     color: var(--color-status-apocalypse);
   }
+  .contact-error:empty { display: none; }
   .contact-submit { align-self: flex-start; }
 </style>
 
 <script>
-  const form = document.getElementById('contact-form') as HTMLFormElement | null;
-  const errEl = document.querySelector<HTMLElement>('[data-contact-error]');
+  const form = document.getElementById('contact-form');
 
-  form?.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const name = (document.getElementById('name') as HTMLInputElement).value.trim();
-    const email = (document.getElementById('email') as HTMLInputElement).value.trim();
-    const message = (document.getElementById('message') as HTMLTextAreaElement).value.trim();
+  function clearContactError(input: HTMLInputElement | HTMLTextAreaElement) {
+    input.removeAttribute('aria-invalid');
+    const error = document.querySelector<HTMLElement>(`[data-error-for="${input.id}"]`);
+    if (error) error.textContent = '';
+  }
 
-    const showError = (msg: string) => {
-      if (errEl) { errEl.textContent = msg; errEl.hidden = false; }
-    };
-    if (errEl) errEl.hidden = true;
+  function setContactError(input: HTMLInputElement | HTMLTextAreaElement, message: string) {
+    input.setAttribute('aria-invalid', 'true');
+    const error = document.querySelector<HTMLElement>(`[data-error-for="${input.id}"]`);
+    if (error) error.textContent = message;
+  }
 
-    if (!name || !email || !message) {
-      showError('Please fill in your name, email, and message.');
-      return;
+  form?.addEventListener('input', (event) => {
+    const input = event.target;
+    if (input instanceof HTMLInputElement || input instanceof HTMLTextAreaElement) clearContactError(input);
+  });
+
+  function openEmailDraft() {
+    const nameInput = document.getElementById('name') as HTMLInputElement | null;
+    const emailInput = document.getElementById('email') as HTMLInputElement | null;
+    const messageInput = document.getElementById('message') as HTMLTextAreaElement | null;
+    if (!nameInput || !emailInput || !messageInput) return;
+
+    [nameInput, emailInput, messageInput].forEach(clearContactError);
+    const name = nameInput.value.trim();
+    const email = emailInput.value.trim();
+    const message = messageInput.value.trim();
+    let firstInvalid: HTMLInputElement | HTMLTextAreaElement | null = null;
+
+    if (!name) {
+      setContactError(nameInput, 'Enter your name.');
+      firstInvalid ??= nameInput;
     }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      showError('Please enter a valid email address.');
+    if (!email) {
+      setContactError(emailInput, 'Enter your email address.');
+      firstInvalid ??= emailInput;
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setContactError(emailInput, 'Enter a valid email address, such as you@example.com.');
+      firstInvalid ??= emailInput;
+    }
+    if (!message) {
+      setContactError(messageInput, 'Enter the message you want to send.');
+      firstInvalid ??= messageInput;
+    }
+    if (firstInvalid) {
+      firstInvalid.focus();
       return;
     }
 
     const subject = encodeURIComponent(`Cooked Finance — message from ${name}`);
     const body = encodeURIComponent(`${message}\n\n— ${name} (${email})`);
     window.location.href = `mailto:hello@cookedfinance.com?subject=${subject}&body=${body}`;
+  }
+
+  document.querySelector('[data-open-email-draft]')?.addEventListener('click', openEmailDraft);
+  form?.addEventListener('keydown', (event) => {
+    if (event.key !== 'Enter' || event.target instanceof HTMLTextAreaElement || event.target instanceof HTMLButtonElement) return;
+    event.preventDefault();
+    openEmailDraft();
   });
 </script>

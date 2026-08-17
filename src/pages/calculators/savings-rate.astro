@@ -1,0 +1,359 @@
+---
+import PageLayout from '../../layouts/PageLayout.astro';
+import RelatedCalculators from '../../components/calculators/RelatedCalculators.astro';
+---
+
+<PageLayout
+  title="Savings Rate Calculator: Gross or Take-Home Income | Cooked Finance"
+  description="Calculate your monthly savings rate using either gross income or take-home income, with clear definitions, a transparent formula, and no stored financial inputs."
+  path="/calculators/savings-rate/"
+  eyebrow="Calculator 04"
+  heading="A savings rate with a denominator you can actually name."
+  lead="Choose gross income or take-home income before calculating. Both versions can be useful, but they are not interchangeable."
+  updated="August 17, 2026"
+>
+  <aside class="formula-strip" aria-label="Savings rate formula">
+    <span>Monthly amount saved</span>
+    <span aria-hidden="true">÷</span>
+    <span>Chosen monthly income</span>
+    <span aria-hidden="true">× 100 =</span>
+    <strong>Savings rate</strong>
+  </aside>
+
+  <div id="savings-rate-form" class="calculator card" role="form" aria-label="Savings rate calculator">
+    <p class="calculator__privacy"><span aria-hidden="true">●</span> Calculated only in this browser tab. No values are saved.</p>
+
+    <fieldset class="basis-fieldset">
+      <legend>Choose the income basis</legend>
+      <div class="basis-options" role="radiogroup" aria-label="Income basis">
+        <button class="basis-option" id="basis-gross" type="button" role="radio" aria-checked="true" data-income-basis="gross">
+          <span><strong>Gross income</strong><small>Before taxes and payroll deductions</small></span>
+        </button>
+        <button class="basis-option" id="basis-take-home" type="button" role="radio" aria-checked="false" tabindex="-1" data-income-basis="take-home">
+          <span><strong>Take-home income</strong><small>Money deposited after deductions</small></span>
+        </button>
+      </div>
+      <p id="basis-definition" class="basis-definition">
+        Gross basis: include your employee retirement contributions in “amount saved,” but exclude employer matching contributions.
+      </p>
+    </fieldset>
+
+    <div class="field-grid">
+      <div class="money-field">
+        <label id="income-label" for="chosen-income">Gross monthly income (USD) <span aria-hidden="true">*</span></label>
+        <div class="money-input">
+          <span aria-hidden="true">$</span>
+          <input
+            id="chosen-income"
+            type="number"
+            inputmode="decimal"
+            autocomplete="off"
+            min="0.01"
+            step="0.01"
+            required
+            placeholder="6000…"
+            aria-describedby="chosen-income-help chosen-income-error"
+          />
+        </div>
+        <small id="chosen-income-help">Enter income before taxes and other payroll deductions.</small>
+        <span class="field-error" id="chosen-income-error" hidden></span>
+      </div>
+
+      <div class="money-field">
+        <label for="monthly-saved">Monthly amount saved (USD) <span aria-hidden="true">*</span></label>
+        <div class="money-input">
+          <span aria-hidden="true">$</span>
+          <input
+            id="monthly-saved"
+            type="number"
+            inputmode="decimal"
+            autocomplete="off"
+            step="0.01"
+            required
+            placeholder="900…"
+            aria-describedby="monthly-saved-help monthly-saved-error"
+          />
+        </div>
+        <small id="monthly-saved-help">Cash savings plus eligible investment contributions. Enter a negative amount if savings fell that month.</small>
+        <span class="field-error" id="monthly-saved-error" hidden></span>
+      </div>
+    </div>
+
+    <div class="calculator__actions">
+      <button class="btn-primary" type="button" data-calculate-savings-rate>Calculate savings rate</button>
+      <button class="btn-secondary" type="button" data-clear-savings-rate>Clear values</button>
+    </div>
+  </div>
+
+  <section id="savings-rate-result" class="result" aria-live="polite" aria-atomic="true" tabindex="-1" hidden>
+    <header class="result__head">
+      <span id="rate-eyebrow" class="eyebrow">Gross-income savings rate</span>
+      <h2><output id="savings-rate-output" for="chosen-income monthly-saved">0%</output></h2>
+      <p id="savings-rate-interpretation"></p>
+    </header>
+    <div class="result__stats">
+      <div><span>Monthly amount saved</span><strong id="monthly-saved-output">$0</strong></div>
+      <div><span>Annualized at this pace</span><strong id="annual-saved-output">$0</strong></div>
+      <div><span>Income basis</span><strong id="income-basis-output">Gross</strong></div>
+    </div>
+    <p id="savings-rate-worked" class="result__worked"></p>
+  </section>
+
+  <section class="method" aria-labelledby="savings-method-heading">
+    <span class="eyebrow">Method</span>
+    <h2 id="savings-method-heading">Gross and take-home rates answer different questions</h2>
+    <div class="definition-grid">
+      <article>
+        <h3>Gross-income savings rate</h3>
+        <p>
+          Divide all personal savings—including employee pre-tax retirement contributions—by income before tax and
+          payroll deductions. Excluding employer contributions keeps the numerator tied to your own income.
+        </p>
+      </article>
+      <article>
+        <h3>Take-home savings rate</h3>
+        <p>
+          Divide savings made from deposited pay by take-home income. Exclude pre-tax retirement contributions from
+          the numerator because they were already removed before the take-home denominator reached you.
+        </p>
+      </article>
+    </div>
+    <p>
+      Neither definition is universally “better.” Pick one, document it and use the same basis when comparing your own
+      months. The national personal saving rate published by the
+      <a href="https://www.bea.gov/data/income-saving/personal-saving-rate" rel="external">U.S. Bureau of Economic Analysis</a>
+      uses aggregate personal saving and disposable personal income, so it is not a direct benchmark for this household calculation.
+    </p>
+
+    <h3>Worked example</h3>
+    <p>
+      Saving $900 from $6,000 of gross monthly income produces a 15% gross-income savings rate. At the same pace, the
+      annualized amount saved would be $10,800. If take-home pay were used instead, both the denominator and the
+      eligible numerator would need to follow the take-home definition above.
+    </p>
+
+    <h3>Limitations</h3>
+    <ul>
+      <li>One month may be distorted by bonuses, annual bills, tax refunds or irregular income.</li>
+      <li>The annualized figure simply multiplies one month by 12; it is not a forecast.</li>
+      <li>Debt-principal payments, home equity and investment gains require a broader wealth measure.</li>
+      <li>A higher rate is not automatically appropriate if essential costs or high-priority obligations are unpaid.</li>
+    </ul>
+  </section>
+
+  <RelatedCalculators current="savings-rate" />
+</PageLayout>
+
+<script>
+  const savingsRateForm = document.querySelector<HTMLElement>('#savings-rate-form');
+  const savingsRateResult = document.querySelector<HTMLElement>('#savings-rate-result');
+  const incomeInput = document.querySelector<HTMLInputElement>('#chosen-income');
+  const savedInput = document.querySelector<HTMLInputElement>('#monthly-saved');
+  const basisDefinition = document.querySelector<HTMLElement>('#basis-definition');
+  const incomeLabel = document.querySelector<HTMLElement>('#income-label');
+  const incomeHelp = document.querySelector<HTMLElement>('#chosen-income-help');
+  const savingsMoney = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
+  const savingsRatePrefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function selectedBasis() {
+    return document.querySelector<HTMLElement>('[data-income-basis][aria-checked="true"]')?.dataset.incomeBasis === 'take-home'
+      ? 'take-home'
+      : 'gross';
+  }
+
+  function selectBasis(value: 'gross' | 'take-home', moveFocus = false) {
+    document.querySelectorAll<HTMLButtonElement>('[data-income-basis]').forEach((button) => {
+      const selected = button.dataset.incomeBasis === value;
+      button.setAttribute('aria-checked', String(selected));
+      button.tabIndex = selected ? 0 : -1;
+      if (selected && moveFocus) button.focus();
+    });
+    updateBasisDefinition();
+  }
+
+  function updateBasisDefinition() {
+    const basis = selectedBasis();
+    if (basis === 'take-home') {
+      if (basisDefinition) basisDefinition.textContent = 'Take-home basis: count only savings made from deposited pay. Exclude pre-tax contributions already removed from that pay.';
+      if (incomeLabel) incomeLabel.innerHTML = 'Take-home monthly income (USD) <span aria-hidden="true">*</span>';
+      if (incomeHelp) incomeHelp.textContent = 'Enter income deposited after taxes and payroll deductions.';
+    } else {
+      if (basisDefinition) basisDefinition.textContent = 'Gross basis: include your employee retirement contributions in “amount saved,” but exclude employer matching contributions.';
+      if (incomeLabel) incomeLabel.innerHTML = 'Gross monthly income (USD) <span aria-hidden="true">*</span>';
+      if (incomeHelp) incomeHelp.textContent = 'Enter income before taxes and other payroll deductions.';
+    }
+  }
+
+  function clearSavingsError(input: HTMLInputElement) {
+    input.removeAttribute('aria-invalid');
+    const error = document.querySelector<HTMLElement>(`#${input.id}-error`);
+    if (error) {
+      error.textContent = '';
+      error.hidden = true;
+    }
+  }
+
+  function setSavingsError(input: HTMLInputElement, message: string) {
+    input.setAttribute('aria-invalid', 'true');
+    const error = document.querySelector<HTMLElement>(`#${input.id}-error`);
+    if (error) {
+      error.textContent = message;
+      error.hidden = false;
+    }
+  }
+
+  function formatSignedMoney(value: number) {
+    if (value >= 0) return savingsMoney.format(value);
+    return `−${savingsMoney.format(Math.abs(value))}`;
+  }
+
+  const basisButtons = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-income-basis]'));
+  basisButtons.forEach((button, index) => {
+    button.addEventListener('click', () => selectBasis(button.dataset.incomeBasis === 'take-home' ? 'take-home' : 'gross'));
+    button.addEventListener('keydown', (event) => {
+      if (!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(event.key)) return;
+      event.preventDefault();
+      const direction = event.key === 'ArrowLeft' || event.key === 'ArrowUp' ? -1 : 1;
+      const nextButton = basisButtons[(index + direction + basisButtons.length) % basisButtons.length];
+      selectBasis(nextButton.dataset.incomeBasis === 'take-home' ? 'take-home' : 'gross', true);
+    });
+  });
+
+  function calculateSavingsRate() {
+    if (!savingsRateResult || !incomeInput || !savedInput) return;
+
+    clearSavingsError(incomeInput);
+    clearSavingsError(savedInput);
+    const income = Number(incomeInput.value);
+    const saved = Number(savedInput.value);
+
+    if (incomeInput.value.trim() === '' || !Number.isFinite(income) || income <= 0) {
+      setSavingsError(incomeInput, 'Enter monthly income greater than zero.');
+    }
+    if (savedInput.value.trim() === '' || !Number.isFinite(saved)) {
+      setSavingsError(savedInput, 'Enter the amount saved, using zero if none.');
+    }
+
+    const invalid = [incomeInput, savedInput].find((input) => input.getAttribute('aria-invalid') === 'true');
+    if (invalid) {
+      savingsRateResult.hidden = true;
+      invalid.focus();
+      return;
+    }
+
+    const basis = selectedBasis();
+    const rate = (saved / income) * 100;
+    const annualized = saved * 12;
+    const rateOutput = document.querySelector<HTMLOutputElement>('#savings-rate-output');
+    const monthlyOutput = document.querySelector<HTMLElement>('#monthly-saved-output');
+    const annualOutput = document.querySelector<HTMLElement>('#annual-saved-output');
+    const basisOutput = document.querySelector<HTMLElement>('#income-basis-output');
+    const rateEyebrow = document.querySelector<HTMLElement>('#rate-eyebrow');
+    const interpretation = document.querySelector<HTMLElement>('#savings-rate-interpretation');
+    const worked = document.querySelector<HTMLElement>('#savings-rate-worked');
+
+    if (rateOutput) rateOutput.value = `${rate.toFixed(1)}%`;
+    if (monthlyOutput) monthlyOutput.textContent = formatSignedMoney(saved);
+    if (annualOutput) annualOutput.textContent = formatSignedMoney(annualized);
+    if (basisOutput) basisOutput.textContent = basis === 'gross' ? 'Gross' : 'Take-home';
+    if (rateEyebrow) rateEyebrow.textContent = `${basis === 'gross' ? 'Gross-income' : 'Take-home'} savings rate`;
+    if (interpretation) {
+      if (rate > 0) interpretation.textContent = `You saved about ${rate.toFixed(1)} cents of every dollar on the ${basis === 'gross' ? 'gross-income' : 'take-home-income'} basis this month.`;
+      else if (rate === 0) interpretation.textContent = `No net savings were recorded on the ${basis === 'gross' ? 'gross-income' : 'take-home-income'} basis this month.`;
+      else interpretation.textContent = `Savings declined by about ${Math.abs(rate).toFixed(1)} cents per dollar on the ${basis === 'gross' ? 'gross-income' : 'take-home-income'} basis this month.`;
+    }
+    if (worked) worked.textContent = `${formatSignedMoney(saved)} ÷ ${savingsMoney.format(income)} × 100 = ${rate.toFixed(1)}%.`;
+
+    savingsRateResult.hidden = false;
+    savingsRateResult.focus({ preventScroll: true });
+    savingsRateResult.scrollIntoView({ behavior: savingsRatePrefersReducedMotion ? 'auto' : 'smooth', block: 'nearest' });
+  }
+
+  document.querySelector('[data-calculate-savings-rate]')?.addEventListener('click', calculateSavingsRate);
+
+  savingsRateForm?.addEventListener('keydown', (event) => {
+    if (event.key !== 'Enter' || event.target instanceof HTMLButtonElement) return;
+    event.preventDefault();
+    calculateSavingsRate();
+  });
+
+  savingsRateForm?.addEventListener('input', (event) => {
+    const input = event.target;
+    if (input === incomeInput || input === savedInput) clearSavingsError(input as HTMLInputElement);
+  });
+
+  document.querySelector('[data-clear-savings-rate]')?.addEventListener('click', () => {
+    const hasValues = Boolean(incomeInput?.value || savedInput?.value);
+    if (hasValues && !window.confirm('Clear all values from this savings-rate calculation?')) return;
+    if (incomeInput) {
+      incomeInput.value = '';
+      clearSavingsError(incomeInput);
+    }
+    if (savedInput) {
+      savedInput.value = '';
+      clearSavingsError(savedInput);
+    }
+    selectBasis('gross');
+    if (savingsRateResult) savingsRateResult.hidden = true;
+    incomeInput?.focus();
+  });
+</script>
+
+<style>
+  .formula-strip { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: clamp(0.4rem, 1.5vw, 0.8rem); margin-bottom: 1rem; padding: 0.9rem 1rem; overflow-x: visible; white-space: normal; border: 1px solid var(--color-hairline); border-radius: var(--radius-lg); color: var(--color-body); font-family: var(--font-mono); font-size: clamp(0.68rem, 2vw, 0.82rem); line-height: 1.45; text-align: center; }
+  .formula-strip strong { color: var(--color-ink); }
+  .calculator { padding: clamp(1rem, 3vw, 1.75rem); }
+  .calculator__privacy { margin: 0 0 1.75rem; padding-bottom: 1rem; border-bottom: 1px solid var(--color-hairline); font-size: 0.8125rem; color: var(--color-body); }
+  .calculator__privacy span { color: var(--color-status-cooking); }
+
+  .basis-fieldset { min-width: 0; margin: 0; padding: 0 0 1.75rem; border: 0; border-bottom: 1px solid var(--color-hairline); }
+  .basis-fieldset legend { margin-bottom: 0.75rem; padding: 0; font-size: 1rem; font-weight: 600; }
+  .basis-options { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
+  .basis-option { position: relative; width: 100%; display: flex; align-items: flex-start; gap: 0.75rem; min-height: 84px; margin: 0; padding: 1rem; border: 1px solid var(--color-body); border-radius: var(--radius-lg); background: var(--color-canvas-soft); color: var(--color-ink); font: inherit; text-align: left; cursor: pointer; }
+  .basis-option::before { content: ''; width: 1.1rem; height: 1.1rem; flex: 0 0 auto; margin-top: 0.1rem; border: 2px solid var(--color-body); border-radius: 50%; background: var(--color-paper); }
+  .basis-option[aria-checked='true'] { border-color: var(--color-ember-deep); background: color-mix(in srgb, var(--color-grad-amber) 7%, var(--color-canvas-soft)); }
+  .basis-option[aria-checked='true']::before { border: 5px solid var(--color-ember-deep); }
+  .basis-option > span { display: grid; gap: 0.18rem; }
+  .basis-option small { color: var(--color-body); font-size: 0.75rem; line-height: 1.4; }
+  .basis-definition { margin: 0.75rem 0 0; padding: 0.75rem 0.9rem; border-left: 3px solid var(--color-grad-amber); background: color-mix(in srgb, var(--color-grad-amber) 6%, transparent); font-size: 0.8125rem; }
+
+  .field-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; margin-top: 1.75rem; }
+  .money-field { min-width: 0; }
+  .money-field label { display: block; margin-bottom: 0.45rem; font-weight: 600; font-size: 0.9rem; color: var(--color-ink); }
+  .money-field > small { display: block; margin-top: 0.4rem; color: var(--color-body); font-size: 0.75rem; line-height: 1.4; }
+  .money-input { position: relative; }
+  .money-input > span { position: absolute; top: 50%; left: 0.9rem; transform: translateY(-50%); color: var(--color-body); pointer-events: none; }
+  .money-input input { width: 100%; height: 50px; padding: 0 0.9rem 0 2rem; background: var(--color-canvas-soft); border: 1px solid var(--color-body); border-radius: var(--radius-md); color: var(--color-ink); font: inherit; }
+  .money-input input::placeholder { color: var(--color-body); opacity: 1; }
+  .money-input input:focus-visible { border-color: var(--color-link); outline: 2px solid color-mix(in srgb, var(--color-link) 30%, transparent); outline-offset: 1px; }
+  .money-input input[aria-invalid='true'] { border-color: var(--color-status-apocalypse); }
+  .field-error { display: block; margin-top: 0.35rem; color: var(--color-status-apocalypse); font-size: 0.8125rem; line-height: 1.4; }
+  .field-error[hidden] { display: none; }
+  .calculator__actions { display: flex; gap: 0.75rem; margin-top: 1.75rem; }
+
+  .result { margin-top: 1rem; overflow: hidden; border: 1px solid color-mix(in srgb, var(--color-grad-amber) 44%, var(--color-hairline)); border-radius: var(--radius-xl); background: color-mix(in srgb, var(--color-grad-amber) 5%, var(--color-surface)); }
+  .result[hidden] { display: none; }
+  .result__head { padding: clamp(1.25rem, 4vw, 2rem); }
+  .result__head h2 { margin: 0.35rem 0 0; font-family: var(--font-mono); font-size: clamp(2.5rem, 9vw, 4.5rem); line-height: 1; color: var(--color-grad-amber); }
+  .result__head p { max-width: 620px; margin-bottom: 0; }
+  .result__stats { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--color-hairline); border-bottom: 1px solid var(--color-hairline); }
+  .result__stats > div { display: grid; gap: 0.3rem; padding: 1rem 1.25rem; }
+  .result__stats > div + div { border-left: 1px solid var(--color-hairline); }
+  .result__stats span { color: var(--color-body); font-size: 0.72rem; }
+  .result__stats strong { font-family: var(--font-mono); font-size: 0.95rem; }
+  .result__worked { margin: 0; padding: 1rem 1.25rem; font-family: var(--font-mono); font-size: 0.8125rem; }
+
+  .method { margin-top: 3rem; }
+  .definition-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; margin: 1rem 0; }
+  .definition-grid article { padding: 1rem; border: 1px solid var(--color-hairline); border-radius: var(--radius-lg); background: var(--color-surface); }
+  .definition-grid h3 { margin: 0; }
+  .definition-grid p { margin-bottom: 0; font-size: 0.9rem; }
+
+  @media (max-width: 600px) {
+    .basis-options, .field-grid, .definition-grid { grid-template-columns: 1fr; }
+    .calculator__actions { flex-direction: column; }
+    .calculator__actions button { width: 100%; }
+    .result__stats { grid-template-columns: 1fr; }
+    .result__stats > div + div { border-left: 0; border-top: 1px solid var(--color-hairline); }
+  }
+</style>

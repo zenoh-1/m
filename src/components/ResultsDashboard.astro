@@ -1,266 +1,238 @@
 ---
-/**
- * ResultsDashboard — Assembles the full results experience.
- *
- * Layout: a main column (gauge, badge, percentile, financial age, roast,
- * strengths/improvements) plus a desktop sidebar ad. An ad slot sits after
- * the results and before the share card, per the monetization spec.
- *
- * Hidden by default; index.astro reveals it (and fills the data) after the
- * user submits the form.
- */
 import ScoreGauge from './ScoreGauge.astro';
 import RoastCard from './RoastCard.astro';
 import ShareCard from './ShareCard.astro';
-import AdSlot from './AdSlot.astro';
+import Disclaimer from './Disclaimer.astro';
 ---
 
-<section id="results" class="results" data-results hidden aria-live="polite">
+<section id="results" class="results" data-results hidden aria-labelledby="results-title">
   <div class="container-page">
     <div class="results__head">
-      <span class="eyebrow">Your verdict is in</span>
-      <h2 class="results__title">Here's how cooked you are.</h2>
+      <span class="eyebrow">Your Financial Temperature</span>
+      <h2 id="results-title" tabindex="-1">Here’s What the Numbers Say</h2>
+      <p>Start with the diagnosis, inspect every component, then test one change.</p>
     </div>
 
-    <div class="results__layout">
-      <!-- Main column -->
-      <div class="results__main">
-        <!-- Score + badge -->
-        <div class="card results__score-card">
-          <ScoreGauge />
-          <div class="results__badge" data-status-badge>
-            <span class="results__badge-emoji" data-status-emoji>🥩</span>
-            <span class="results__badge-label" data-status-label>Medium Rare</span>
-          </div>
-          <p class="results__percentile" data-percentile-text>
-            You're ahead of <strong>—%</strong> of Americans your age.
-          </p>
-        </div>
-
-        <!-- Key stats -->
-        <div class="results__stats">
-          <div class="card results__stat">
-            <span class="results__stat-value" data-finage>—</span>
-            <span class="results__stat-label">Financial Age</span>
-            <span class="results__stat-note" data-finage-note></span>
-          </div>
-          <div class="card results__stat">
-            <span class="results__stat-value" data-networth>—</span>
-            <span class="results__stat-label">Net Worth</span>
-            <span class="results__stat-note">Savings − Debt</span>
-          </div>
-        </div>
-
-        <!-- Roast -->
-        <RoastCard />
-
-        <!-- Strengths & improvements -->
-        <div class="results__insights">
-          <div class="card insight insight--good">
-            <h3 class="insight__title">
-              <span aria-hidden="true">✅</span> Strengths
-            </h3>
-            <ul class="insight__list" data-strengths></ul>
-          </div>
-          <div class="card insight insight--work">
-            <h3 class="insight__title">
-              <span aria-hidden="true">🎯</span> Areas to improve
-            </h3>
-            <ul class="insight__list" data-improvements></ul>
-          </div>
-        </div>
+    <article class="result-hero">
+      <div class="result-hero__score">
+        <span class="result-hero__label">Cooked Score</span>
+        <output data-score aria-label="Cooked Score">0</output><small>/100</small>
       </div>
+      <div class="result-hero__verdict">
+        <span class="result-hero__status" data-status-label>Finding Balance</span>
+        <p data-status-summary>Your four signals will appear here.</p>
+      </div>
+      <div class="result-hero__scale"><ScoreGauge /></div>
+      <p class="result-hero__disclosure">Educational estimate · Methodology <span data-method-version>2.0.0</span> · Not a credit score</p>
+    </article>
 
-      <!-- Desktop sidebar ad -->
-      <aside class="results__sidebar">
-        <div class="results__sidebar-sticky">
-          <AdSlot label="Sponsored" minHeight={600} class="results__ad-sidebar" slot="results-sidebar" />
+    <aside class="result-warnings" data-warnings hidden aria-labelledby="warnings-title">
+      <h3 id="warnings-title">Double-check these inputs</h3>
+      <ul data-warnings-list></ul>
+    </aside>
+
+    <section class="metrics" aria-labelledby="metrics-title">
+      <div class="metrics__heading">
+        <span class="eyebrow">The Raw Signals</span>
+        <h3 id="metrics-title">Your Inputs, Turned Into Ratios</h3>
+      </div>
+      <div class="metrics__grid">
+        <article class="metric-card"><span>Cash runway</span><strong data-metric-buffer>—</strong><small>months of essentials</small></article>
+        <article class="metric-card"><span>Payment DTI</span><strong data-metric-dti>—</strong><small>monthly payments ÷ gross income</small></article>
+        <article class="metric-card"><span>Savings rate</span><strong data-metric-savings>—</strong><small>monthly saving ÷ gross income</small></article>
+        <article class="metric-card"><span>Retirement progress</span><strong data-metric-retirement>—</strong><small data-metric-retirement-target>against age guidepost</small></article>
+      </div>
+    </section>
+
+    <section class="breakdown" aria-labelledby="breakdown-title">
+      <div class="breakdown__head">
+        <div>
+          <span class="eyebrow">No Black Box</span>
+          <h3 id="breakdown-title">How the Score Was Built</h3>
         </div>
-      </aside>
+        <a href="/methodology/">Full methodology →</a>
+      </div>
+      <div class="breakdown__list">
+        <article class="factor" data-factor="cashBuffer">
+          <div class="factor__title"><span>01</span><h4>Cash Buffer</h4><strong data-factor-value>0</strong></div>
+          <div class="factor__bar" aria-hidden="true"><span data-factor-bar></span></div>
+          <p data-factor-note>Liquid savings compared with essential monthly expenses.</p>
+          <small>30% of total score</small>
+        </article>
+        <article class="factor" data-factor="debtBurden">
+          <div class="factor__title"><span>02</span><h4>Debt Burden</h4><strong data-factor-value>0</strong></div>
+          <div class="factor__bar" aria-hidden="true"><span data-factor-bar></span></div>
+          <p data-factor-note>Required monthly payments compared with gross monthly income.</p>
+          <small>25% of total score</small>
+        </article>
+        <article class="factor" data-factor="savingsHabit">
+          <div class="factor__title"><span>03</span><h4>Savings Habit</h4><strong data-factor-value>0</strong></div>
+          <div class="factor__bar" aria-hidden="true"><span data-factor-bar></span></div>
+          <p data-factor-note>Current monthly saving compared with gross monthly income.</p>
+          <small>20% of total score</small>
+        </article>
+        <article class="factor" data-factor="longTermProgress">
+          <div class="factor__title"><span>04</span><h4>Long-Term Progress</h4><strong data-factor-value>0</strong></div>
+          <div class="factor__bar" aria-hidden="true"><span data-factor-bar></span></div>
+          <p data-factor-note>Retirement investments compared with a broad age guidepost.</p>
+          <small>25% of total score</small>
+        </article>
+      </div>
+    </section>
+
+    <div class="action-grid">
+      <section class="strength card" aria-labelledby="strength-title">
+        <span class="action-grid__number">What’s Working</span>
+        <h3 id="strength-title">Foundations to Protect</h3>
+        <ul data-strengths></ul>
+      </section>
+      <section class="moves card" aria-labelledby="moves-title">
+        <span class="action-grid__number">Next Moves</span>
+        <h3 id="moves-title">Highest-Impact Opportunities</h3>
+        <ol data-next-moves></ol>
+      </section>
     </div>
 
-    <!-- Ad after results, before share card -->
-    <AdSlot minHeight={120} class="results__ad-mid" slot="results-mid" />
+    <section class="scenario" aria-labelledby="scenario-title">
+      <div class="scenario__intro">
+        <span class="eyebrow">What-If Lab</span>
+        <h3 id="scenario-title">Test a 12-Month Change</h3>
+        <p>This is an illustration, not a forecast. It assumes the added monthly amount becomes liquid savings and an achieved debt-payment reduction also lowers required essential spending.</p>
+      </div>
+      <div class="scenario__controls card">
+        <label for="scenario-extra-savings">Extra saved each month <output for="scenario-extra-savings" data-scenario-extra>$0</output></label>
+        <input id="scenario-extra-savings" name="scenario-extra-savings" type="range" min="0" max="2000" step="1" value="0" aria-valuetext="$0 extra saved each month" />
+        <label for="scenario-debt-reduction">Lower monthly debt payments by <output for="scenario-debt-reduction" data-scenario-debt>$0</output></label>
+        <input id="scenario-debt-reduction" name="scenario-debt-reduction" type="range" min="0" max="1000" step="any" value="0" aria-valuetext="$0 lower monthly debt payments" />
+        <div class="scenario__result" aria-live="polite">
+          <span>Estimated score after 12 months</span>
+          <strong data-scenario-score>—</strong>
+          <small data-scenario-change>Move a slider to test a change.</small>
+        </div>
+        <p class="scenario__warning" data-scenario-warning role="status" hidden></p>
+      </div>
+    </section>
 
-    <!-- Share card -->
-    <div class="results__share">
-      <ShareCard />
+    <div class="result-tools">
+      <RoastCard />
+      <section class="save-card card" aria-labelledby="save-title">
+        <div>
+          <span class="save-card__icon" aria-hidden="true">◇</span>
+          <div><h3 id="save-title">Save on This Device</h3><p>Optional. Your 7 inputs and result stay in this browser and can be deleted here.</p></div>
+        </div>
+        <div class="save-card__actions">
+          <button type="button" class="btn-secondary" data-save-result>Save This Check</button>
+          <button type="button" class="btn-quiet" data-clear-result hidden>Clear Saved Check</button>
+        </div>
+        <p data-save-status role="status" aria-live="polite"></p>
+      </section>
     </div>
+
+    <section class="results__share"><ShareCard /></section>
 
     <div class="results__footer-actions">
-      <button type="button" class="btn-secondary" data-retake>
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-          <path d="M13 8a5 5 0 1 1-1.5-3.5M13 2v3h-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        Run another check
-      </button>
+      <button type="button" class="btn-secondary" data-retake>Edit My Inputs</button>
+      <a href="/guides/how-to-improve-financial-health/" class="btn-primary">Build My Next-Step Plan</a>
     </div>
+    <Disclaimer class="results__disclaimer" />
   </div>
 </section>
 
 <style>
-  .results {
-    padding-block: clamp(2.5rem, 6vh, 4rem);
-    scroll-margin-top: 1.5rem;
+  .results { padding-block: var(--section-space); border-top: 1px solid var(--color-hairline); background: rgba(255,252,247,0.5); }
+  .results__head { max-width: 46rem; margin: 0 auto clamp(2rem, 5vw, 3rem); text-align: center; }
+  .results__head h2 { margin: 0.65rem 0 0; font-family: var(--font-serif); font-size: clamp(2.5rem, 7vw, 5rem); font-weight: 500; letter-spacing: -0.05em; line-height: 0.95; }
+  .results__head p { margin: 1rem 0 0; color: var(--color-body); }
+  .result-hero { min-height: 30rem; padding: clamp(1.5rem, 5vw, 3rem); display: grid; grid-template-columns: 0.8fr 1.2fr; gap: 1.5rem 3rem; border-radius: var(--radius-xl); background: var(--color-ink); color: var(--color-paper); box-shadow: var(--shadow-raised); }
+  .result-hero__score { align-self: end; }
+  .result-hero__label { display: block; margin-bottom: 0.5rem; color: rgba(255,252,247,0.72); font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; }
+  .result-hero__score output { font-family: var(--font-serif); font-size: clamp(6rem, 16vw, 10rem); line-height: 0.72; letter-spacing: -0.08em; font-variant-numeric: tabular-nums; }
+  .result-hero__score small { color: rgba(255,252,247,0.72); font-size: 1.15rem; }
+  .result-hero__verdict { align-self: end; padding-bottom: 0.5rem; }
+  .result-hero__status { color: var(--color-amber); font-family: var(--font-serif); font-size: clamp(2rem, 5vw, 3.6rem); line-height: 0.95; }
+  .result-hero__verdict p { max-width: 40ch; margin: 0.9rem 0 0; color: rgba(255,252,247,0.72); line-height: 1.6; }
+  .result-hero__scale { grid-column: 1 / -1; align-self: end; }
+  .result-hero__disclosure { grid-column: 1 / -1; margin: 0; color: rgba(255,252,247,0.72); font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.03em; }
+  .result-warnings { margin-top: 1rem; padding: 1rem 1.1rem; border: 1px solid color-mix(in srgb, var(--color-amber) 55%, var(--color-hairline)); border-radius: var(--radius-sm); background: #fff7e8; }
+  .result-warnings h3 { margin: 0; font-size: 0.86rem; }
+  .result-warnings ul { margin: 0.45rem 0 0; padding-left: 1.2rem; color: var(--color-body); font-size: 0.76rem; line-height: 1.5; }
+  .metrics { margin-top: clamp(3.5rem, 8vw, 6rem); }
+  .metrics__heading { display: flex; align-items: end; justify-content: space-between; gap: 1rem; margin-bottom: 1.3rem; }
+  .metrics__heading h3 { max-width: 15ch; margin: 0.5rem 0 0; font-family: var(--font-serif); font-size: clamp(2rem, 4vw, 3rem); font-weight: 500; letter-spacing: -0.04em; line-height: 1; }
+  .metrics__grid { display: grid; grid-template-columns: repeat(4, 1fr); border: 1px solid var(--color-hairline); border-radius: var(--radius-lg); overflow: hidden; }
+  .metric-card { min-height: 10rem; padding: 1.2rem; display: flex; flex-direction: column; border-right: 1px solid var(--color-hairline); background: var(--color-paper); }
+  .metric-card:last-child { border-right: 0; }
+  .metric-card > span { color: var(--color-body); font-size: 0.75rem; font-weight: 650; }
+  .metric-card strong { margin-top: auto; font-family: var(--font-serif); font-size: clamp(2rem, 5vw, 3.2rem); font-weight: 500; letter-spacing: -0.045em; font-variant-numeric: tabular-nums; }
+  .metric-card small { min-height: 2rem; color: var(--color-mute); font-size: 0.75rem; line-height: 1.4; }
+  .breakdown { margin-top: clamp(3.5rem, 8vw, 6rem); }
+  .breakdown__head { display: flex; align-items: end; justify-content: space-between; gap: 1rem; margin-bottom: 1.3rem; }
+  .breakdown__head h3 { margin: 0.5rem 0 0; font-family: var(--font-serif); font-size: clamp(2rem, 4vw, 3rem); font-weight: 500; letter-spacing: -0.04em; }
+  .breakdown__head a { color: var(--color-ember-deep); font-size: 0.82rem; font-weight: 700; text-underline-offset: 0.2em; }
+  .breakdown__list { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; padding: 1px; border-radius: var(--radius-lg); background: var(--color-hairline); overflow: hidden; }
+  .factor { padding: 1.3rem; background: var(--color-paper); }
+  .factor__title { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 0.75rem; }
+  .factor__title span { color: var(--color-mute); font-family: var(--font-mono); font-size: 0.72rem; }
+  .factor__title h4 { margin: 0; font-size: 0.9rem; }
+  .factor__title strong { font-size: 1.15rem; font-variant-numeric: tabular-nums; }
+  .factor__bar { height: 7px; margin: 1rem 0; overflow: hidden; border-radius: var(--radius-pill); background: var(--color-canvas-soft); }
+  .factor__bar span { display: block; width: 0; height: 100%; border-radius: inherit; background: var(--color-sage); transition: width 600ms var(--ease-out-expo); }
+  .factor p { min-height: 2.8rem; margin: 0; color: var(--color-body); font-size: 0.8rem; line-height: 1.5; }
+  .factor > small { display: block; margin-top: 0.8rem; color: var(--color-mute); font-family: var(--font-mono); font-size: 0.72rem; text-transform: uppercase; }
+  .action-grid { margin-top: 1px; display: grid; grid-template-columns: 0.8fr 1.2fr; gap: 1rem; }
+  .action-grid > section { padding: clamp(1.3rem, 4vw, 2rem); box-shadow: none; }
+  .action-grid__number { color: var(--color-ember-deep); font-family: var(--font-mono); font-size: 0.72rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; }
+  .action-grid h3 { margin: 0.5rem 0 1rem; font-family: var(--font-serif); font-size: clamp(1.55rem, 3vw, 2rem); font-weight: 500; }
+  .action-grid ul, .action-grid ol { margin: 0; padding: 0; display: grid; gap: 0.8rem; list-style: none; }
+  .action-grid li { color: var(--color-body); font-size: 0.84rem; line-height: 1.5; }
+  .action-grid li strong { display: block; margin-bottom: 0.15rem; color: var(--color-ink); }
+  .action-grid li span { display: block; }
+  .moves ol { counter-reset: move; }
+  .moves li { position: relative; padding-left: 2.25rem; counter-increment: move; }
+  .moves li::before { content: counter(move); position: absolute; left: 0; top: 0; width: 1.6rem; height: 1.6rem; display: grid; place-items: center; border-radius: 50%; background: var(--color-ink); color: var(--color-paper); font-family: var(--font-mono); font-size: 0.62rem; }
+  .scenario { margin-top: clamp(4rem, 9vw, 7rem); display: grid; grid-template-columns: 0.8fr 1.2fr; gap: clamp(2rem, 8vw, 6rem); align-items: start; }
+  .scenario__intro h3 { max-width: 9ch; margin: 0.65rem 0 0; font-family: var(--font-serif); font-size: clamp(2.4rem, 6vw, 4.2rem); font-weight: 500; letter-spacing: -0.05em; line-height: 0.95; }
+  .scenario__intro p { max-width: 38ch; color: var(--color-body); font-size: 0.85rem; line-height: 1.6; }
+  .scenario__controls { padding: clamp(1.25rem, 4vw, 2rem); }
+  .scenario__controls label { margin: 0 0 0.55rem; display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; color: var(--color-body); font-size: 0.82rem; font-weight: 650; }
+  .scenario__controls label:not(:first-child) { margin-top: 1.4rem; }
+  .scenario__controls output { color: var(--color-ink); font-size: 1rem; font-variant-numeric: tabular-nums; }
+  .scenario input[type='range'] { width: 100%; accent-color: var(--color-ember); }
+  .scenario__result { margin-top: 1.5rem; padding: 1rem; display: grid; grid-template-columns: 1fr auto; gap: 0.2rem 1rem; border-radius: var(--radius-sm); background: var(--color-ink); color: var(--color-paper); }
+  .scenario__result span { align-self: end; color: rgba(255,252,247,0.67); font-size: 0.72rem; }
+  .scenario__result strong { grid-row: span 2; font-family: var(--font-serif); font-size: 3.5rem; font-weight: 500; line-height: 0.8; font-variant-numeric: tabular-nums; }
+  .scenario__result small { color: var(--color-amber); font-size: 0.75rem; }
+  .scenario__warning { margin: 0.75rem 0 0; color: var(--color-error); font-size: 0.78rem; line-height: 1.5; }
+  .result-tools { margin-top: clamp(3.5rem, 8vw, 6rem); display: grid; gap: 1rem; }
+  .save-card { padding: 1rem 1.15rem; box-shadow: none; }
+  .save-card > div:first-child { display: flex; gap: 0.8rem; align-items: center; }
+  .save-card__icon { width: 2.4rem; height: 2.4rem; flex: 0 0 auto; display: grid; place-items: center; border-radius: 50%; background: var(--color-sage-soft); color: var(--color-sage); }
+  .save-card h3 { margin: 0; font-size: 0.92rem; }
+  .save-card p { margin: 0.2rem 0 0; color: var(--color-body); font-size: 0.75rem; line-height: 1.45; }
+  .save-card__actions { margin-top: 1rem; display: flex; flex-wrap: wrap; gap: 0.6rem; }
+  .save-card > [data-save-status] { min-height: 1rem; color: var(--color-sage); }
+  .results__share { margin-top: clamp(4rem, 9vw, 7rem); padding-top: clamp(3rem, 7vw, 5rem); border-top: 1px solid var(--color-hairline-strong); }
+  .results__footer-actions { margin-top: 3rem; display: flex; flex-wrap: wrap; justify-content: center; gap: 0.75rem; }
+  :global(.results__disclaimer) { margin: 1.2rem auto 0; }
+  @media (max-width: 840px) {
+    .metrics__grid { grid-template-columns: 1fr 1fr; }
+    .metric-card:nth-child(2) { border-right: 0; }
+    .metric-card:nth-child(-n+2) { border-bottom: 1px solid var(--color-hairline); }
+    .scenario { grid-template-columns: 1fr; }
+    .scenario__intro h3 { max-width: 14ch; }
   }
-  .results__head {
-    text-align: center;
-    margin-bottom: 2rem;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.625rem;
+  @media (max-width: 680px) {
+    .result-hero, .breakdown__list, .action-grid { grid-template-columns: 1fr; }
+    .result-hero__score, .result-hero__verdict { align-self: auto; }
+    .result-hero__scale, .result-hero__disclosure { grid-column: auto; }
+    .result-hero__score output { font-size: 7rem; }
+    .metrics__heading, .breakdown__head { align-items: flex-start; flex-direction: column; }
   }
-  .results__title {
-    margin: 0;
-    font-size: clamp(1.75rem, 4vw, 2.25rem);
-    font-weight: 600;
-    letter-spacing: -0.03em;
-  }
-
-  .results__layout {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 1.25rem;
-    align-items: start;
-  }
-  @media (min-width: 1000px) {
-    .results__layout { grid-template-columns: minmax(0, 1fr) 300px; }
-  }
-
-  .results__main {
-    display: flex;
-    flex-direction: column;
-    gap: 1.25rem;
-    min-width: 0;
-  }
-
-  .results__score-card {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 1.25rem;
-    padding: clamp(1.75rem, 5vw, 2.5rem);
-    text-align: center;
-  }
-  .results__badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 1rem;
-    border-radius: var(--radius-pill);
-    border: 1px solid var(--status-color, var(--color-hairline-strong));
-    background: var(--status-bg, rgba(255,255,255,0.04));
-    color: var(--status-color, var(--color-ink));
-    font-weight: 500;
-  }
-  .results__badge-emoji { font-size: 1.125rem; }
-  .results__percentile {
-    margin: 0;
-    font-size: 1.0625rem;
-    color: var(--color-body);
-    line-height: 1.5;
-  }
-  .results__percentile strong { color: var(--color-ink); font-weight: 600; }
-
-  .results__stats {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
-  }
-  .results__stat {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-    padding: clamp(1rem, 4vw, 1.5rem);
-    text-align: center;
-    align-items: center;
-    min-width: 0;
-  }
-  .results__stat-value {
-    font-size: clamp(1.75rem, 7vw, 2.25rem);
-    font-weight: 600;
-    letter-spacing: -0.03em;
-    font-variant-numeric: tabular-nums;
-    white-space: nowrap;
-  }
-  .results__stat-label {
-    font-family: var(--font-mono);
-    font-size: 0.6875rem;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    color: var(--color-body);
-    text-align: center;
-  }
-  .results__stat-note {
-    font-size: 0.75rem;
-    color: var(--color-mute);
-    text-align: center;
-  }
-
-  .results__insights {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 1.25rem;
-  }
-  @media (min-width: 640px) {
-    .results__insights { grid-template-columns: 1fr 1fr; }
-  }
-  .insight { padding: 1.5rem; }
-  .insight__title {
-    margin: 0 0 0.875rem;
-    font-size: 1rem;
-    font-weight: 600;
-    letter-spacing: -0.01em;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-  .insight__list {
-    margin: 0;
-    padding: 0;
-    list-style: none;
-    display: flex;
-    flex-direction: column;
-    gap: 0.625rem;
-  }
-  .insight__list :global(li) {
-    position: relative;
-    padding-left: 1.125rem;
-    font-size: 0.9375rem;
-    line-height: 1.45;
-    color: var(--color-body);
-  }
-  .insight__list :global(li::before) {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0.5rem;
-    width: 6px;
-    height: 6px;
-    border-radius: 9999px;
-    background: var(--color-hairline-strong);
-  }
-  .insight--good .insight__list :global(li::before) { background: var(--color-status-cooking); }
-  .insight--work .insight__list :global(li::before) { background: var(--color-status-medium); }
-
-  .results__sidebar { display: none; }
-  @media (min-width: 1000px) {
-    .results__sidebar { display: block; }
-    .results__sidebar-sticky { position: sticky; top: 1.5rem; }
-  }
-
-  .results__ad-mid { margin-top: 1.75rem; }
-
-  .results__share {
-    margin-top: 2rem;
-    padding-top: 2rem;
-    border-top: 1px solid var(--color-hairline);
-  }
-
-  .results__footer-actions {
-    display: flex;
-    justify-content: center;
-    margin-top: 2rem;
+  @media (max-width: 500px) {
+    .metrics__grid { grid-template-columns: 1fr; }
+    .metric-card { min-height: 8.5rem; border-right: 0; border-bottom: 1px solid var(--color-hairline); }
+    .metric-card:last-child { border-bottom: 0; }
+    .factor p { min-height: auto; }
+    .results__footer-actions { align-items: stretch; flex-direction: column; }
   }
 </style>

@@ -1,0 +1,116 @@
+---
+import PageLayout from '../../layouts/PageLayout.astro';
+import ContentNote from '../../components/content/ContentNote.astro';
+import EvidenceTable from '../../components/content/EvidenceTable.astro';
+import RelatedReading from '../../components/content/RelatedReading.astro';
+---
+
+<PageLayout
+  title="Quarterly Money Checkup: A 45-Minute Checklist | Cooked Finance"
+  description="A simple quarterly financial checkup covering cash, bills, debt payments, saving, retirement progress, protection, and one next action."
+  path="/guides/quarterly-money-checkup"
+  eyebrow="Repeatable routine"
+  heading="A 45-minute money checkup you can repeat."
+  lead="Review direction, catch problems early, and leave with one decision—not twelve new chores."
+  updated="August 17, 2026"
+>
+  <ContentNote title="Use a consistent snapshot date">
+    <p>
+      Account balances move every day. Choose one date near the end of each
+      quarter and record every balance from that date where practical. Direction
+      over several quarters is more useful than comparing mismatched days.
+    </p>
+  </ContentNote>
+
+  <h2>Before you start</h2>
+  <p>Gather recent pay information and statements for:</p>
+  <ul>
+    <li>checking, savings, and cash-equivalent accounts;</li>
+    <li>credit cards, mortgages, and other loans;</li>
+    <li>retirement and long-term investment accounts;</li>
+    <li>recurring bills, insurance, and known irregular expenses; and</li>
+    <li>the previous quarter’s notes, if available.</li>
+  </ul>
+  <p>
+    Use a private device and avoid recording full account numbers. The checklist
+    needs totals and due dates, not login credentials.
+  </p>
+
+  <h2>Minutes 0–10: update the seven inputs</h2>
+  <EvidenceTable caption="Quarterly Cooked Score input worksheet">
+    <thead>
+      <tr><th scope="col">Input</th><th scope="col">This quarter</th><th scope="col">Previous quarter</th><th scope="col">Reason for change</th></tr>
+    </thead>
+    <tbody>
+      <tr><th scope="row">Age</th><td>_____</td><td>_____</td><td>_____</td></tr>
+      <tr><th scope="row">Gross annual income</th><td>$_____</td><td>$_____</td><td>_____</td></tr>
+      <tr><th scope="row">Essential monthly spending</th><td>$_____</td><td>$_____</td><td>_____</td></tr>
+      <tr><th scope="row">Liquid cash</th><td>$_____</td><td>$_____</td><td>_____</td></tr>
+      <tr><th scope="row">Required monthly debt payments</th><td>$_____</td><td>$_____</td><td>_____</td></tr>
+      <tr><th scope="row">Recurring monthly saving</th><td>$_____</td><td>$_____</td><td>_____</td></tr>
+      <tr><th scope="row">Vested retirement and long-term account balances</th><td>$_____</td><td>$_____</td><td>_____</td></tr>
+    </tbody>
+  </EvidenceTable>
+
+  <h2>Minutes 10–20: look for operational problems</h2>
+  <ul>
+    <li>Any bill due before the income needed to pay it arrives?</li>
+    <li>Any fee, rate change, subscription, or insurance renewal you did not expect?</li>
+    <li>Any incorrect charge, unfamiliar transaction, or missing payment?</li>
+    <li>Any annual or seasonal cost due before the next review?</li>
+    <li>Any account contact information, beneficiary, or security setting that is outdated?</li>
+  </ul>
+  <p>
+    Deal with unauthorized activity through the financial institution’s official
+    channel promptly. Do not wait for the next quarterly review.
+  </p>
+
+  <h2>Minutes 20–30: compare direction</h2>
+  <p>
+    Note the total Cooked Score, but spend more time on the four components.
+    Write one sentence for each change. Examples: “Cash fell because the annual
+    insurance bill was paid,” or “DTI improved after the car loan ended.” This
+    separates expected movement from a pattern that needs action.
+  </p>
+  <p>
+    Do not compare a legacy model result with version 2.0.0. Do not interpret a
+    small rounded change as proof that a strategy succeeded or failed.
+  </p>
+
+  <h2>Minutes 30–40: review what the score cannot see</h2>
+  <ul>
+    <li>Do insurance coverages and deductibles still fit the household?</li>
+    <li>Are investment fees, asset allocation, and risk still understood?</li>
+    <li>Have dependants, beneficiaries, employment benefits, taxes, or legal documents changed?</li>
+    <li>Are near-term goals being held in an appropriate place for their time horizon?</li>
+    <li>Is anyone relying on the same emergency money for two different goals?</li>
+  </ul>
+  <p>
+    These questions may require a qualified adviser, tax professional, insurance
+    professional, or attorney. Cooked Finance does not evaluate them.
+  </p>
+
+  <h2>Minutes 40–45: make one decision</h2>
+  <p>Finish this sentence:</p>
+  <p><strong>Before __________, I will __________ by __________ because __________.</strong></p>
+  <p>
+    Give the action a date, amount, or trigger. “Save more” is a wish; “move $25
+    on the day after each payday” is testable. Put the next quarterly review on
+    the calendar, then stop.
+  </p>
+
+  <h2>Good reasons to review sooner</h2>
+  <ul>
+    <li>Income loss, new job, retirement, or a substantial pay change</li>
+    <li>Marriage, separation, birth, death, caregiving, or a household move</li>
+    <li>New debt, refinance, delinquency, or a paid-off account</li>
+    <li>A major medical, housing, vehicle, or insurance event</li>
+    <li>Suspected fraud or unauthorized transactions</li>
+  </ul>
+
+  <RelatedReading links={[
+    { href: '/financial-health-score/', label: 'Review the seven inputs', description: 'Keep definitions, personal scope, and time periods consistent.' },
+    { href: '/guides/how-to-improve-financial-health/', label: 'Choose one improvement', description: 'Turn the review into a small repeatable action.' },
+    { href: '/methodology/', label: 'Understand score changes', description: 'Check weights, anchors, rounding, and version history.' },
+  ]} />
+</PageLayout>

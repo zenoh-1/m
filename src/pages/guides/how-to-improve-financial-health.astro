@@ -1,0 +1,116 @@
+---
+import PageLayout from '../../layouts/PageLayout.astro';
+import ContentNote from '../../components/content/ContentNote.astro';
+import EvidenceTable from '../../components/content/EvidenceTable.astro';
+import RelatedReading from '../../components/content/RelatedReading.astro';
+---
+
+<PageLayout
+  title="How to Improve Your Financial Health: Four Practical Levers"
+  description="A practical, evidence-led guide to improving cash resilience, debt-payment load, savings habits, and long-term retirement progress."
+  path="/guides/how-to-improve-financial-health"
+  eyebrow="Practical guide"
+  heading="Improve the system, not just the score."
+  lead="Work on the constraint that affects your real life most. The calculator will follow."
+  updated="August 17, 2026"
+>
+  <ContentNote title="Start with stability" tone="caution">
+    <p>
+      If food, housing, utilities, necessary transport, insurance, medication,
+      or required payments are at immediate risk, prioritize those needs over
+      retirement benchmarks or a higher Cooked Score. A personalized plan may
+      require a qualified professional who can review your full situation.
+    </p>
+  </ContentNote>
+
+  <h2>Choose one lever</h2>
+  <p>
+    Trying to repair every number at once often produces a plan that lasts one
+    week. Review the four components, identify the one causing the clearest
+    real-world strain, and choose an action small enough to repeat.
+  </p>
+
+  <h3>1. Build a usable cash buffer</h3>
+  <ol>
+    <li>Calculate one month of essential spending using recent statements, not memory.</li>
+    <li>Choose a first checkpoint that feels attainable—even a small starter reserve can reduce reliance on new debt.</li>
+    <li>Keep emergency cash accessible and separate from money invested for long-term goals.</li>
+    <li>If income is irregular, build around a low-income month and known annual costs.</li>
+  </ol>
+  <p>
+    The CFPB’s savings materials recommend starting with a specific small goal
+    and, when possible, automating transfers. See its
+    <a href="https://files.consumerfinance.gov/f/documents/cfpb_ymyg-savings-booklet.pdf" rel="noopener" target="_blank">“Building your savings?” booklet<span class="sr-only"> (opens in a new tab)</span></a>.
+  </p>
+
+  <h3>2. Reduce monthly debt-payment pressure</h3>
+  <p>
+    First verify your payment DTI using required monthly debt payments, not
+    total balances. Then list each balance, minimum payment, interest rate,
+    status, and any collateral. Options can include paying down a costly balance,
+    refinancing where genuinely beneficial, avoiding additional borrowing, or
+    asking a creditor about hardship arrangements. Each option has tradeoffs;
+    never assume a lower monthly payment means a lower total cost.
+  </p>
+  <p>
+    The CFPB defines DTI as monthly debt payments divided by gross monthly income
+    and notes that lender limits vary by product. Read the
+    <a href="https://www.consumerfinance.gov/ask-cfpb/what-is-a-debt-to-income-ratio-en-1791/" rel="noopener" target="_blank">official DTI explanation<span class="sr-only"> (opens in a new tab)</span></a>.
+  </p>
+
+  <h3>3. Make saving repeatable</h3>
+  <ol>
+    <li>Set a transfer for shortly after income arrives rather than waiting for month-end leftovers.</li>
+    <li>Start with an amount that will not force you to reverse the transfer.</li>
+    <li>Direct part of raises or paid-off payments toward the goal before lifestyle costs absorb them.</li>
+    <li>Review the transfer after three pay cycles and adjust based on actual cash flow.</li>
+  </ol>
+  <p>
+    Do not maximize this component by saving money that is needed for essentials
+    or by ignoring costly delinquent debt. The score caps the savings component
+    because balance matters more than winning one metric.
+  </p>
+
+  <h3>4. Strengthen long-term progress thoughtfully</h3>
+  <p>
+    If a workplace plan offers a match, understand its eligibility and vesting
+    rules. Before selecting investments, consider the goal’s time horizon, your
+    ability to tolerate losses, diversification, taxes, and total fees. Investing
+    involves risk; emergency money and near-term spending generally serve a
+    different purpose from long-term investments.
+  </p>
+  <p>
+    The U.S. Securities and Exchange Commission’s investor education site
+    explains how regular contributions, workplace accounts, diversification,
+    and fees affect long-term investing. Start with
+    <a href="https://www.investor.gov/build-wealth-over-time-through-saving-and-investing" rel="noopener" target="_blank">Investor.gov’s saving and investing guide<span class="sr-only"> (opens in a new tab)</span></a>
+    and its <a href="https://www.investor.gov/introduction-investing/getting-started/understanding-fees" rel="noopener" target="_blank">fee explainer<span class="sr-only"> (opens in a new tab)</span></a>.
+  </p>
+
+  <h2>A realistic 30-day experiment</h2>
+  <EvidenceTable caption="One-month financial-health experiment">
+    <thead>
+      <tr><th scope="col">When</th><th scope="col">Action</th><th scope="col">Evidence to keep</th></tr>
+    </thead>
+    <tbody>
+      <tr><th scope="row">Day 1</th><td>Record the seven inputs using current statements.</td><td>Date and source of each amount</td></tr>
+      <tr><th scope="row">Day 2</th><td>Choose one lever and one repeatable action.</td><td>Dollar amount, date, or clear trigger</td></tr>
+      <tr><th scope="row">Week 2</th><td>Check whether the action caused a shortfall elsewhere.</td><td>Actual cash balance and upcoming bills</td></tr>
+      <tr><th scope="row">Day 30</th><td>Keep, reduce, increase, or replace the action.</td><td>What happened—not what you hoped would happen</td></tr>
+    </tbody>
+  </EvidenceTable>
+
+  <h2>Measure progress without obsessing</h2>
+  <p>
+    Rechecking every day adds noise. Review after a full monthly cycle, then move
+    to a quarterly rhythm. Track the component connected to your action and one
+    real-world outcome—for example, “no overdraft this month”—rather than treating
+    the total score as the only measure of success.
+  </p>
+
+  <RelatedReading links={[
+    { href: '/guides/what-to-do-after-a-low-score/', label: 'Start after a low score', description: 'Use a calmer triage sequence when money is tight.' },
+    { href: '/guides/quarterly-money-checkup/', label: 'Quarterly checkup', description: 'Repeat the review without turning it into a second job.' },
+    { href: '/methodology/', label: 'Why the score moves', description: 'See the exact formulas and scoring anchors.' },
+  ]} />
+</PageLayout>

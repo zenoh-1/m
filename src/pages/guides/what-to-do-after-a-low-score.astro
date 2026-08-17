@@ -1,0 +1,120 @@
+---
+import PageLayout from '../../layouts/PageLayout.astro';
+import ContentNote from '../../components/content/ContentNote.astro';
+import EvidenceTable from '../../components/content/EvidenceTable.astro';
+import RelatedReading from '../../components/content/RelatedReading.astro';
+---
+
+<PageLayout
+  title="What to Do After a Low Financial Health Score | Cooked Finance"
+  description="A calm sequence for protecting essentials, organizing bills, contacting creditors, building a starter buffer, and choosing one next step."
+  path="/guides/what-to-do-after-a-low-score"
+  eyebrow="First steps"
+  heading="A low score is information—not a moral grade."
+  lead="Protect the next few weeks first. You do not need to solve the next thirty years tonight."
+  updated="August 17, 2026"
+>
+  <ContentNote title="If there is an immediate threat" tone="caution">
+    <p>
+      If you face eviction, foreclosure, utility shutoff, repossession, a court
+      deadline, or loss of essential insurance, get situation-specific help
+      promptly. This general guide cannot assess legal rights, deadlines, or the
+      consequences of missing a particular payment.
+    </p>
+  </ContentNote>
+
+  <h2>First: verify the result</h2>
+  <ul>
+    <li>Use gross income before taxes, not take-home pay.</li>
+    <li>Enter required monthly debt payments, not total debt balances.</li>
+    <li>Keep emergency cash separate from retirement balances.</li>
+    <li>Use one adult’s personal figures consistently; run separate checks for partners.</li>
+    <li>Remember that a recent disruption may make this a temporary snapshot.</li>
+  </ul>
+
+  <h2>A practical order of operations</h2>
+
+  <h3>1. Protect essentials and income</h3>
+  <p>
+    Make a dated list of every bill due before the next income arrives. Identify
+    consequences, not just interest rates: housing, utilities, transportation
+    needed for work, insurance, medication, child care, court-ordered obligations,
+    and secured debts can have different immediate risks.
+  </p>
+  <p>
+    The CFPB’s
+    <a href="https://files.consumerfinance.gov/f/documents/cfpb_your-money-your-goals_prioritizing-bills_tool.pdf" rel="noopener" target="_blank">prioritizing bills tool<span class="sr-only"> (opens in a new tab)</span></a>
+    is designed to help compare those consequences. It does not prescribe one
+    order for everyone.
+  </p>
+
+  <h3>2. Contact providers before silence becomes the plan</h3>
+  <p>
+    If a payment may be late, contact the creditor, lender, landlord, insurer, or
+    utility directly using a verified phone number. Ask what hardship options,
+    due-date changes, fee waivers, or payment arrangements exist; request the
+    terms in writing. An arrangement may still add interest or extend repayment,
+    so ask about total cost and credit reporting.
+  </p>
+
+  <h3>3. Prevent the hole from deepening</h3>
+  <p>
+    Pause nonessential recurring charges you can safely stop. Avoid using new
+    high-cost debt solely to make the score look better. Be cautious with firms
+    promising to erase debt, stop all collection, or deliver guaranteed results
+    for an upfront fee.
+  </p>
+
+  <h3>4. Build a small shock absorber</h3>
+  <p>
+    Once immediate essentials and required arrangements are covered, a small
+    accessible cash reserve can reduce the chance that the next irregular expense
+    becomes new debt. Choose an initial dollar checkpoint based on your cash flow;
+    it does not have to begin as several months of expenses.
+  </p>
+
+  <h3>5. Choose one debt or cash-flow action</h3>
+  <p>
+    Examples include aligning a bill date with payday, automating a modest transfer,
+    applying a freed-up payment to one costly balance, or reviewing an incorrect
+    charge. A narrow action that survives a difficult month is more valuable than
+    an ambitious plan that creates another shortfall.
+  </p>
+
+  <h2>Your first month</h2>
+  <EvidenceTable caption="A low-score stabilization timeline">
+    <thead>
+      <tr><th scope="col">Time</th><th scope="col">Focus</th><th scope="col">Done when</th></tr>
+    </thead>
+    <tbody>
+      <tr><th scope="row">Next 24 hours</th><td>List income, balances, due dates, and immediate consequences.</td><td>You can see the next two pay cycles on one page.</td></tr>
+      <tr><th scope="row">Next 72 hours</th><td>Contact any provider whose payment is at risk.</td><td>You recorded the representative, date, and written terms.</td></tr>
+      <tr><th scope="row">First week</th><td>Cancel avoidable leakage and choose one protective action.</td><td>The action has an amount and a trigger date.</td></tr>
+      <tr><th scope="row">End of month</th><td>Compare actual cash flow with the plan.</td><td>You know what to keep and what must change.</td></tr>
+    </tbody>
+  </EvidenceTable>
+
+  <h2>If a debt collector contacts you</h2>
+  <p>
+    Do not provide sensitive information until you know who is contacting you.
+    Keep records and learn about validation notices, dispute options, and conduct
+    that may be prohibited. The CFPB’s
+    <a href="https://www.consumerfinance.gov/consumer-tools/debt-collection/" rel="noopener" target="_blank">debt-collection hub<span class="sr-only"> (opens in a new tab)</span></a>
+    explains common issues and links to response guides. Legal deadlines can be
+    short, so get qualified help for a lawsuit or court document.
+  </p>
+
+  <h2>What not to do for the score</h2>
+  <ul>
+    <li>Do not skip essential medication, insurance, or a legally required payment to increase savings.</li>
+    <li>Do not move retirement money into the “liquid cash” field unless it is genuinely available and you understand taxes and penalties.</li>
+    <li>Do not take a new consolidation loan without comparing total cost, fees, collateral, and repayment time.</li>
+    <li>Do not invest emergency money merely to improve the long-term component.</li>
+  </ul>
+
+  <RelatedReading links={[
+    { href: '/score-ranges/', label: 'Understand your range', description: 'See what the broad bands mean and what they do not establish.' },
+    { href: '/guides/how-to-improve-financial-health/', label: 'Work on one lever', description: 'Move from stabilization to a repeatable improvement plan.' },
+    { href: '/methodology/', label: 'Verify the calculation', description: 'Check input definitions, formulas, and limitations.' },
+  ]} />
+</PageLayout>

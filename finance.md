@@ -1,226 +1,75 @@
-I have initialized a new Astro.js project.
-
-Use Astro Docs MCP, Tailwind 4 Docs MCP, and web-design-guidelines skills for creating the website. Also use @DESIGN.md file as the primary design reference and keep the website design heavily inspired by Vercel (clean, minimal, premium, dark-first, mobile-first, excellent typography, smooth animations, fast performance).
-
-# Product
-
-**Domain:** cookedfinance.com
-
-**Title:** Are You Financially Cooked?
-
-**Tagline:** Find out how financially cooked you really are in under 60 seconds.
-
-Build a fun but credible financial health scoring tool.
-
-**MVP FIRST.**
-
-# Important Constraints
-
-Do not build:
-
-* Authentication
-* Databases
-* APIs
-* User accounts
-* Payments
-* Admin dashboards
-* Future features
-
-Focus entirely on a polished Quick Check experience that can be completed in under 30 seconds.
-
-# Homepage
-
-* Hero section with headline: **"Are You Financially Cooked?"**
-* Tagline
-* Primary CTA: **"Check My Score"**
-* Show example metrics below hero:
-
-  * Cooked Score: 73/100
-  * Ahead of 68% of Americans
-  * Financial Age: 41
-
-# Assessment Form
-
-Collect only these 4 inputs:
-
-* Age (18–70)
-* Annual Income ($)
-* Savings + Investments ($)
-* Total Debt ($)
-
-# Results Experience
-
-Instantly display:
-
-* Large animated Financial Cooked Score (0–100) with gauge
-* Status Badge with emoji
-* Overall Percentile ("You are ahead of X% of Americans your age")
-* Financial Age
-* Personalized Financial Roast
-* Strengths & Areas To Improve (short lists)
-* Downloadable Share Card
-
-# Status Levels
-
-**0–20 → Financial Apocalypse ☠️**
-
-**21–40 → Deep Fried 🍗**
-
-**41–60 → Medium Rare 🥩**
-
-**61–80 → Financially Stable 📈**
-
-**81–100 → Cooking Successfully 🚀**
-
-# Disclaimer
-
-Visible on all pages:
-
-"For entertainment and educational purposes only. Not financial advice."
-
-# Monetization (AdSense Ready)
-
-Reserve clean, non-intrusive placeholders for Google AdSense from day one:
-
-* One placeholder below the hero on homepage
-* One sidebar placeholder on results page (desktop)
-* One placeholder after the results and before the share card
-
-Make sure ad placements do not hurt user experience or loading speed.
-
-# Scoring & Data
-
-Use realistic US benchmarks inspired by Federal Reserve Survey of Consumer Finances.
-
-Store benchmark data in:
-
-`src/data/benchmarks.json`
-
-If exact benchmark data is unavailable, use realistic placeholder values and clearly document where benchmark values can be updated later.
-
-Scoring priority:
-
-1. Savings-to-income ratio
-2. Debt-to-income ratio
-3. Net savings (Savings − Debt)
-4. Age-adjusted financial progress
-
-Savings and debt should have the biggest impact.
-
-Income alone should not guarantee a high score.
-
-Generate:
-
-* Financial Cooked Score
-* Overall Percentile
-* Financial Age
-
-# Financial Roast Engine
-
-No AI APIs.
-
-Create a rule-based system in:
-
-`src/lib/roasts.ts`
-
-Use 30–40 roast templates.
-
-Examples:
-
-* "Your savings account appears to be practicing minimalism."
-* "Your debt is putting in overtime."
-* "Unexpectedly responsible. Suspicious."
-
-Roasts must be:
-
-* Funny
-* Lighthearted
-* Family-friendly
-* Shareable
-
-# Share Card
-
-Create a visually strong social share card containing:
-
-* Cooked Score
-* Percentile
-* Financial Age
-* Roast
-
-Include a **Download Image** button.
-
-Optimize the share card for:
-
-* X
-* Reddit
-* LinkedIn
-* Discord
-
-# Technical Requirements
-
-* Astro
-* Tailwind CSS v4
-* TypeScript
-* Fully client-side
-
-Logic:
-
-* `src/lib/scoring.ts`
-* `src/lib/roasts.ts`
-
-Benchmarks:
-
-* `src/data/benchmarks.json`
-
-Use localStorage to save the most recent result.
-
-Target:
-
-* Lighthouse 95+
-* Fully responsive
-* Excellent UX
-* Fast loading
-
-# Components to Create
-
-* Hero
-* AssessmentForm
-* ScoreGauge
-* RoastCard
-* ShareCard
-* ResultsDashboard
-
-# Generate
-
-* `src/pages/index.astro` (main page with form + client-side results)
-* `src/lib/scoring.ts`
-* `src/lib/roasts.ts`
-* `src/data/benchmarks.json`
-* All required components listed above
-
-# Implementation Instructions
-
-Do not output everything at once.
-
-First generate the project structure and core files:
-
-* benchmarks.json
-* scoring.ts
-* roasts.ts
-
-Then create the components one by one.
-
-Keep code modular, readable, and production-ready.
-
-# Priorities
-
-When making decisions, prioritize:
-
-1. Simplicity
-2. Speed & Performance
-3. User Delight
-4. Shareability
-
-over feature completeness.
-
-Deliver a polished, small, high-quality product.
+# Cooked Finance — current product brief
+
+This file supersedes the original MVP prompt. It exists to prevent older
+requirements from reintroducing fabricated comparisons, automatic storage, or
+premature advertising.
+
+## Product promise
+
+Cooked Finance is a private, educational financial health check for U.S.
+visitors. Seven estimates produce a 0–100 Cooked Score, four transparent pillar
+scores, plain-language context, ranked next moves, and an illustrative 12-month
+scenario. It is not a credit score, peer percentile, financial age, forecast,
+or individualized financial advice.
+
+## Assessment inputs
+
+- Age
+- Gross annual income
+- Essential monthly spending, including required debt minimums
+- Liquid savings
+- Required monthly debt payments
+- Retirement and investment balances
+- Amount saved or invested each month
+
+For pension assets, include only a vested account value or stated cash-balance
+value. Do not include projected defined-benefit income.
+
+## Scoring contract
+
+The source of truth is `src/data/benchmarks.json`; the implementation is
+`src/lib/scoring.ts`; and the public explanation is `src/pages/methodology.astro`.
+The four weighted pillars are cash buffer (30%), monthly debt-payment burden
+(25%), savings habit (20%), and long-term retirement progress (25%). Status
+ranges must remain synchronized with `src/lib/scoring.ts` and
+`src/pages/score-ranges.astro`.
+
+Do not add an unsupported percentile, “financial age,” net-worth-based main
+score, or benchmark claim. Material methodology changes require a version bump,
+verification cases, and matching public documentation.
+
+## Privacy contract
+
+All calculator values are processed in the browser. Financial inputs and
+results must never be placed in URLs or analytics events. Nothing is saved
+automatically. A visitor may explicitly save one check in local storage and can
+delete it from the same interface. Analytics stays off until the visitor opts
+in, and withdrawing consent must take effect immediately.
+
+## Content and trust
+
+Every financial claim should be specific, qualified, and linked to an official
+or primary source when practical. Pages must distinguish educational
+guideposts from rules or guarantees. Never invent authors, credentials,
+statistics, reviews, traffic, or testimonials. Keep methodology, editorial,
+source, corrections, privacy, terms, contact, and advertising policies easy to
+find.
+
+## Monetization boundary
+
+Cooked Finance has not applied for AdSense and currently has no ads, ad code,
+`ads.txt`, or ad placeholders. Do not add them yet. The owner’s planning
+checkpoint is a mature content library and stable traffic around 100–200 daily
+visitors; this is an internal readiness threshold, not a Google requirement.
+Only after an explicit later decision should real publisher verification,
+advertising consent, privacy disclosures, and carefully tested placements be
+added.
+
+## Technical priorities
+
+- Astro, TypeScript, and Tailwind CSS v4
+- Static-first, client-side calculators, no accounts or financial-data backend
+- Accessible keyboard and screen-reader behavior
+- Canonical HTTPS apex URLs with trailing slashes
+- Fast mobile performance and resilient no-JavaScript privacy defaults
+- Production changes verified by build, scoring tests, link checks, and browser QA

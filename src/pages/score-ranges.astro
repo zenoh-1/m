@@ -1,0 +1,81 @@
+---
+import PageLayout from '../layouts/PageLayout.astro';
+import ContentNote from '../components/content/ContentNote.astro';
+import EvidenceTable from '../components/content/EvidenceTable.astro';
+import RelatedReading from '../components/content/RelatedReading.astro';
+---
+
+<PageLayout
+  title="Cooked Score Ranges Explained | Cooked Finance"
+  description="A supportive guide to Cooked Score ranges from 0 to 100, including what each range may suggest and the most useful next step."
+  path="/score-ranges"
+  eyebrow="Score guide"
+  heading="Your range is a starting point, not a label."
+  lead="Use the total to orient yourself, then use the four components to decide what deserves attention."
+  updated="August 17, 2026"
+>
+  <ContentNote title="Read the components, not just the total">
+    <p>
+      Two people can receive the same total for very different reasons. A thin
+      cash buffer calls for a different response than heavy monthly debt
+      payments. The component breakdown is more actionable than the headline.
+    </p>
+  </ContentNote>
+
+  <EvidenceTable caption="Cooked Score 2.0.0 interpretation ranges">
+    <thead>
+      <tr><th scope="col">Score</th><th scope="col">Supportive label</th><th scope="col">What the model may be seeing</th><th scope="col">Useful first move</th></tr>
+    </thead>
+    <tbody>
+      <tr><th scope="row">0–24</th><td>Needs Attention</td><td>A few foundations need attention. Start with one manageable move.</td><td>Protect essentials, avoid missed payments, and make a short cash-flow plan.</td></tr>
+      <tr><th scope="row">25–44</th><td>Running Hot</td><td>Some pressure is showing, but the clearest improvements are within reach.</td><td>Strengthen the weakest useful component with one repeatable monthly action.</td></tr>
+      <tr><th scope="row">45–64</th><td>Finding Balance</td><td>The foundation is taking shape, with room to strengthen a few pillars.</td><td>Preserve what works and focus on the clearest remaining constraint.</td></tr>
+      <tr><th scope="row">65–84</th><td>Steady Heat</td><td>Several healthy foundations are working together. Keep the rhythm going.</td><td>Review the weaker components and the important risks outside this model.</td></tr>
+      <tr><th scope="row">85–100</th><td>Cooking Confidently</td><td>The entered figures show strong foundations across most or all pillars.</td><td>Do not chase a perfect score; use a complete plan for priorities the model cannot see.</td></tr>
+    </tbody>
+  </EvidenceTable>
+
+  <h2>If your result is lower than expected</h2>
+  <p>
+    Start by checking scope and units. Combining your income with a partner’s
+    expenses, entering an annual debt total instead of monthly payments, or
+    including retirement money as liquid cash can distort the result. Then ask
+    whether the weakest component reflects a temporary event or an ongoing pattern.
+  </p>
+  <p>
+    A low score is not evidence of irresponsibility. Medical costs, job loss,
+    education, divorce, caregiving, discrimination, and local housing costs can
+    all shape the inputs. If essentials or required payments are currently at
+    risk, immediate stability matters more than improving a calculator result.
+  </p>
+
+  <h2>If your result is higher than expected</h2>
+  <p>
+    A high score does not confirm that you have suitable insurance, an estate
+    plan, a diversified portfolio, appropriate tax choices, safe credit habits,
+    or enough retirement income. It also does not test whether savings are
+    earmarked for near-term spending. Use the result as permission to ask better
+    questions—not to stop reviewing your finances.
+  </p>
+
+  <h2>What a score change means</h2>
+  <p>
+    Compare version 2.0.0 results only with other version 2.0.0 results using the
+    the same person’s figures. A one- or two-point move may be rounding or normal
+    monthly variation. A sustained component change is usually more meaningful
+    than a single total-score change.
+  </p>
+
+  <ContentNote title="No lender or regulator uses these ranges" tone="caution">
+    <p>
+      These labels belong only to Cooked Finance. They are not credit tiers,
+      underwriting categories, regulated definitions, or professional ratings.
+    </p>
+  </ContentNote>
+
+  <RelatedReading links={[
+    { href: '/financial-health-score/', label: 'What the score measures', description: 'Learn the purpose and limits of the seven-input snapshot.' },
+    { href: '/guides/what-to-do-after-a-low-score/', label: 'After a low score', description: 'Work through a calm, practical sequence without shame.' },
+    { href: '/methodology/', label: 'Check the formula', description: 'Review all weights, anchors, and model assumptions.' },
+  ]} />
+</PageLayout>

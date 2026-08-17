@@ -1,0 +1,109 @@
+---
+import PageLayout from '../layouts/PageLayout.astro';
+import ContentNote from '../components/content/ContentNote.astro';
+import EvidenceTable from '../components/content/EvidenceTable.astro';
+import RelatedReading from '../components/content/RelatedReading.astro';
+---
+
+<PageLayout
+  title="Source Policy | Cooked Finance"
+  description="How Cooked Finance selects primary sources, verifies data and definitions, labels model choices, and avoids unsupported financial claims."
+  path="/source-policy"
+  eyebrow="Evidence standards"
+  heading="How we choose and use sources."
+  lead="A citation is useful only when it actually supports the sentence beside it."
+  updated="August 17, 2026"
+>
+  <h2>Source hierarchy</h2>
+  <EvidenceTable caption="Our preferred evidence hierarchy">
+    <thead>
+      <tr><th scope="col">Priority</th><th scope="col">Source type</th><th scope="col">Typical use</th></tr>
+    </thead>
+    <tbody>
+      <tr><th scope="row">1</th><td>Laws, regulations, regulators, official statistics, and public datasets</td><td>Definitions, consumer rights, policy, and population estimates</td></tr>
+      <tr><th scope="row">2</th><td>Original peer-reviewed research and documented institutional methodology</td><td>Research findings and planning assumptions</td></tr>
+      <tr><th scope="row">3</th><td>Official product, plan, or issuer documentation</td><td>Fees, eligibility, terms, and product behavior</td></tr>
+      <tr><th scope="row">4</th><td>Reputable secondary analysis with transparent sourcing</td><td>Context when a primary source is unavailable or difficult to interpret</td></tr>
+    </tbody>
+  </EvidenceTable>
+  <p>
+    Search results, generated summaries, social posts, unattributed charts, and
+    other websites repeating a number are discovery aids—not evidence by themselves.
+  </p>
+
+  <h2>How a claim is checked</h2>
+  <ol>
+    <li>Open the original source rather than citing a search-result excerpt.</li>
+    <li>Confirm that the source population, geography, date, unit, and definition match the claim.</li>
+    <li>Check table notes, footnotes, denominators, inflation basis, sampling limitations, and revisions.</li>
+    <li>Link as close as practical to the supporting page or table.</li>
+    <li>Paraphrase accurately and keep direct quotation brief.</li>
+    <li>State when Cooked Finance has converted units, rounded values, interpolated, or made an inference.</li>
+  </ol>
+
+  <h2>Statistics and benchmarks</h2>
+  <p>
+    A population benchmark must identify who was measured and what the measure
+    includes. “Average net worth by age” is incomplete unless readers can see,
+    for example, that the Federal Reserve reports both medians and means for SCF
+    families grouped by the age of a reference person and values assets and
+    liabilities under documented definitions.
+  </p>
+  <p>
+    We do not derive exact age percentiles from a published median, infer individual
+    results from family estimates without a warning, or present an interpolated
+    value as though it were directly published. The
+    <a href="/benchmarks/net-worth-by-age/">net-worth-by-age page</a> demonstrates
+    the intended approach.
+  </p>
+
+  <h2>Planning guideposts</h2>
+  <p>
+    Institutional planning rules can be useful starting points, but they rely on
+    assumptions. When the Cooked Score references Fidelity’s retirement savings
+    milestones, the <a href="/methodology/">methodology</a> names the source,
+    summarizes key assumptions, and labels Cooked Finance interpolation and
+    scoring as proprietary choices. A guidepost is not presented as a guarantee
+    or requirement for every reader.
+  </p>
+
+  <h2>Source recency</h2>
+  <p>
+    Newer is not automatically better; the correct choice is the newest reliable
+    source that actually measures the claim. A triennial survey remains the
+    appropriate source until a newer wave is released. Time-sensitive pages
+    should display a meaningful review date and be revisited when their source
+    changes.
+  </p>
+
+  <ContentNote title="Primary sources do not remove uncertainty" tone="caution">
+    <p>
+      Official data can still contain sampling error, imputation, revised
+      definitions, reporting error, and time lag. We preserve relevant caveats
+      rather than using an official logo as a substitute for interpretation.
+    </p>
+  </ContentNote>
+
+  <h2>Conflicts and commercial sources</h2>
+  <p>
+    A company may be the best primary source for its own published assumptions,
+    product terms, or fee schedule. That does not make its guidance neutral. We
+    identify the company, link its assumptions, and avoid presenting marketing
+    material as an independent standard. Payment does not determine which source
+    supports an editorial claim.
+  </p>
+
+  <h2>Report a source problem</h2>
+  <p>
+    If a citation is broken, does not support the claim, or has been superseded,
+    please send the page URL, disputed sentence, and better primary source through
+    the <a href="/contact/">contact page</a>. Confirmed material issues are handled
+    under the <a href="/corrections-policy/">corrections policy</a>.
+  </p>
+
+  <RelatedReading links={[
+    { href: '/editorial-policy/', label: 'Editorial policy', description: 'How evidence becomes a reader-facing page.' },
+    { href: '/corrections-policy/', label: 'Corrections policy', description: 'How source and interpretation errors are repaired.' },
+    { href: '/methodology/', label: 'Model sources and formulas', description: 'See all external guideposts and proprietary choices together.' },
+  ]} />
+</PageLayout>

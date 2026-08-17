@@ -1,123 +1,39 @@
----
-/**
- * ScoreGauge — Large animated 0–100 circular gauge.
- *
- * Renders an SVG arc that the client script animates (stroke-dashoffset +
- * count-up number). Status color is driven by a CSS variable set at runtime.
- * The gauge ring spans 270° for a classic "speedometer" feel.
- */
-interface Props {
-  /** id suffix so multiple gauges can coexist */
-  id?: string;
-}
-const { id = 'score' } = Astro.props;
-
-// Geometry
-const size = 240;
-const stroke = 16;
-const r = (size - stroke) / 2;
-const cx = size / 2;
-const cy = size / 2;
-const circumference = 2 * Math.PI * r;
-// 270° sweep (gap at the bottom), rotated so the gap is centered at bottom.
-const sweep = 0.75; // 270 / 360
-const arcLength = circumference * sweep;
----
-
-<div class="gauge" data-gauge data-target="0">
-  <svg
-    class="gauge__svg"
-    viewBox={`0 0 ${size} ${size}`}
-    role="img"
-    aria-label="Financial Cooked Score gauge"
-  >
-    <defs>
-      <linearGradient id={`grad-${id}`} x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stop-color="var(--gauge-from, #00dfd8)" />
-        <stop offset="100%" stop-color="var(--gauge-to, #2bd576)" />
-      </linearGradient>
-    </defs>
-
-    <!-- Track -->
-    <circle
-      class="gauge__track"
-      cx={cx}
-      cy={cy}
-      r={r}
-      fill="none"
-      stroke="var(--color-hairline)"
-      stroke-width={stroke}
-      stroke-linecap="round"
-      stroke-dasharray={`${arcLength} ${circumference}`}
-      transform={`rotate(135 ${cx} ${cy})`}
-    />
-
-    <!-- Progress -->
-    <circle
-      class="gauge__progress"
-      data-gauge-arc
-      cx={cx}
-      cy={cy}
-      r={r}
-      fill="none"
-      stroke={`url(#grad-${id})`}
-      stroke-width={stroke}
-      stroke-linecap="round"
-      stroke-dasharray={`${arcLength} ${circumference}`}
-      stroke-dashoffset={arcLength}
-      transform={`rotate(135 ${cx} ${cy})`}
-    />
-  </svg>
-
-  <div class="gauge__center">
-    <span class="gauge__number" data-gauge-number>0</span>
-    <span class="gauge__total">out of 100</span>
+<div class="heat" data-heat-scale role="img" aria-label="Cooked Score: not calculated yet">
+  <div class="heat__marker" data-heat-marker style="left: 0%">
+    <span data-heat-marker-value>0</span>
   </div>
-
-  <!-- Data passed to the client script for arc math -->
-  <span hidden data-arc-length={arcLength}></span>
+  <div class="heat__bar" aria-hidden="true">
+    <span class="heat__zone heat__zone--attention"></span>
+    <span class="heat__zone heat__zone--hot"></span>
+    <span class="heat__zone heat__zone--balance"></span>
+    <span class="heat__zone heat__zone--steady"></span>
+    <span class="heat__zone heat__zone--confident"></span>
+  </div>
+  <div class="heat__ticks" aria-hidden="true"><span>0</span><span>25</span><span>45</span><span>65</span><span>85</span><span>100</span></div>
+  <div class="heat__labels" aria-hidden="true"><span>Needs attention</span><span>Finding balance</span><span>Cooking confidently</span></div>
 </div>
 
 <style>
-  .gauge {
-    position: relative;
-    width: 240px;
-    max-width: 72vw;
-    aspect-ratio: 1;
-    margin-inline: auto;
-  }
-  .gauge__svg {
-    width: 100%;
-    height: 100%;
-    overflow: visible;
-  }
-  .gauge__progress {
-    transition: stroke-dashoffset 1.4s var(--ease-out-expo);
-    filter: drop-shadow(0 0 10px var(--gauge-glow, rgba(43, 213, 118, 0.4)));
-  }
-  .gauge__center {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 0.125rem;
-    pointer-events: none;
-  }
-  .gauge__number {
-    font-size: 4rem;
-    font-weight: 600;
-    line-height: 1;
-    letter-spacing: -0.04em;
-    color: var(--color-ink);
-    font-variant-numeric: tabular-nums;
-  }
-  .gauge__total {
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--color-mute);
-  }
+  .heat { position: relative; width: 100%; padding-top: 3.35rem; }
+  .heat__marker { position: absolute; top: 0; transform: translateX(-50%); transition: left 720ms var(--ease-out-expo); }
+  .heat__marker::after { content: ''; width: 2px; height: 1rem; position: absolute; left: 50%; top: 2rem; transform: translateX(-50%); background: var(--color-paper); }
+  .heat__marker span { min-width: 2.7rem; height: 2rem; display: grid; place-items: center; padding-inline: 0.45rem; border-radius: var(--radius-pill); background: var(--color-paper); color: var(--color-ink); font-size: 0.82rem; font-weight: 780; font-variant-numeric: tabular-nums; }
+  .heat__bar { height: 0.8rem; display: grid; grid-template-columns: 25fr 20fr 20fr 20fr 15fr; overflow: hidden; border: 2px solid rgba(255,252,247,0.18); border-radius: var(--radius-pill); }
+  .heat__zone--attention { background: #87372d; }
+  .heat__zone--hot { background: #bd5a35; }
+  .heat__zone--balance { background: #d79a3d; }
+  .heat__zone--steady { background: #63836f; }
+  .heat__zone--confident { background: #315f4f; }
+  .heat__ticks { position: relative; height: 0.95rem; margin-top: 0.45rem; color: rgba(255,252,247,0.72); font-family: var(--font-mono); font-size: 0.7rem; }
+  .heat__ticks span { position: absolute; transform: translateX(-50%); }
+  .heat__ticks span:nth-child(1) { left: 0; transform: none; }
+  .heat__ticks span:nth-child(2) { left: 25%; }
+  .heat__ticks span:nth-child(3) { left: 45%; }
+  .heat__ticks span:nth-child(4) { left: 65%; }
+  .heat__ticks span:nth-child(5) { left: 85%; }
+  .heat__ticks span:nth-child(6) { right: 0; transform: none; }
+  .heat__labels { margin-top: 0.85rem; display: grid; grid-template-columns: 1fr 1fr 1fr; color: rgba(255,252,247,0.7); font-size: 0.68rem; }
+  .heat__labels span:nth-child(2) { text-align: center; }
+  .heat__labels span:last-child { text-align: right; }
+  @media (max-width: 520px) { .heat__labels { display: none; } }
 </style>

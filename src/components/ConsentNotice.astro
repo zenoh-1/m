@@ -1,0 +1,135 @@
+---
+const measurementId = 'G-SG7VP5RKS2';
+---
+
+<aside class="consent" data-consent-notice hidden role="region" aria-labelledby="consent-title" aria-describedby="consent-copy">
+  <div>
+    <p id="consent-title" class="consent__title">Help Improve Cooked Finance?</p>
+    <p id="consent-copy" class="consent__copy">
+      Optional analytics tell us which pages are useful. Financial inputs and results are never included.
+      <a href="/privacy/">Privacy details</a>
+    </p>
+  </div>
+  <div class="consent__actions">
+    <button type="button" class="btn-quiet" data-consent-essential>Essential Only</button>
+    <button type="button" class="btn-primary btn-primary--small" data-consent-allow>Allow Analytics</button>
+  </div>
+</aside>
+<p class="sr-only" data-consent-status role="status" aria-live="polite" aria-atomic="true"></p>
+
+<script is:inline define:vars={{ measurementId }}>
+  (() => {
+    const key = 'cooked-finance-analytics-choice';
+    const notice = document.querySelector('[data-consent-notice]');
+    const status = document.querySelector('[data-consent-status]');
+    let loaded = false;
+    let returnFocus = null;
+
+    const announce = (message) => {
+      if (status) status.textContent = message;
+    };
+    const hide = (restoreFocus = false) => {
+      if (notice) notice.hidden = true;
+      if (!restoreFocus) return;
+      const target = returnFocus?.isConnected
+        ? returnFocus
+        : document.querySelector('a[href="/"]');
+      target?.focus?.();
+      returnFocus = null;
+    };
+    const show = (focusControls = false) => {
+      if (focusControls) returnFocus = document.activeElement;
+      if (notice) notice.hidden = false;
+      if (focusControls) {
+        window.requestAnimationFrame(() => {
+          notice?.querySelector('[data-consent-essential]')?.focus();
+          announce('Privacy choices opened.');
+        });
+      }
+    };
+
+    const setAnalyticsAllowed = (allowed) => {
+      window.cookedAnalyticsAllowed = allowed;
+      window[`ga-disable-${measurementId}`] = !allowed;
+      if (window.gtag) {
+        window.gtag('consent', 'update', {
+          analytics_storage: allowed ? 'granted' : 'denied',
+        });
+      }
+    };
+
+    const loadAnalytics = () => {
+      if (loaded || !measurementId) return;
+      loaded = true;
+      setAnalyticsAllowed(true);
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { window.dataLayer.push(arguments); };
+      window.gtag('consent', 'default', { analytics_storage: 'granted' });
+      window.gtag('js', new Date());
+      window.gtag('config', measurementId, {
+        anonymize_ip: true,
+        allow_google_signals: false,
+        allow_ad_personalization_signals: false,
+        page_location: `${window.location.origin}${window.location.pathname}`,
+      });
+      const script = document.createElement('script');
+      script.async = true;
+      script.src = `https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(measurementId)}`;
+      document.head.appendChild(script);
+    };
+
+    const saveChoice = (choice) => {
+      try { localStorage.setItem(key, choice); } catch {}
+      if (choice === 'granted') {
+        setAnalyticsAllowed(true);
+        loadAnalytics();
+        announce('Optional analytics allowed. You can change this from Privacy Choices in the footer.');
+      } else {
+        setAnalyticsAllowed(false);
+        announce('Optional analytics disabled.');
+      }
+      hide(true);
+    };
+
+    let choice = null;
+    try { choice = localStorage.getItem(key); } catch {}
+    if (choice === 'granted') loadAnalytics();
+    else setAnalyticsAllowed(false);
+    if (!choice) show();
+
+    notice?.querySelector('[data-consent-essential]')?.addEventListener('click', () => saveChoice('denied'));
+    notice?.querySelector('[data-consent-allow]')?.addEventListener('click', () => saveChoice('granted'));
+    document.addEventListener('cooked:privacy-choices', () => show(true));
+  })();
+</script>
+
+<style>
+  .consent {
+    position: fixed;
+    right: max(1rem, env(safe-area-inset-right));
+    bottom: max(1rem, env(safe-area-inset-bottom));
+    z-index: 90;
+    width: min(34rem, calc(100vw - 2rem));
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 1rem;
+    padding: 1rem;
+    background: var(--color-ink);
+    color: var(--color-paper);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-raised);
+  }
+  .consent[hidden] { display: none; }
+  .consent__title { margin: 0 0 0.25rem; font-weight: 700; }
+  .consent__copy { margin: 0; color: rgba(255, 252, 247, 0.74); font-size: 0.875rem; line-height: 1.45; }
+  .consent__copy a { color: var(--color-paper); text-underline-offset: 0.15em; }
+  .consent__actions { display: flex; align-items: center; gap: 0.5rem; }
+  .consent .btn-quiet { color: var(--color-paper); border-color: rgba(255,255,255,0.3); }
+  .consent .btn-primary { background: var(--color-paper); color: var(--color-ink); }
+  @media (max-width: 640px) {
+    .consent { grid-template-columns: 1fr; }
+    .consent__actions { justify-content: stretch; }
+    .consent__actions > * { flex: 1; }
+  }
+</style>

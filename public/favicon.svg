@@ -1,11 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" fill="none">
-  <defs>
-    <linearGradient id="flame" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#f9cb28"/>
-      <stop offset="55%" stop-color="#ff8a3d"/>
-      <stop offset="100%" stop-color="#ff4d4d"/>
-    </linearGradient>
-  </defs>
-  <rect width="128" height="128" rx="28" fill="#0a0a0a"/>
-  <path fill="url(#flame)" d="M64 18c4 14-6 20-12 28-7 9-9 17-4 27-9-3-15-11-15-22 0 0-7 7-7 20 0 18 15 31 38 31s38-13 38-33c0-22-19-32-21-50-6 5-9 12-10 18-3-16-6-26-7-30 0 0 6 5 7 1Z"/>
+  <rect width="128" height="128" rx="36" fill="#1c1914"/>
+  <path d="M68 21c2 16-18 23-18 47 0 14 9 23 21 23 14 0 23-9 23-23 0-12-7-24-20-35 1 10-4 16-10 20 1-11-3-22 4-32Z" fill="#fff9ef"/>
+  <path d="M35 97h58" stroke="#e2a23a" stroke-width="7" stroke-linecap="round"/>
+  <path d="m64 97 19-18" stroke="#bd4b2b" stroke-width="8" stroke-linecap="round"/>
 </svg>

@@ -1,67 +1,81 @@
 ---
-/**
- * SiteHeader — Minimal sticky nav, Vercel-style.
- */
+import BrandMark from './BrandMark.astro';
+const currentPath = Astro.url.pathname.endsWith('/') ? Astro.url.pathname : `${Astro.url.pathname}/`;
 ---
 
-<header class="nav">
-  <div class="container-page nav__inner">
-    <a href="/" class="nav__brand" aria-label="Cooked Finance home">
-      <span class="nav__logo" aria-hidden="true">🔥</span>
-      <span class="nav__name">Cooked<span class="nav__name-soft">Finance</span></span>
+<header class="site-header">
+  <div class="container-page site-header__inner">
+    <a href="/" class="brand" aria-label="Cooked Finance home">
+      <BrandMark size={36} />
+      <span class="brand__text" translate="no">Cooked Finance</span>
     </a>
-    <a href="/#check" class="nav__cta" data-scroll>
-      <span class="nav__cta-full">Check My Score</span>
-      <span class="nav__cta-short" aria-hidden="true">Check Score</span>
-    </a>
+
+    <nav class="desktop-nav" aria-label="Primary navigation">
+      <a href="/calculators/" aria-current={currentPath.startsWith('/calculators/') ? 'page' : undefined}>Calculators</a>
+      <a href="/benchmarks/net-worth-by-age/" aria-current={currentPath === '/benchmarks/net-worth-by-age/' ? 'page' : undefined}>Benchmarks</a>
+      <a href="/guides/" aria-current={currentPath.startsWith('/guides/') ? 'page' : undefined}>Guides</a>
+      <a href="/methodology/" aria-current={currentPath === '/methodology/' ? 'page' : undefined}>Methodology</a>
+      <a href="/about/" aria-current={currentPath === '/about/' ? 'page' : undefined}>About</a>
+    </nav>
+
+    <a href="/#check" class="btn-primary btn-primary--small header-cta">Check My Score</a>
+
+    <details class="mobile-nav">
+      <summary aria-label="Navigation menu">
+        <span>Menu</span>
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+          <path d="M3 5h12M3 9h12M3 13h12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+        </svg>
+      </summary>
+      <nav aria-label="Mobile navigation">
+        <a href="/#check">Check My Score</a>
+        <a href="/calculators/" aria-current={currentPath.startsWith('/calculators/') ? 'page' : undefined}>Calculators</a>
+        <a href="/benchmarks/net-worth-by-age/" aria-current={currentPath === '/benchmarks/net-worth-by-age/' ? 'page' : undefined}>Benchmarks</a>
+        <a href="/guides/" aria-current={currentPath.startsWith('/guides/') ? 'page' : undefined}>Guides</a>
+        <a href="/methodology/" aria-current={currentPath === '/methodology/' ? 'page' : undefined}>Methodology</a>
+        <a href="/about/" aria-current={currentPath === '/about/' ? 'page' : undefined}>About</a>
+      </nav>
+    </details>
   </div>
 </header>
 
-<style>
-  .nav {
-    position: sticky;
-    top: 0;
-    z-index: 50;
-    border-bottom: 1px solid var(--color-hairline);
-    background: color-mix(in srgb, var(--color-canvas) 72%, transparent);
-    backdrop-filter: saturate(180%) blur(12px);
-  }
-  .nav__inner {
-    height: 60px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-  .nav__brand {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    text-decoration: none;
-    color: var(--color-ink);
-    font-weight: 600;
-    letter-spacing: -0.02em;
-  }
-  .nav__logo { font-size: 1.125rem; }
-  .nav__name-soft { color: var(--color-mute); }
-  .nav__cta {
-    display: inline-flex;
-    align-items: center;
-    height: 34px;
-    padding-inline: 0.875rem;
-    border-radius: var(--radius-pill);
-    background: var(--color-primary);
-    color: var(--color-on-primary);
-    font-size: 0.8125rem;
-    font-weight: 500;
-    text-decoration: none;
-    transition: background-color 0.18s var(--ease-out-expo), transform 0.18s var(--ease-out-expo);
-  }
-  .nav__cta:hover { background: var(--color-primary-hover); transform: translateY(-1px); }
+<script>
+  document.querySelectorAll<HTMLDetailsElement>('details.mobile-nav').forEach((menu) => {
+    const summary = menu.querySelector('summary');
+    const close = (returnFocus = false) => {
+      if (!menu.open) return;
+      menu.open = false;
+      if (returnFocus) summary?.focus();
+    };
+    menu.querySelectorAll('a').forEach((link) => link.addEventListener('click', () => close()));
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') close(true);
+    });
+    document.addEventListener('pointerdown', (event) => {
+      if (!menu.contains(event.target as Node)) close();
+    });
+  });
+</script>
 
-  /* Swap to the shorter label on small screens. */
-  .nav__cta-short { display: none; }
-  @media (max-width: 420px) {
-    .nav__cta-full { display: none; }
-    .nav__cta-short { display: inline; }
+<style>
+  .site-header { position: sticky; top: 0; z-index: 70; border-bottom: 1px solid rgba(185, 173, 156, 0.68); background: rgba(245, 239, 228, 0.91); backdrop-filter: blur(18px); }
+  .site-header__inner { min-height: 72px; display: flex; align-items: center; gap: 1.5rem; }
+  .brand { min-width: max-content; display: inline-flex; align-items: center; gap: 0.72rem; color: var(--color-ink); font-weight: 760; letter-spacing: -0.025em; text-decoration: none; }
+  .brand__text { font-size: 1.02rem; }
+  .desktop-nav { margin-left: auto; display: flex; align-items: center; gap: 0.15rem; }
+  .desktop-nav a { min-height: 44px; display: inline-flex; align-items: center; padding: 0.6rem 0.75rem; border-radius: var(--radius-pill); color: var(--color-body); font-size: 0.84rem; font-weight: 620; text-decoration: none; }
+  .desktop-nav a:hover { color: var(--color-ink); background: rgba(255,252,247,0.72); }
+  .desktop-nav a[aria-current='page'] { color: var(--color-ink); background: rgba(255,252,247,0.82); }
+  .header-cta { flex: 0 0 auto; }
+  .mobile-nav { display: none; margin-left: auto; position: relative; }
+  .mobile-nav summary { min-width: 72px; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem; padding: 0.5rem 0.7rem; border: 1px solid var(--color-hairline-strong); border-radius: var(--radius-pill); color: var(--color-ink); font-size: 0.8rem; font-weight: 700; list-style: none; cursor: pointer; }
+  .mobile-nav summary::-webkit-details-marker { display: none; }
+  .mobile-nav nav { position: absolute; right: 0; top: calc(100% + 0.65rem); width: min(17rem, calc(100vw - 2rem)); max-height: calc(100vh - 6.5rem); display: grid; overflow-y: auto; overscroll-behavior: contain; padding: 0.55rem; border: 1px solid var(--color-hairline-strong); border-radius: var(--radius-md); background: var(--color-paper); box-shadow: var(--shadow-raised); }
+  .mobile-nav nav a { min-height: 46px; display: flex; align-items: center; padding: 0.7rem 0.85rem; border-radius: var(--radius-sm); color: var(--color-body); font-size: 0.9rem; font-weight: 650; text-decoration: none; }
+  .mobile-nav nav a:hover { color: var(--color-ink); background: var(--color-surface-2); }
+  .mobile-nav nav a[aria-current='page'] { color: var(--color-ink); background: var(--color-canvas-soft); }
+  @media (max-width: 920px) {
+    .desktop-nav, .header-cta { display: none; }
+    .mobile-nav { display: block; }
   }
 </style>

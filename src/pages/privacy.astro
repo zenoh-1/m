@@ -4,79 +4,124 @@ import PageLayout from '../layouts/PageLayout.astro';
 
 <PageLayout
   title="Privacy Policy | Cooked Finance"
-  description="Cooked Finance privacy policy. Your financial inputs never leave your browser. Learn what data we do and don't collect, how cookies and ads work, and your rights."
+  description="How Cooked Finance handles calculator inputs, optional local saving, consent-based analytics, hosting logs, and advertising."
   path="/privacy"
-  eyebrow="Legal"
-  heading="Privacy Policy"
-  lead="The short version: your financial numbers stay on your device. We can't see them."
-  updated="June 5, 2026"
+  eyebrow="Privacy"
+  heading="Your financial inputs stay in your browser."
+  lead="The calculator does not send your age, income, expenses, savings, debt payments, retirement balance, monthly savings, or score to Cooked Finance or Google Analytics."
+  updated="August 17, 2026"
 >
-  <h2>Overview</h2>
+  <h2>Scope</h2>
   <p>
-    This Privacy Policy explains how Cooked Finance ("we", "us", or "our")
-    handles information when you visit <strong>cookedfinance.com</strong> (the
-    "Site"). We've designed the Site to be privacy-friendly by default.
+    This policy explains how Cooked Finance (“we,” “us,” or “our”) handles
+    information when you use <strong>cookedfinance.com</strong> (the “Site”).
+    The Site is designed to work without an account, bank connection, or
+    database profile.
   </p>
 
-  <h2>Information you enter</h2>
+  <h2>Calculator information</h2>
   <p>
-    The financial details you type into the calculator — your age, annual income,
-    savings, and debt — are processed <strong>entirely within your browser</strong>.
-    This information is never sent to our servers, never stored in a database, and
-    never shared with third parties. Your most recent result may be saved locally
-    on your own device using your browser's <code>localStorage</code> so you can
-    see it again later; you can clear it at any time by clearing your browser data.
+    The seven values entered into the financial health check and the values
+    entered into the standalone calculators are processed locally by code in
+    your web browser. They are not submitted to our servers, placed in page
+    URLs, or included in analytics events.
+  </p>
+  <p>
+    A result is <strong>not saved automatically</strong>. If you select “Save
+    This Check,” the seven inputs, result,
+    and save time are stored in your browser’s <code>localStorage</code>. That
+    copy remains on that browser and device until you delete it in the result
+    controls or clear browser storage.
   </p>
 
-  <h2>Information collected automatically</h2>
-  <p>
-    Like most websites, we may collect limited, non-identifying technical
-    information through standard analytics and server logs, such as:
-  </p>
+  <h2>Browser storage and retention</h2>
   <ul>
-    <li>Browser type and device category</li>
-    <li>Approximate region (derived from IP, not stored alongside your inputs)</li>
-    <li>Pages visited and referring site</li>
+    <li>
+      A saved financial check remains in <code>localStorage</code> until you
+      delete it from the homepage controls or clear this site’s browser storage.
+    </li>
+    <li>
+      Your analytics choice remains in <code>localStorage</code> until you change
+      it through “Privacy choices” or clear this site’s browser storage.
+    </li>
+    <li>
+      Browser privacy settings, private-browsing behavior, or automatic storage
+      cleanup may remove either local item sooner. Cooked Finance cannot restore
+      a locally deleted check.
+    </li>
   </ul>
+
+  <h2>Optional analytics</h2>
   <p>
-    This data is aggregate and used only to understand traffic and improve the
-    Site. It is not linked to the financial values you enter.
+    Google Analytics loads only after you select “Allow Analytics.” If allowed,
+    it may process information such as the page visited, referring page,
+    browser and device information, approximate location, and online
+    identifiers. We use generic interaction event names to understand whether
+    the assessment is useful; we do not attach financial inputs, exact results,
+    or score bands to those events.
+  </p>
+  <p>
+    Your analytics choice is stored in <code>localStorage</code>. Choose
+    “Privacy choices” in the footer to reopen the consent notice. Selecting
+    “Essential Only” disables analytics collection immediately and prevents the
+    analytics script from loading on future page views in that browser. If the
+    script or analytics cookies were already loaded, they may remain in the
+    browser until the page is reloaded or those cookies are deleted.
+  </p>
+  <p>
+    After permission is granted, Google Analytics may set first-party cookies
+    including <code>_ga</code> and <code>_ga_&lt;container-id&gt;</code> to
+    distinguish users and preserve session state. Google documents a default
+    lifetime of up to two years for those cookies, although browser controls can
+    shorten it. User-level and event-level analytics data is retained under the
+    property’s configured Google Analytics retention setting; aggregated reports
+    are not governed by that same setting. See Google’s
+    <a href="https://support.google.com/analytics/answer/11397207" rel="noopener" target="_blank">GA4 cookie documentation<span class="sr-only"> (opens in a new tab)</span></a>,
+    <a href="https://support.google.com/analytics/answer/7667196" rel="noopener" target="_blank">data-retention documentation<span class="sr-only"> (opens in a new tab)</span></a>, and
+    <a href="https://policies.google.com/technologies/partner-sites" rel="noopener" target="_blank">explanation of how Google uses information from partner sites<span class="sr-only"> (opens in a new tab)</span></a>.
   </p>
 
-  <h2>Cookies and advertising</h2>
+  <h2>Hosting and security logs</h2>
   <p>
-    We may use cookies and similar technologies for basic functionality and
-    analytics. We may also display advertising, including through Google AdSense.
-    Third-party vendors, including Google, use cookies to serve ads based on prior
-    visits to this and other websites. You can opt out of personalized advertising
-    by visiting
-    <a href="https://www.google.com/settings/ads" rel="noopener" target="_blank">Google Ads Settings</a>,
-    and learn more at
-    <a href="https://policies.google.com/technologies/ads" rel="noopener" target="_blank">Google's advertising policies</a>.
+    Our hosting and network providers may process routine request data needed
+    to deliver and protect the Site, such as IP address, requested URL,
+    timestamp, user agent, and security signals. Those requests do not contain
+    calculator fields because calculations happen locally.
   </p>
 
-  <h2>Children's privacy</h2>
+  <h2>Advertising</h2>
   <p>
-    The Site is not directed to children under 13, and we do not knowingly collect
-    personal information from them.
+    Cooked Finance currently displays no paid ads and has not applied for
+    Google AdSense. No AdSense script or ad unit is loaded. If advertising is
+    introduced later, this policy and the
+    <a href="/advertising-policy/">advertising policy</a> will be updated before
+    ads are enabled.
+  </p>
+
+  <h2>External links</h2>
+  <p>
+    Educational pages link to external sources. Their privacy practices are
+    controlled by their operators, not Cooked Finance.
+  </p>
+
+  <h2>Children</h2>
+  <p>
+    The Site is intended for a general adult audience and is not directed to
+    children under 13. We do not knowingly ask children to provide personal
+    information.
   </p>
 
   <h2>Your choices</h2>
   <ul>
-    <li>Clear your browser storage to remove any saved result.</li>
-    <li>Use your browser settings to block or delete cookies.</li>
-    <li>Opt out of personalized ads via the links above.</li>
+    <li>Use the calculators without saving a result.</li>
+    <li>Delete a saved check from the homepage result controls or browser storage.</li>
+    <li>Choose “Essential Only” or reopen “Privacy choices” in the footer.</li>
+    <li>Use browser controls to clear site storage or restrict scripts.</li>
   </ul>
 
-  <h2>Changes to this policy</h2>
+  <h2>Changes and contact</h2>
   <p>
-    We may update this Privacy Policy from time to time. Changes will be posted on
-    this page with an updated date above.
-  </p>
-
-  <h2>Contact</h2>
-  <p>
-    Questions about privacy? Reach us through our
-    <a href="/contact">contact page</a>.
+    Material changes will be posted here with a revised date. For a privacy
+    question or deletion concern, use the <a href="/contact/">contact page</a>.
   </p>
 </PageLayout>

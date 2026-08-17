@@ -1,0 +1,149 @@
+---
+import PageLayout from '../../layouts/PageLayout.astro';
+
+const guides = [
+  {
+    href: '/guides/what-to-do-after-a-low-score/',
+    eyebrow: 'Start here when money feels urgent',
+    title: 'What to do after a low financial health score',
+    description:
+      'Protect essentials, verify the inputs, contact providers early, and choose one stabilizing action without treating a score as a moral grade.',
+    outcome: 'A calm order of operations for the next few weeks',
+  },
+  {
+    href: '/guides/how-to-improve-financial-health/',
+    eyebrow: 'Build a repeatable system',
+    title: 'How to improve your financial health',
+    description:
+      'Work on cash resilience, monthly debt pressure, saving habits, and long-term progress while keeping the limitations of a four-pillar model visible.',
+    outcome: 'One practical 30-day experiment',
+  },
+  {
+    href: '/guides/quarterly-money-checkup/',
+    eyebrow: 'Review without obsessing',
+    title: 'A 45-minute quarterly money checkup',
+    description:
+      'Refresh the seven inputs, catch operational problems, compare direction, review what the score cannot see, and leave with one dated decision.',
+    outcome: 'A checklist you can repeat every three months',
+  },
+];
+---
+
+<PageLayout
+  title="Practical Personal Finance Guides | Cooked Finance"
+  description="Use calm, evidence-led guides to stabilize a difficult month, improve financial health, and run a repeatable quarterly money checkup."
+  path="/guides/"
+  eyebrow="Guides"
+  heading="Practical guidance for the number behind the number."
+  lead="A calculator can reveal pressure or progress. These guides help you decide what to review next without pretending one score can replace your full circumstances."
+>
+  <section class="guide-intro" aria-labelledby="choose-guide-heading">
+    <span class="eyebrow">Choose by situation</span>
+    <h2 id="choose-guide-heading">Start with the guide that matches today.</h2>
+    <p>
+      You do not need to read everything in order. If a bill, housing payment,
+      medication, insurance premium, or minimum debt payment is at immediate
+      risk, begin with stabilization. If the month is manageable, choose one
+      system to improve. If the system is already working, use the quarterly
+      review to catch changes before they become emergencies.
+    </p>
+  </section>
+
+  <div class="guide-grid">
+    {guides.map((guide, index) => (
+      <a class="guide-card" href={guide.href}>
+        <span class="guide-card__number" aria-hidden="true">0{index + 1}</span>
+        <span class="guide-card__eyebrow">{guide.eyebrow}</span>
+        <h2>{guide.title}</h2>
+        <p>{guide.description}</p>
+        <span class="guide-card__outcome">You will leave with: {guide.outcome}</span>
+        <span class="guide-card__action">Read guide <span aria-hidden="true">→</span></span>
+      </a>
+    ))}
+  </div>
+
+  <section aria-labelledby="reading-path-heading">
+    <span class="eyebrow">A sensible reading path</span>
+    <h2 id="reading-path-heading">Stabilize, improve, then review.</h2>
+    <ol>
+      <li>
+        <strong>Stabilize the next few weeks.</strong> Protect essentials and
+        income, verify due dates, and contact providers before a missed payment
+        removes options.
+      </li>
+      <li>
+        <strong>Improve one constraint.</strong> A usable cash reserve, lighter
+        required payments, or a repeatable transfer may matter more than trying
+        to move every metric at once.
+      </li>
+      <li>
+        <strong>Review direction on a schedule.</strong> Compare like with like,
+        use one adult’s figures consistently, and focus on sustained
+        component changes rather than normal monthly noise.
+      </li>
+    </ol>
+  </section>
+
+  <aside class="guide-note" aria-labelledby="limits-heading">
+    <span class="eyebrow">Keep the missing context visible</span>
+    <h2 id="limits-heading">The score is a prompt, not a plan.</h2>
+    <p>
+      Taxes, dependents, insurance, interest rates, income stability, disability,
+      location, projected pension income, near-term goals, and personal risk tolerance can change
+      a sensible next step. Never skip an essential need or take a costly product
+      merely to improve a calculator result. For the exact model boundaries, read
+      the <a href="/methodology/">published methodology</a> and
+      <a href="/financial-health-score/">financial-health score explainer</a>.
+    </p>
+  </aside>
+
+  <section aria-labelledby="standards-heading">
+    <span class="eyebrow">How these guides are built</span>
+    <h2 id="standards-heading">Useful first, sourced where facts matter.</h2>
+    <p>
+      Cooked Finance separates externally sourced definitions and planning
+      guideposts from its own educational framework. Guides link to primary
+      government or institutional material near the claims it supports, label
+      important limitations, and show a substantive review date. Read the
+      <a href="/editorial-policy/">editorial policy</a>,
+      <a href="/source-policy/">source policy</a>, and
+      <a href="/corrections-policy/">corrections policy</a> for the standards
+      behind that process.
+    </p>
+  </section>
+</PageLayout>
+
+<style>
+  .guide-intro { margin-bottom: 2rem; }
+  .guide-grid { display: grid; gap: 1rem; margin: 2rem 0 4rem; }
+  .guide-card {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(3rem, 0.12fr) minmax(0, 1fr);
+    gap: 0.35rem 1.2rem;
+    padding: clamp(1.35rem, 4vw, 2rem);
+    color: var(--color-ink);
+    text-decoration: none;
+    border: 1px solid var(--color-hairline);
+    border-radius: var(--radius-lg);
+    background: var(--color-paper);
+    transition: border-color 160ms ease, transform 160ms ease, box-shadow 160ms ease;
+  }
+  .guide-card:hover { border-color: var(--color-ember); transform: translateY(-2px); box-shadow: var(--shadow-card); }
+  .guide-card__number { grid-row: 1 / 6; color: var(--color-ember-deep); font-family: var(--font-mono); font-size: 0.72rem; }
+  .guide-card__eyebrow { color: var(--color-mute); font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.04em; text-transform: uppercase; }
+  .guide-card h2 { margin: 0.25rem 0 0; font-family: var(--font-serif); font-size: clamp(1.55rem, 4vw, 2.25rem); font-weight: 500; line-height: 1.08; }
+  .guide-card p { margin: 0.55rem 0 0; color: var(--color-body); }
+  .guide-card__outcome { margin-top: 0.7rem; color: var(--color-mute); font-size: 0.78rem; }
+  .guide-card__action { margin-top: 0.8rem; color: var(--color-ember-deep); font-weight: 720; }
+  .guide-note { margin: 3.5rem 0; padding: clamp(1.4rem, 4vw, 2rem); border-left: 4px solid var(--color-amber); background: var(--color-paper); }
+  .guide-note h2 { margin-top: 0.65rem; }
+  @media (max-width: 620px) {
+    .guide-card { grid-template-columns: 1fr; }
+    .guide-card__number { grid-row: auto; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .guide-card { transition: none; }
+    .guide-card:hover { transform: none; }
+  }
+</style>

@@ -1,0 +1,463 @@
+---
+import PageLayout from '../../layouts/PageLayout.astro';
+import RelatedCalculators from '../../components/calculators/RelatedCalculators.astro';
+
+const assetFields = [
+  { id: 'cash', label: 'Cash and bank accounts', help: 'Checking, savings, money market accounts and physical cash.' },
+  { id: 'investments', label: 'Investments and retirement', help: 'Brokerage accounts, retirement accounts and other market investments.' },
+  { id: 'real-estate', label: 'Real estate value', help: 'Current estimated market value, before subtracting a mortgage.' },
+  { id: 'other-assets', label: 'Other assets', help: 'Vehicles, business interests and other items you would reasonably include.' },
+];
+
+const liabilityFields = [
+  { id: 'mortgage', label: 'Mortgage balance', help: 'The principal still owed, not the monthly payment.' },
+  { id: 'student', label: 'Student-loan balances', help: 'Total outstanding student-loan principal.' },
+  { id: 'auto', label: 'Auto-loan balances', help: 'Total owed on vehicle loans.' },
+  { id: 'credit-card', label: 'Credit-card balances', help: 'Current balances owed, not only this month’s minimums.' },
+  { id: 'other-debts', label: 'Other debts', help: 'Personal loans, medical debt and other outstanding liabilities.' },
+];
+---
+
+<PageLayout
+  title="Net Worth Calculator: Assets Minus Liabilities | Cooked Finance"
+  description="Calculate your net worth by adding cash, investments, real estate and other assets, then subtracting mortgage, student, auto, credit-card and other debts."
+  path="/calculators/net-worth/"
+  eyebrow="Calculator 01"
+  heading="Net worth, without the fuzzy definition."
+  lead="Add the current value of everything you own. Subtract every outstanding liability. The result is a balance-sheet snapshot—not a grade."
+  updated="August 17, 2026"
+>
+  <aside class="formula-strip" aria-label="Net worth formula">
+    <span>Total assets</span>
+    <span aria-hidden="true">−</span>
+    <span>Total liabilities</span>
+    <span aria-hidden="true">=</span>
+    <strong>Net worth</strong>
+  </aside>
+
+  <div id="net-worth-form" class="calculator card" role="form" aria-label="Net worth calculator">
+    <p class="calculator__privacy">
+      <span aria-hidden="true">●</span> Calculated only in this browser tab. Blank fields count as $0.
+    </p>
+
+    <fieldset>
+      <legend>
+        <span class="legend__index">A</span>
+        <span><strong>Assets</strong><small>What you own at today’s reasonable value</small></span>
+      </legend>
+      <div class="field-grid">
+        {assetFields.map((field) => (
+          <div class="money-field">
+            <label for={field.id}>{field.label} (USD)</label>
+            <div class="money-input">
+              <span aria-hidden="true">$</span>
+              <input
+                id={field.id}
+                type="number"
+                inputmode="decimal"
+                autocomplete="off"
+                min="0"
+                step="0.01"
+                placeholder="0…"
+                aria-describedby={`${field.id}-help ${field.id}-error`}
+              />
+            </div>
+            <small id={`${field.id}-help`}>{field.help}</small>
+            <span class="field-error" id={`${field.id}-error`} hidden></span>
+          </div>
+        ))}
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>
+        <span class="legend__index">L</span>
+        <span><strong>Liabilities</strong><small>What you currently owe</small></span>
+      </legend>
+      <div class="field-grid">
+        {liabilityFields.map((field) => (
+          <div class="money-field">
+            <label for={field.id}>{field.label} (USD)</label>
+            <div class="money-input">
+              <span aria-hidden="true">$</span>
+              <input
+                id={field.id}
+                type="number"
+                inputmode="decimal"
+                autocomplete="off"
+                min="0"
+                step="0.01"
+                placeholder="0…"
+                aria-describedby={`${field.id}-help ${field.id}-error`}
+              />
+            </div>
+            <small id={`${field.id}-help`}>{field.help}</small>
+            <span class="field-error" id={`${field.id}-error`} hidden></span>
+          </div>
+        ))}
+      </div>
+    </fieldset>
+
+    <p id="net-worth-form-error" class="form-error" role="alert" hidden>
+      Enter at least one asset or liability to calculate a useful snapshot.
+    </p>
+    <div class="calculator__actions">
+      <button class="btn-primary" type="button" data-calculate-net-worth>Calculate net worth</button>
+      <button class="btn-secondary" type="button" data-clear-net-worth>Clear values</button>
+    </div>
+  </div>
+
+  <section id="net-worth-result" class="result" aria-live="polite" aria-atomic="true" tabindex="-1" hidden>
+    <header class="result__head">
+      <span class="eyebrow">Your snapshot</span>
+      <h2>Net worth: <output id="net-worth-output" for="cash investments real-estate other-assets mortgage student auto credit-card other-debts">$0</output></h2>
+      <p id="net-worth-interpretation"></p>
+    </header>
+    <div class="result__stats">
+      <div>
+        <span>Total assets</span>
+        <strong id="total-assets-output">$0</strong>
+      </div>
+      <div>
+        <span>Total liabilities</span>
+        <strong id="total-liabilities-output">$0</strong>
+      </div>
+    </div>
+    <p id="net-worth-worked" class="result__worked"></p>
+  </section>
+
+  <section class="method" aria-labelledby="net-worth-method-heading">
+    <span class="eyebrow">Method</span>
+    <h2 id="net-worth-method-heading">What this calculation includes</h2>
+    <p>
+      Net worth is <strong>the value of assets minus liabilities</strong>. Real estate belongs on the asset side at a
+      reasonable current value, while the remaining mortgage belongs on the liability side. Using only savings minus
+      debt is not a complete net-worth calculation.
+    </p>
+    <p>
+      For less-liquid assets such as a home, vehicle or private business, use a conservative value you could defend
+      today—not the original purchase price or an optimistic future value. See the
+      <a href="https://www.investor.gov/introduction-investing/investing-basics/save-and-invest/figure-out-your-finances" rel="external">U.S. Securities and Exchange Commission’s net-worth overview</a>.
+    </p>
+
+    <h3>Worked example</h3>
+    <p>
+      Someone with $25,000 in cash and investments, a $300,000 home, and a $15,000 vehicle has $340,000 of assets.
+      If their mortgage and other debts total $245,000, their net worth is $95,000.
+    </p>
+
+    <h3>Limitations</h3>
+    <ul>
+      <li>This is a point-in-time estimate; market values and balances move.</li>
+      <li>Taxes, selling costs, pensions, insurance and future income are not modeled.</li>
+      <li>A negative result is information, not a prediction or diagnosis.</li>
+      <li>Household and individual net worth are different; stay consistent when entering jointly owned items.</li>
+    </ul>
+  </section>
+
+  <RelatedCalculators current="net-worth" />
+</PageLayout>
+
+<script>
+  const assetIds = ['cash', 'investments', 'real-estate', 'other-assets'];
+  const liabilityIds = ['mortgage', 'student', 'auto', 'credit-card', 'other-debts'];
+  const allNetWorthIds = [...assetIds, ...liabilityIds];
+  const netWorthForm = document.querySelector<HTMLElement>('#net-worth-form');
+  const netWorthResult = document.querySelector<HTMLElement>('#net-worth-result');
+  const netWorthFormError = document.querySelector<HTMLElement>('#net-worth-form-error');
+  const netWorthPrefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  const money = new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    maximumFractionDigits: 0,
+  });
+
+  function getNetWorthInput(id: string) {
+    return document.querySelector<HTMLInputElement>(`#${id}`);
+  }
+
+  function clearNetWorthError(input: HTMLInputElement) {
+    input.removeAttribute('aria-invalid');
+    const error = document.querySelector<HTMLElement>(`#${input.id}-error`);
+    if (error) {
+      error.textContent = '';
+      error.hidden = true;
+    }
+  }
+
+  function readNonNegativeAmount(input: HTMLInputElement) {
+    clearNetWorthError(input);
+    if (input.value.trim() === '') return 0;
+
+    const value = Number(input.value);
+    if (!Number.isFinite(value) || value < 0) {
+      input.setAttribute('aria-invalid', 'true');
+      const error = document.querySelector<HTMLElement>(`#${input.id}-error`);
+      if (error) {
+        error.textContent = 'Enter zero or a positive dollar amount.';
+        error.hidden = false;
+      }
+      return null;
+    }
+    return value;
+  }
+
+  function calculateNetWorth() {
+    if (!netWorthResult || !netWorthFormError) return;
+
+    netWorthFormError.hidden = true;
+    const values = new Map<string, number>();
+    let firstInvalid: HTMLInputElement | null = null;
+
+    for (const id of allNetWorthIds) {
+      const input = getNetWorthInput(id);
+      if (!input) continue;
+      const value = readNonNegativeAmount(input);
+      if (value === null) {
+        firstInvalid ??= input;
+      } else {
+        values.set(id, value);
+      }
+    }
+
+    if (firstInvalid) {
+      netWorthResult.hidden = true;
+      firstInvalid.focus();
+      return;
+    }
+
+    const hasEnteredValue = allNetWorthIds.some((id) => getNetWorthInput(id)?.value.trim() !== '');
+    if (!hasEnteredValue) {
+      netWorthResult.hidden = true;
+      netWorthFormError.hidden = false;
+      getNetWorthInput('cash')?.focus();
+      return;
+    }
+
+    const totalAssets = assetIds.reduce((sum, id) => sum + (values.get(id) ?? 0), 0);
+    const totalLiabilities = liabilityIds.reduce((sum, id) => sum + (values.get(id) ?? 0), 0);
+    const netWorth = totalAssets - totalLiabilities;
+
+    const output = document.querySelector<HTMLOutputElement>('#net-worth-output');
+    const assetsOutput = document.querySelector<HTMLElement>('#total-assets-output');
+    const liabilitiesOutput = document.querySelector<HTMLElement>('#total-liabilities-output');
+    const interpretation = document.querySelector<HTMLElement>('#net-worth-interpretation');
+    const worked = document.querySelector<HTMLElement>('#net-worth-worked');
+
+    if (output) output.value = money.format(netWorth);
+    if (assetsOutput) assetsOutput.textContent = money.format(totalAssets);
+    if (liabilitiesOutput) liabilitiesOutput.textContent = money.format(totalLiabilities);
+    if (interpretation) {
+      interpretation.textContent = netWorth > 0
+        ? 'Your listed assets are worth more than your listed liabilities.'
+        : netWorth < 0
+          ? 'Your listed liabilities are greater than your listed assets. This snapshot can help you track the gap over time.'
+          : 'Your listed assets and liabilities are currently equal.';
+    }
+    if (worked) {
+      worked.textContent = `${money.format(totalAssets)} in assets − ${money.format(totalLiabilities)} in liabilities = ${money.format(netWorth)}.`;
+    }
+
+    netWorthResult.hidden = false;
+    netWorthResult.focus({ preventScroll: true });
+    netWorthResult.scrollIntoView({ behavior: netWorthPrefersReducedMotion ? 'auto' : 'smooth', block: 'nearest' });
+  }
+
+  document.querySelector('[data-calculate-net-worth]')?.addEventListener('click', calculateNetWorth);
+
+  netWorthForm?.addEventListener('keydown', (event) => {
+    if (event.key !== 'Enter' || event.target instanceof HTMLButtonElement) return;
+    event.preventDefault();
+    calculateNetWorth();
+  });
+
+  netWorthForm?.addEventListener('input', (event) => {
+    const input = event.target;
+    if (input instanceof HTMLInputElement) clearNetWorthError(input);
+    if (netWorthFormError) netWorthFormError.hidden = true;
+  });
+
+  document.querySelector('[data-clear-net-worth]')?.addEventListener('click', () => {
+    const hasValues = allNetWorthIds.some((id) => Boolean(getNetWorthInput(id)?.value));
+    if (hasValues && !window.confirm('Clear all values from this net-worth calculation?')) return;
+    allNetWorthIds.forEach((id) => {
+      const input = getNetWorthInput(id);
+      if (input) {
+        input.value = '';
+        clearNetWorthError(input);
+      }
+    });
+    if (netWorthFormError) netWorthFormError.hidden = true;
+    if (netWorthResult) netWorthResult.hidden = true;
+    getNetWorthInput('cash')?.focus();
+  });
+</script>
+
+<style>
+  .formula-strip {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(0.45rem, 2vw, 1rem);
+    margin-bottom: 1rem;
+    padding: 0.9rem 1rem;
+    overflow-x: visible;
+    white-space: normal;
+    border: 1px solid var(--color-hairline);
+    border-radius: var(--radius-lg);
+    color: var(--color-body);
+    font-family: var(--font-mono);
+    font-size: clamp(0.72rem, 2.2vw, 0.875rem);
+    line-height: 1.45;
+    text-align: center;
+  }
+
+  .formula-strip strong { color: var(--color-ink); }
+
+  .calculator {
+    padding: clamp(1rem, 3vw, 1.75rem);
+  }
+
+  .calculator__privacy {
+    margin: 0 0 1.75rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--color-hairline);
+    font-size: 0.8125rem;
+    color: var(--color-body);
+  }
+
+  .calculator__privacy span { color: var(--color-status-cooking); }
+
+  fieldset {
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+
+  fieldset + fieldset {
+    margin-top: 2.25rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--color-hairline);
+  }
+
+  legend {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+    margin-bottom: 1.25rem;
+    padding: 0;
+  }
+
+  legend > span:last-child { display: grid; gap: 0.12rem; }
+  legend strong { font-size: 1.125rem; }
+  legend small { color: var(--color-body); font-size: 0.8125rem; }
+
+  .legend__index {
+    display: grid;
+    place-items: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border: 1px solid var(--color-hairline-strong);
+    border-radius: 50%;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+  }
+
+  .field-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.25rem 1rem;
+  }
+
+  .money-field { min-width: 0; }
+  .money-field label { display: block; margin-bottom: 0.45rem; font-weight: 600; font-size: 0.9rem; }
+  .money-field > small { display: block; margin-top: 0.4rem; color: var(--color-body); font-size: 0.75rem; line-height: 1.4; }
+
+  .money-input { position: relative; }
+  .money-input > span {
+    position: absolute;
+    top: 50%;
+    left: 0.9rem;
+    transform: translateY(-50%);
+    color: var(--color-body);
+    pointer-events: none;
+  }
+
+  .money-input input {
+    width: 100%;
+    height: 50px;
+    padding: 0 0.9rem 0 2rem;
+    background: var(--color-canvas-soft);
+    border: 1px solid var(--color-body);
+    border-radius: var(--radius-md);
+    color: var(--color-ink);
+    font: inherit;
+  }
+  .money-input input::placeholder { color: var(--color-body); opacity: 1; }
+
+  .money-input input:focus-visible { border-color: var(--color-link); outline: 2px solid color-mix(in srgb, var(--color-link) 30%, transparent); outline-offset: 1px; }
+  .money-input input[aria-invalid='true'] { border-color: var(--color-status-apocalypse); }
+
+  .field-error,
+  .form-error {
+    color: var(--color-status-apocalypse);
+    font-size: 0.8125rem;
+    line-height: 1.4;
+  }
+
+  .field-error { display: block; margin-top: 0.35rem; }
+  .field-error[hidden], .form-error[hidden] { display: none; }
+
+  .form-error {
+    margin: 1.25rem 0 0;
+    padding: 0.75rem 0.9rem;
+    border-left: 3px solid var(--color-status-apocalypse);
+    background: color-mix(in srgb, var(--color-status-apocalypse) 8%, transparent);
+  }
+
+  .calculator__actions { display: flex; gap: 0.75rem; margin-top: 1.5rem; }
+
+  .result {
+    margin-top: 1rem;
+    overflow: hidden;
+    border: 1px solid color-mix(in srgb, var(--color-status-cooking) 42%, var(--color-hairline));
+    border-radius: var(--radius-xl);
+    background: color-mix(in srgb, var(--color-status-cooking) 6%, var(--color-surface));
+  }
+
+  .result[hidden] { display: none; }
+  .result__head { padding: clamp(1.25rem, 4vw, 2rem); }
+  .result__head h2 { margin: 0.45rem 0 0; font-size: clamp(1.6rem, 5vw, 2.35rem); }
+  .result__head output { color: var(--color-status-cooking); }
+  .result__head p { margin-bottom: 0; }
+
+  .result__stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    border-top: 1px solid var(--color-hairline);
+    border-bottom: 1px solid var(--color-hairline);
+  }
+
+  .result__stats > div { display: grid; gap: 0.3rem; padding: 1rem 1.25rem; }
+  .result__stats > div + div { border-left: 1px solid var(--color-hairline); }
+  .result__stats span { color: var(--color-body); font-size: 0.75rem; }
+  .result__stats strong { font-family: var(--font-mono); font-size: 1.05rem; }
+  .result__worked { margin: 0; padding: 1rem 1.25rem; font-family: var(--font-mono); font-size: 0.8125rem; }
+
+  .method { margin-top: 3rem; }
+
+  @media (max-width: 600px) {
+    .field-grid { grid-template-columns: 1fr; }
+    .calculator__actions { flex-direction: column; }
+    .calculator__actions button { width: 100%; }
+  }
+
+  @media (max-width: 420px) {
+    .result__stats { grid-template-columns: 1fr; }
+    .result__stats > div + div { border-left: 0; border-top: 1px solid var(--color-hairline); }
+  }
+</style>

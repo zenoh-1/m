@@ -1,0 +1,198 @@
+---
+import PageLayout from '../../layouts/PageLayout.astro';
+
+const calculators = [
+  {
+    href: '/calculators/net-worth/',
+    number: '01',
+    title: 'Net worth calculator',
+    description: 'See a complete assets-minus-liabilities snapshot, with every category shown.',
+    output: 'Total assets, total debts and net worth',
+  },
+  {
+    href: '/calculators/debt-to-income/',
+    number: '02',
+    title: 'Debt-to-income calculator',
+    description: 'Compare required monthly debt payments with gross monthly income using the standard formula.',
+    output: 'Monthly debt total and DTI percentage',
+  },
+  {
+    href: '/calculators/emergency-fund/',
+    number: '03',
+    title: 'Emergency fund calculator',
+    description: 'Translate liquid savings into months of essential-expense coverage and test a target.',
+    output: 'Current runway, target amount and funding gap',
+  },
+  {
+    href: '/calculators/savings-rate/',
+    number: '04',
+    title: 'Savings rate calculator',
+    description: 'Choose gross or take-home income, then measure the share you are setting aside.',
+    output: 'Monthly rate and annualized savings amount',
+  },
+];
+---
+
+<PageLayout
+  title="Free Personal Finance Calculators | Cooked Finance"
+  description="Use four free, private financial calculators for net worth, debt-to-income ratio, emergency savings, and savings rate. No signup and no stored inputs."
+  path="/calculators/"
+  eyebrow="Financial tools"
+  heading="Four numbers that make your money easier to understand."
+  lead="Each calculator answers one specific question with a transparent formula. Your inputs stay in this browser tab and disappear when you leave."
+  updated="August 17, 2026"
+>
+  <section class="tool-grid" aria-label="Available financial calculators">
+    {calculators.map((calculator) => (
+      <a class="tool-card" href={calculator.href}>
+        <span class="tool-card__number" aria-hidden="true">{calculator.number}</span>
+        <h2>{calculator.title}</h2>
+        <p>{calculator.description}</p>
+        <span class="tool-card__output">Shows: {calculator.output}</span>
+        <span class="tool-card__action">Open calculator <span aria-hidden="true">&#8594;</span></span>
+      </a>
+    ))}
+  </section>
+
+  <section class="sequence" aria-labelledby="sequence-heading">
+    <span class="eyebrow">A useful order</span>
+    <h2 id="sequence-heading">Build the picture from the ground up</h2>
+    <ol>
+      <li><strong>Start with net worth</strong> for a balance-sheet snapshot.</li>
+      <li><strong>Check debt-to-income</strong> to understand current payment pressure.</li>
+      <li><strong>Measure emergency runway</strong> to see how long liquid savings could cover essentials.</li>
+      <li><strong>Track savings rate</strong> to measure the behavior that can change the picture over time.</li>
+    </ol>
+    <p>
+      These figures describe different parts of your finances; none is a complete financial-health verdict on its own.
+      Income stability, insurance, dependents, taxes, location, goals and access to credit all matter too.
+    </p>
+  </section>
+
+  <aside class="privacy-note" aria-labelledby="privacy-heading">
+    <div class="privacy-note__icon" aria-hidden="true">&#10003;</div>
+    <div>
+      <h2 id="privacy-heading">Private by construction</h2>
+      <p>
+        Calculations run on your device. These tools do not place values in the address bar, save them to local storage,
+        or require an account. Nothing here is personalized financial advice.
+      </p>
+    </div>
+  </aside>
+</PageLayout>
+
+<style>
+  .tool-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+  }
+
+  .tool-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-height: 310px;
+    padding: 1.35rem;
+    overflow: hidden;
+    background: var(--color-surface);
+    border: 1px solid var(--color-hairline);
+    border-radius: var(--radius-xl);
+    color: var(--color-ink) !important;
+    text-decoration: none !important;
+    transition: transform 180ms var(--ease-out-expo), border-color 180ms var(--ease-out-expo);
+  }
+
+  .tool-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--color-hairline-strong);
+  }
+
+  .tool-card::after {
+    content: '';
+    position: absolute;
+    inset: auto -25% -50% 35%;
+    height: 180px;
+    border-radius: 50%;
+    background: radial-gradient(circle, color-mix(in srgb, var(--color-grad-amber) 14%, transparent), transparent 68%);
+    pointer-events: none;
+  }
+
+  .tool-card__number {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--color-body);
+  }
+
+  .tool-card h2 {
+    margin: 2.75rem 0 0;
+    max-width: 12ch;
+    font-size: clamp(1.35rem, 3vw, 1.75rem);
+    line-height: 1.15;
+  }
+
+  .tool-card p {
+    margin: 0.75rem 0 0;
+    line-height: 1.55;
+  }
+
+  .tool-card__output {
+    margin-top: auto;
+    padding-top: 1.5rem;
+    color: var(--color-body);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    line-height: 1.45;
+  }
+
+  .tool-card__action {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    justify-content: space-between;
+    margin-top: 0.9rem;
+    font-weight: 600;
+  }
+
+  .sequence {
+    margin-top: 3rem;
+    padding: 2rem;
+    border: 1px solid var(--color-hairline);
+    border-radius: var(--radius-xl);
+    background: var(--color-canvas-soft);
+  }
+
+  .sequence h2 { margin-top: 0.5rem; }
+  .sequence ol { margin-top: 1.25rem; }
+
+  .privacy-note {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 1rem;
+    margin-top: 1.25rem;
+    padding: 1.25rem;
+    border: 1px solid color-mix(in srgb, var(--color-status-cooking) 38%, var(--color-hairline));
+    border-radius: var(--radius-xl);
+    background: color-mix(in srgb, var(--color-status-cooking) 7%, var(--color-surface));
+  }
+
+  .privacy-note__icon {
+    display: grid;
+    place-items: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    background: var(--color-status-cooking);
+    color: var(--color-on-primary);
+    font-weight: 700;
+  }
+
+  .privacy-note h2 { margin: 0; font-size: 1.125rem; }
+  .privacy-note p { margin: 0.4rem 0 0; }
+
+  @media (max-width: 640px) {
+    .tool-grid { grid-template-columns: 1fr; }
+    .tool-card { min-height: 260px; }
+    .sequence { padding: 1.25rem; }
+  }
+</style>

@@ -1,0 +1,127 @@
+---
+type CalculatorSlug = 'net-worth' | 'debt-to-income' | 'emergency-fund' | 'savings-rate';
+
+interface Props {
+  current?: CalculatorSlug;
+}
+
+const { current } = Astro.props;
+
+const calculators: Array<{ slug: CalculatorSlug; title: string; description: string }> = [
+  {
+    slug: 'net-worth',
+    title: 'Net worth',
+    description: 'Add up what you own, then subtract everything you owe.',
+  },
+  {
+    slug: 'debt-to-income',
+    title: 'Debt-to-income',
+    description: 'Compare required monthly debt payments with gross income.',
+  },
+  {
+    slug: 'emergency-fund',
+    title: 'Emergency fund',
+    description: 'Estimate your liquid-savings runway and target gap.',
+  },
+  {
+    slug: 'savings-rate',
+    title: 'Savings rate',
+    description: 'Measure how much of your chosen monthly income you save.',
+  },
+];
+
+const visibleCalculators = calculators.filter((calculator) => calculator.slug !== current);
+---
+
+<nav class="related" aria-labelledby="related-calculators-heading">
+  <div class="related__heading-row">
+    <h2 id="related-calculators-heading">Continue your checkup</h2>
+    <a href="/calculators/">All calculators</a>
+  </div>
+  <div class="related__grid">
+    {visibleCalculators.map((calculator) => (
+      <a class="related__card" href={`/calculators/${calculator.slug}/`}>
+        <span>{calculator.title}</span>
+        <small>{calculator.description}</small>
+        <span class="related__arrow" aria-hidden="true">&#8594;</span>
+      </a>
+    ))}
+  </div>
+</nav>
+
+<style>
+  .related {
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--color-hairline);
+  }
+
+  .related__heading-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .related__heading-row h2 {
+    margin: 0;
+    font-size: 1.25rem;
+  }
+
+  .related__heading-row > a {
+    flex: none;
+    font-size: 0.875rem;
+  }
+
+  .related__grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.75rem;
+  }
+
+  .related__card {
+    position: relative;
+    display: grid;
+    min-height: 150px;
+    padding: 1rem;
+    border: 1px solid var(--color-hairline);
+    border-radius: var(--radius-lg);
+    background: var(--color-surface);
+    color: var(--color-ink) !important;
+    text-decoration: none !important;
+    transition: border-color 180ms var(--ease-out-expo), transform 180ms var(--ease-out-expo);
+  }
+
+  .related__card:hover {
+    border-color: var(--color-hairline-strong);
+    transform: translateY(-2px);
+  }
+
+  .related__card > span:first-child {
+    font-weight: 600;
+  }
+
+  .related__card small {
+    align-self: start;
+    margin-top: 0.35rem;
+    color: var(--color-body);
+    font-size: 0.8125rem;
+    line-height: 1.45;
+  }
+
+  .related__arrow {
+    align-self: end;
+    justify-self: end;
+    font-size: 1.125rem;
+  }
+
+  @media (max-width: 720px) {
+    .related__grid { grid-template-columns: 1fr; }
+    .related__card { min-height: 120px; }
+  }
+
+  @media (max-width: 420px) {
+    .related__heading-row { align-items: flex-start; flex-direction: column; }
+  }
+</style>

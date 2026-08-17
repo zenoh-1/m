@@ -1,99 +1,183 @@
 /**
- * scoring.ts — Financial Cooked Score engine.
+ * Cooked Finance educational score engine.
  *
- * Fully client-side, deterministic, no network. Inspired by Federal Reserve
- * Survey of Consumer Finances style benchmarks (see src/data/benchmarks.json).
- *
- * Scoring priority (highest impact first):
- *   1. Savings-to-income ratio
- *   2. Debt-to-income ratio
- *   3. Net savings (savings - debt)
- *   4. Age-adjusted financial progress
- *
- * Income alone never guarantees a high score — savings & debt dominate.
- *
- * For entertainment and educational purposes only. Not financial advice.
+ * The calculation is fully client-side, deterministic, and intentionally
+ * narrow. It summarizes four entered ratios; it does not estimate a
+ * percentile, creditworthiness, net worth, or a personalized financial plan.
  */
 
 import benchmarks from '../data/benchmarks.json';
 
 export interface AssessmentInput {
-  /** Age in years, 18–70 */
+  /** Age in whole years. */
   age: number;
-  /** Gross annual income in USD */
-  income: number;
-  /** Total savings + investments in USD */
-  savings: number;
-  /** Total debt in USD */
-  debt: number;
+  /** Gross annual income, before taxes and deductions. */
+  annualIncome: number;
+  /** Monthly must-pay living costs, excluding savings. */
+  monthlyEssentialExpenses: number;
+  /** Cash that is readily available for an emergency. */
+  liquidSavings: number;
+  /** Required monthly payments across all debts. */
+  monthlyDebtPayments: number;
+  /** Current balance in retirement-focused accounts. */
+  retirementInvestments: number;
+  /** Amount currently added to savings and investments each month. */
+  monthlySavings: number;
 }
 
+export type PillarKey =
+  | 'cashBuffer'
+  | 'debtBurden'
+  | 'savingsHabit'
+  | 'longTermProgress';
+
 export type StatusKey =
-  | 'apocalypse'
-  | 'deep-fried'
-  | 'medium-rare'
-  | 'stable'
-  | 'cooking';
+  | 'needs-attention'
+  | 'running-hot'
+  | 'finding-balance'
+  | 'steady-heat'
+  | 'cooking-confidently';
 
 export interface StatusLevel {
   key: StatusKey;
   label: string;
   emoji: string;
-  /** inclusive lower bound */
+  summary: string;
+  /** Inclusive lower bound. */
   min: number;
-  /** inclusive upper bound */
+  /** Inclusive upper bound. */
   max: number;
 }
 
-export interface ScoreBreakdown {
-  /** 0..1 sub-scores for transparency / debugging */
-  savingsToIncome: number;
-  debtToIncome: number;
-  netSavings: number;
-  ageAdjustedProgress: number;
+export interface PillarScores {
+  cashBuffer: number;
+  debtBurden: number;
+  savingsHabit: number;
+  longTermProgress: number;
+}
+
+export interface ScoreMetrics {
+  grossMonthlyIncome: number;
+  /** liquidSavings / monthlyEssentialExpenses; null when expenses are zero. */
+  cashBufferMonths: number | null;
+  /** monthlyDebtPayments / grossMonthlyIncome; null when income is zero. */
+  debtToIncomeRatio: number | null;
+  /** The same DTI value expressed from 0 to 100+ for display. */
+  debtToIncomePercent: number | null;
+  /** monthlySavings / grossMonthlyIncome; null when income is zero. */
+  savingsRate: number | null;
+  /** The same savings-rate value expressed as a percentage. */
+  savingsRatePercent: number | null;
+  /** retirementInvestments / annualIncome; null when income is zero. */
+  retirementSavingsMultiple: number | null;
+  retirementTargetMultiple: number;
+  retirementTargetAmount: number;
+  /** Current multiple / modeled target; null when income is zero. */
+  retirementProgressRatio: number | null;
+}
+
+export interface ScoreFactor {
+  key: PillarKey;
+  label: string;
+  /** Decimal weight; e.g. 0.30 means 30% of the total score. */
+  weight: number;
+  /** Pillar score, 0–100. */
+  score: number;
+  /** Contribution to the final 0–100 score. */
+  weightedPoints: number;
+  metricLabel: string;
+  benchmarkLabel: string;
+  explanation: string;
+  sourceIds: string[];
+  sourceUrls: string[];
+}
+
+export interface ScoreStrength {
+  pillar: PillarKey | 'overall';
+  title: string;
+  description: string;
+}
+
+export interface PrioritizedNextMove {
+  priority: 1 | 2 | 3;
+  pillar: PillarKey;
+  title: string;
+  description: string;
+  /** Optional dollar target used by the UI; not a recommendation or forecast. */
+  suggestedTargetAmount?: number;
 }
 
 export interface ScoreResult {
   input: AssessmentInput;
-  /** Final Cooked Score, 0–100 */
+  /** Final Cooked Score, rounded to an integer from 0 to 100. */
   score: number;
   status: StatusLevel;
-  /** "Ahead of X% of Americans your age", 1–99 */
-  percentile: number;
-  /** Estimated financial age in years */
-  financialAge: number;
-  /** Key ratios, rounded for display */
-  metrics: {
-    savingsToIncomeRatio: number;
-    debtToIncomeRatio: number;
-    netWorth: number;
-    savingsMultipleTarget: number;
-  };
-  breakdown: ScoreBreakdown;
+  metrics: ScoreMetrics;
+  pillarScores: PillarScores;
+  factors: ScoreFactor[];
+  strengths: ScoreStrength[];
+  nextMoves: PrioritizedNextMove[];
+  warnings: string[];
+  methodologyVersion: string;
+  educationalEstimate: true;
+  disclosure: string;
 }
 
 export const STATUS_LEVELS: StatusLevel[] = [
-  { key: 'apocalypse', label: 'Financial Apocalypse', emoji: '☠️', min: 0, max: 20 },
-  { key: 'deep-fried', label: 'Deep Fried', emoji: '🍗', min: 21, max: 40 },
-  { key: 'medium-rare', label: 'Medium Rare', emoji: '🥩', min: 41, max: 60 },
-  { key: 'stable', label: 'Financially Stable', emoji: '📈', min: 61, max: 80 },
-  { key: 'cooking', label: 'Cooking Successfully', emoji: '🚀', min: 81, max: 100 },
+  {
+    key: 'needs-attention',
+    label: 'Needs Attention',
+    emoji: '🧭',
+    summary: 'A few foundations need attention. Start with one manageable move.',
+    min: 0,
+    max: 24,
+  },
+  {
+    key: 'running-hot',
+    label: 'Running Hot',
+    emoji: '🔥',
+    summary: 'Some pressure is showing, but the clearest improvements are within reach.',
+    min: 25,
+    max: 44,
+  },
+  {
+    key: 'finding-balance',
+    label: 'Finding Balance',
+    emoji: '⚖️',
+    summary: 'The foundation is taking shape, with room to strengthen a few pillars.',
+    min: 45,
+    max: 64,
+  },
+  {
+    key: 'steady-heat',
+    label: 'Steady Heat',
+    emoji: '🌤️',
+    summary: 'Several healthy foundations are working together. Keep the rhythm going.',
+    min: 65,
+    max: 84,
+  },
+  {
+    key: 'cooking-confidently',
+    label: 'Cooking Confidently',
+    emoji: '✨',
+    summary: 'The entered figures show strong foundations across most or all pillars.',
+    min: 85,
+    max: 100,
+  },
 ];
 
-const W = benchmarks.scoring.weights;
-const CURVES = benchmarks.scoring.curves;
-/**
- * Income floor used for all income-relative ratios. Without it, a tiny income
- * (e.g. $90) makes any savings look enormous and any debt ratio explode in a
- * way that can paradoxically out-score a larger, realistic income with the
- * same savings/debt. Flooring keeps the score monotonic and believable.
- */
-const INCOME_FLOOR = benchmarks.scoring.incomeFloor ?? 15000;
+export const SCORE_DISCLOSURE = benchmarks._meta.disclaimer;
+export const METHODOLOGY_VERSION = benchmarks._meta.version;
 
-/** Income used for ratio math: never below the floor. */
-function effectiveIncome(income: number): number {
-  return Math.max(income, INCOME_FLOOR);
-}
+export const PILLAR_WEIGHTS: Record<PillarKey, number> = {
+  cashBuffer: benchmarks.scoring.weights.cashBuffer,
+  debtBurden: benchmarks.scoring.weights.debtBurden,
+  savingsHabit: benchmarks.scoring.weights.savingsHabit,
+  longTermProgress: benchmarks.scoring.weights.longTermProgress,
+};
+
+const CURVES = benchmarks.scoring.curves;
+const MONEY_CAP = Number.MAX_SAFE_INTEGER;
 
 /** Clamp a number into [min, max]. */
 export function clamp(value: number, min: number, max: number): number {
@@ -101,235 +185,588 @@ export function clamp(value: number, min: number, max: number): number {
 }
 
 /**
- * Piecewise-linear interpolation across an ordered list of [x, y] anchors.
- * Values outside the anchor range clamp to the nearest endpoint.
+ * Piecewise-linear interpolation across ordered [x, y] anchors.
+ * Values outside the range clamp to the nearest endpoint.
  */
 function interpolate(anchors: number[][], x: number): number {
   if (anchors.length === 0) return 0;
   if (x <= anchors[0][0]) return anchors[0][1];
+
   const last = anchors[anchors.length - 1];
   if (x >= last[0]) return last[1];
 
-  for (let i = 0; i < anchors.length - 1; i++) {
-    const [x0, y0] = anchors[i];
-    const [x1, y1] = anchors[i + 1];
+  for (let index = 0; index < anchors.length - 1; index += 1) {
+    const [x0, y0] = anchors[index];
+    const [x1, y1] = anchors[index + 1];
     if (x >= x0 && x <= x1) {
-      const t = x1 === x0 ? 0 : (x - x0) / (x1 - x0);
-      return y0 + t * (y1 - y0);
+      const progress = x1 === x0 ? 0 : (x - x0) / (x1 - x0);
+      return y0 + progress * (y1 - y0);
     }
   }
+
   return last[1];
 }
 
-/** Sanitize raw form input into a safe, bounded AssessmentInput. */
+/** Sanitize raw form values into finite, non-negative dollar amounts. */
 export function normalizeInput(raw: Partial<AssessmentInput>): AssessmentInput {
-  const age = clamp(Math.round(Number(raw.age) || 0), 18, 70);
-  const income = Math.max(0, Number(raw.income) || 0);
-  const savings = Math.max(0, Number(raw.savings) || 0);
-  const debt = Math.max(0, Number(raw.debt) || 0);
-  return { age, income, savings, debt };
-}
-
-/** Target savings multiple (× income) for a given age, per Fidelity-style guideposts. */
-export function savingsMultipleTarget(age: number): number {
-  const anchors = benchmarks.savingsMultipleTargets.map((t) => [t.age, t.target]);
-  return interpolate(anchors, age);
-}
-
-/**
- * Estimate net-worth percentile for a person of a given age.
- * Uses per-age anchors (p10..p95) interpolated by age, then maps the user's
- * net worth onto a percentile via piecewise interpolation between breakpoints.
- * Returns 1..99.
- */
-export function netWorthPercentile(age: number, netWorth: number): number {
-  const rows = benchmarks.netWorthPercentilesByAge;
-
-  // Find / interpolate the percentile breakpoints for this exact age.
-  let lower = rows[0];
-  let upper = rows[rows.length - 1];
-  for (let i = 0; i < rows.length - 1; i++) {
-    if (age >= rows[i].age && age <= rows[i + 1].age) {
-      lower = rows[i];
-      upper = rows[i + 1];
-      break;
-    }
-  }
-  const span = upper.age - lower.age;
-  const t = span === 0 ? 0 : clamp((age - lower.age) / span, 0, 1);
-  const lerp = (a: number, b: number) => a + t * (b - a);
-
-  // Percentile breakpoints interpolated to the user's age.
-  const points: Array<[number, number]> = [
-    [lerp(lower.p10, upper.p10), 10],
-    [lerp(lower.p25, upper.p25), 25],
-    [lerp(lower.p50, upper.p50), 50],
-    [lerp(lower.p75, upper.p75), 75],
-    [lerp(lower.p90, upper.p90), 90],
-    [lerp(lower.p95, upper.p95), 95],
-  ];
-
-  if (netWorth <= points[0][0]) {
-    // Below p10: scale down toward 1.
-    const floor = points[0][0] - Math.abs(points[0][0]) - 20000;
-    const frac = clamp((netWorth - floor) / (points[0][0] - floor || 1), 0, 1);
-    return clamp(Math.round(1 + frac * 9), 1, 99);
-  }
-  const top = points[points.length - 1];
-  if (netWorth >= top[0]) {
-    // Above p95: approach 99 asymptotically.
-    const extra = clamp((netWorth - top[0]) / (top[0] || 1), 0, 1);
-    return clamp(Math.round(95 + extra * 4), 1, 99);
-  }
-
-  for (let i = 0; i < points.length - 1; i++) {
-    const [v0, pct0] = points[i];
-    const [v1, pct1] = points[i + 1];
-    if (netWorth >= v0 && netWorth <= v1) {
-      const frac = v1 === v0 ? 0 : (netWorth - v0) / (v1 - v0);
-      return clamp(Math.round(pct0 + frac * (pct1 - pct0)), 1, 99);
-    }
-  }
-  return 50;
-}
-
-/**
- * Estimate a "financial age" — the age at which the user's savings multiple
- * would be on-track per the benchmark guideposts. Higher savings → younger
- * financial age; thin savings / heavy debt → older.
- */
-export function estimateFinancialAge(input: AssessmentInput): number {
-  const { age, savings, debt } = input;
-  const netWorth = savings - debt;
-  // Floor income to keep the effective-multiple math consistent with scoring.
-  const income = effectiveIncome(input.income);
-
-  // Effective multiple of income the user has banked (net of debt).
-  const effectiveMultiple = netWorth / income;
-
-  const targets = benchmarks.savingsMultipleTargets;
-
-  // Find the age whose target multiple matches the user's effective multiple.
-  let matchedAge = targets[0].age;
-  if (effectiveMultiple <= targets[0].target) {
-    // Below the youngest target — extrapolate older (behind schedule).
-    matchedAge = targets[0].age;
-  } else if (effectiveMultiple >= targets[targets.length - 1].target) {
-    matchedAge = targets[targets.length - 1].age;
-  } else {
-    for (let i = 0; i < targets.length - 1; i++) {
-      if (
-        effectiveMultiple >= targets[i].target &&
-        effectiveMultiple <= targets[i + 1].target
-      ) {
-        const frac =
-          (effectiveMultiple - targets[i].target) /
-          (targets[i + 1].target - targets[i].target);
-        matchedAge = targets[i].age + frac * (targets[i + 1].age - targets[i].age);
-        break;
-      }
-    }
-  }
-
-  // Financial age = real age shifted by how far ahead/behind the curve they are.
-  // If their effective multiple matches an older target age, they're "ahead"
-  // (younger financial age); if it matches a younger target, they're "behind".
-  const onTrackMultiple = savingsMultipleTarget(age);
-  let financialAge: number;
-  if (effectiveMultiple >= onTrackMultiple) {
-    // Ahead of schedule → financial age is younger than real age.
-    const ahead = matchedAge - age; // positive
-    financialAge = age - clamp(ahead, 0, 25);
-  } else {
-    // Behind schedule → financial age is older than real age.
-    const behind = age - matchedAge; // positive
-    financialAge = age + clamp(behind, 0, 30);
-  }
-
-  // Debt with no savings ages you further.
-  if (netWorth < 0) {
-    financialAge += clamp(Math.abs(netWorth) / income, 0, 1) * 6;
-  }
-
-  return clamp(Math.round(financialAge), 18, 99);
-}
-
-/** Compute the four normalized (0..1) sub-scores. */
-function computeBreakdown(input: AssessmentInput): ScoreBreakdown {
-  const { savings, debt } = input;
-  const netWorth = savings - debt;
-  // Floor income so sub-poverty incomes can't inflate income-relative ratios.
-  const income = effectiveIncome(input.income);
-
-  const savingsRatio = savings / income;
-  const debtRatio = debt / income;
-  const netSavingsRatio = netWorth / income;
-
-  const savingsToIncome = interpolate(CURVES.savingsToIncome, savingsRatio);
-  const debtToIncome = interpolate(CURVES.debtToIncome, debtRatio);
-  const netSavings = interpolate(CURVES.netSavingsRatio, netSavingsRatio);
-
-  // Age-adjusted progress: how close are they to their on-track savings multiple?
-  const target = savingsMultipleTarget(input.age);
-  const effectiveMultiple = netWorth / income;
-  const ageAdjustedProgress = clamp(
-    target > 0 ? effectiveMultiple / target : effectiveMultiple > 0 ? 1 : 0,
-    0,
-    1.1,
-  );
+  const ageValue = Number(raw.age);
+  const age = clamp(Number.isFinite(ageValue) ? Math.round(ageValue) : 18, 18, 100);
 
   return {
-    savingsToIncome,
-    debtToIncome,
-    netSavings,
-    ageAdjustedProgress: clamp(ageAdjustedProgress, 0, 1),
+    age,
+    annualIncome: normalizeMoney(raw.annualIncome),
+    monthlyEssentialExpenses: normalizeMoney(raw.monthlyEssentialExpenses),
+    liquidSavings: normalizeMoney(raw.liquidSavings),
+    monthlyDebtPayments: normalizeMoney(raw.monthlyDebtPayments),
+    retirementInvestments: normalizeMoney(raw.retirementInvestments),
+    monthlySavings: normalizeMoney(raw.monthlySavings),
   };
 }
 
-/** Map a 0–100 score to its status level. */
-export function getStatusLevel(score: number): StatusLevel {
-  const s = clamp(Math.round(score), 0, 100);
-  return STATUS_LEVELS.find((l) => s >= l.min && s <= l.max) ?? STATUS_LEVELS[0];
+/**
+ * Retirement-savings multiple used by the long-term pillar.
+ * Published Fidelity ages are linearly interpolated; the explicit early-career
+ * floor and interpolation are documented in benchmarks.json.
+ */
+export function retirementSavingsMultipleTarget(age: number): number {
+  const normalizedAge = clamp(Number.isFinite(age) ? age : 18, 18, 100);
+  const guideposts = benchmarks.retirementGuideposts.published;
+  const early = benchmarks.retirementGuideposts.earlyCareerModel;
+  const first = guideposts[0];
+
+  if (normalizedAge <= early.throughAge) return early.minimumTarget;
+
+  if (normalizedAge < early.firstPublishedAge) {
+    const progress =
+      (normalizedAge - early.throughAge) /
+      (early.firstPublishedAge - early.throughAge);
+    return round(
+      early.minimumTarget + progress * (first.target - early.minimumTarget),
+      2,
+    );
+  }
+
+  return round(
+    interpolate(
+      guideposts.map((guidepost) => [guidepost.age, guidepost.target]),
+      normalizedAge,
+    ),
+    2,
+  );
 }
 
-/**
- * Main entry point: compute the full Cooked Score result from raw input.
- */
+/** Backwards-friendly name for callers that only need the guidepost. */
+export const savingsMultipleTarget = retirementSavingsMultipleTarget;
+
+/** Map a 0–100 score to its supportive status band. */
+export function getStatusLevel(score: number): StatusLevel {
+  const normalizedScore = clamp(Math.round(score), 0, 100);
+  return (
+    STATUS_LEVELS.find(
+      (level) => normalizedScore >= level.min && normalizedScore <= level.max,
+    ) ?? STATUS_LEVELS[0]
+  );
+}
+
+/** Calculate a result from a base assessment with one or more changed values. */
+export function calculateScenario(
+  base: AssessmentInput,
+  changes: Partial<AssessmentInput>,
+): ScoreResult {
+  return calculateScore({ ...base, ...changes });
+}
+
+/** Main deterministic scoring entry point. */
 export function calculateScore(raw: Partial<AssessmentInput>): ScoreResult {
   const input = normalizeInput(raw);
-  const { income, savings, debt } = input;
-  const netWorth = savings - debt;
+  const grossMonthlyIncome = input.annualIncome / 12;
 
-  const breakdown = computeBreakdown(input);
+  const cashBufferMonths = safeRatio(
+    input.liquidSavings,
+    input.monthlyEssentialExpenses,
+  );
+  const debtToIncomeRatio = safeRatio(
+    input.monthlyDebtPayments,
+    grossMonthlyIncome,
+  );
+  const savingsRate = safeRatio(input.monthlySavings, grossMonthlyIncome);
+  const retirementSavingsMultiple = safeRatio(
+    input.retirementInvestments,
+    input.annualIncome,
+  );
+  const retirementTargetMultiple = retirementSavingsMultipleTarget(input.age);
+  const retirementProgressRatio =
+    retirementSavingsMultiple === null
+      ? null
+      : retirementSavingsMultiple / retirementTargetMultiple;
 
-  const weighted =
-    breakdown.savingsToIncome * W.savingsToIncome +
-    breakdown.debtToIncome * W.debtToIncome +
-    breakdown.netSavings * W.netSavings +
-    breakdown.ageAdjustedProgress * W.ageAdjustedProgress;
+  const pillarScores: PillarScores = {
+    cashBuffer: scoreMetric(CURVES.cashBufferMonths, cashBufferMonths),
+    debtBurden: scoreMetric(CURVES.debtToIncomeRatio, debtToIncomeRatio),
+    savingsHabit: scoreMetric(CURVES.monthlySavingsRate, savingsRate),
+    longTermProgress: scoreMetric(
+      CURVES.retirementTargetProgress,
+      retirementProgressRatio,
+    ),
+  };
 
-  const score = clamp(Math.round(weighted * 100), 0, 100);
-  const status = getStatusLevel(score);
-  const percentile = netWorthPercentile(input.age, netWorth);
-  const financialAge = estimateFinancialAge(input);
+  const metrics: ScoreMetrics = {
+    grossMonthlyIncome: round(grossMonthlyIncome, 2),
+    cashBufferMonths: nullableRound(cashBufferMonths, 2),
+    debtToIncomeRatio: nullableRound(debtToIncomeRatio, 4),
+    debtToIncomePercent: nullableRound(
+      debtToIncomeRatio === null ? null : debtToIncomeRatio * 100,
+      1,
+    ),
+    savingsRate: nullableRound(savingsRate, 4),
+    savingsRatePercent: nullableRound(
+      savingsRate === null ? null : savingsRate * 100,
+      1,
+    ),
+    retirementSavingsMultiple: nullableRound(retirementSavingsMultiple, 2),
+    retirementTargetMultiple,
+    retirementTargetAmount: round(
+      retirementTargetMultiple * input.annualIncome,
+      2,
+    ),
+    retirementProgressRatio: nullableRound(retirementProgressRatio, 3),
+  };
+
+  const factors = buildFactors(pillarScores, metrics);
+  const score = clamp(
+    Math.round(factors.reduce((total, factor) => total + factor.weightedPoints, 0)),
+    0,
+    100,
+  );
 
   return {
     input,
     score,
-    status,
-    percentile,
-    financialAge,
-    metrics: {
-      savingsToIncomeRatio: round(savings / effectiveIncome(income), 2),
-      debtToIncomeRatio: round(debt / effectiveIncome(income), 2),
-      netWorth,
-      savingsMultipleTarget: round(savingsMultipleTarget(input.age), 1),
-    },
-    breakdown,
+    status: getStatusLevel(score),
+    metrics,
+    pillarScores,
+    factors,
+    strengths: buildStrengths(input, metrics, pillarScores),
+    nextMoves: buildNextMoves(input, metrics, pillarScores),
+    warnings: buildWarnings(input, metrics),
+    methodologyVersion: METHODOLOGY_VERSION,
+    educationalEstimate: true,
+    disclosure: SCORE_DISCLOSURE,
   };
 }
 
-function round(n: number, places: number): number {
-  const f = Math.pow(10, places);
-  return Math.round(n * f) / f;
+function buildFactors(scores: PillarScores, metrics: ScoreMetrics): ScoreFactor[] {
+  const cashMonths = metrics.cashBufferMonths;
+  const dtiPercent = metrics.debtToIncomePercent;
+  const savingsPercent = metrics.savingsRatePercent;
+  const retirementMultiple = metrics.retirementSavingsMultiple;
+
+  return [
+    makeFactor(
+      'cashBuffer',
+      'Cash buffer',
+      scores.cashBuffer,
+      cashMonths === null ? 'Not available' : `${formatNumber(cashMonths)} months`,
+      'General guidepost: 3–6 months of essential expenses',
+      cashMonths === null
+        ? 'A cash-buffer ratio needs a non-zero essential-expense amount.'
+        : `Liquid savings cover about ${formatNumber(cashMonths)} months of the entered essential expenses. Full pillar credit begins at 6 months.`,
+      ['fidelity-emergency-savings'],
+    ),
+    makeFactor(
+      'debtBurden',
+      'Debt burden',
+      scores.debtBurden,
+      dtiPercent === null ? 'Not available' : `${formatNumber(dtiPercent)}% DTI`,
+      'Monthly debt payments ÷ gross monthly income',
+      dtiPercent === null
+        ? 'DTI needs a non-zero gross income amount.'
+        : `${formatNumber(dtiPercent)}% of gross monthly income goes to the entered monthly debt payments. Lower payment burden receives more pillar credit.`,
+      ['cfpb-dti-definition'],
+    ),
+    makeFactor(
+      'savingsHabit',
+      'Savings habit',
+      scores.savingsHabit,
+      savingsPercent === null
+        ? 'Not available'
+        : `${formatNumber(savingsPercent)}% saved monthly`,
+      'Cooked Finance scale: 15% is strong; 20% earns full credit',
+      savingsPercent === null
+        ? 'A savings-rate ratio needs a non-zero gross income amount.'
+        : `The entered monthly savings equal about ${formatNumber(savingsPercent)}% of gross monthly income. Fidelity's 15% retirement guideline informs the scale, though this input may also include non-retirement saving.`,
+      ['fidelity-retirement-guideposts'],
+    ),
+    makeFactor(
+      'longTermProgress',
+      'Long-term progress',
+      scores.longTermProgress,
+      retirementMultiple === null
+        ? 'Not available'
+        : `${formatNumber(retirementMultiple)}× annual income`,
+      `${formatNumber(metrics.retirementTargetMultiple)}× modeled age guidepost`,
+      retirementMultiple === null
+        ? 'Long-term progress needs a non-zero gross annual income amount.'
+        : `Retirement investments equal about ${formatNumber(retirementMultiple)}× annual income, compared with a ${formatNumber(metrics.retirementTargetMultiple)}× broad age guidepost. Published guidepost ages are linearly interpolated.`,
+      ['fidelity-retirement-guideposts'],
+    ),
+  ];
+}
+
+function makeFactor(
+  key: PillarKey,
+  label: string,
+  score: number,
+  metricLabel: string,
+  benchmarkLabel: string,
+  explanation: string,
+  sourceIds: string[],
+): ScoreFactor {
+  const weight = PILLAR_WEIGHTS[key];
+  return {
+    key,
+    label,
+    weight,
+    score,
+    weightedPoints: round(score * weight, 2),
+    metricLabel,
+    benchmarkLabel,
+    explanation,
+    sourceIds,
+    sourceUrls: sourceIds.map(sourceUrl),
+  };
+}
+
+function buildStrengths(
+  input: AssessmentInput,
+  metrics: ScoreMetrics,
+  scores: PillarScores,
+): ScoreStrength[] {
+  const strengths: ScoreStrength[] = [];
+
+  if (scores.cashBuffer >= 75 && metrics.cashBufferMonths !== null) {
+    strengths.push({
+      pillar: 'cashBuffer',
+      title: 'A meaningful cash cushion',
+      description: `Liquid savings cover about ${formatNumber(metrics.cashBufferMonths)} months of essential expenses.`,
+    });
+  } else if (scores.cashBuffer >= 20 && input.liquidSavings > 0) {
+    strengths.push({
+      pillar: 'cashBuffer',
+      title: 'Your cash buffer is underway',
+      description: 'You already have liquid savings to build on.',
+    });
+  }
+
+  if (scores.debtBurden >= 75 && metrics.debtToIncomePercent !== null) {
+    strengths.push({
+      pillar: 'debtBurden',
+      title: 'Relatively light monthly debt pressure',
+      description: `Entered debt payments use about ${formatNumber(metrics.debtToIncomePercent)}% of gross monthly income.`,
+    });
+  }
+
+  if (scores.savingsHabit >= 65 && metrics.savingsRatePercent !== null) {
+    strengths.push({
+      pillar: 'savingsHabit',
+      title: 'A consistent savings habit',
+      description: `You are directing about ${formatNumber(metrics.savingsRatePercent)}% of gross monthly income to savings and investments.`,
+    });
+  } else if (scores.savingsHabit >= 20 && input.monthlySavings > 0) {
+    strengths.push({
+      pillar: 'savingsHabit',
+      title: 'Monthly saving is already in motion',
+      description: 'A repeatable contribution is a useful foundation to grow.',
+    });
+  }
+
+  if (scores.longTermProgress >= 78) {
+    strengths.push({
+      pillar: 'longTermProgress',
+      title: 'Close to or above the broad age guidepost',
+      description: 'The entered retirement balance shows substantial long-term progress.',
+    });
+  } else if (scores.longTermProgress >= 20 && input.retirementInvestments > 0) {
+    strengths.push({
+      pillar: 'longTermProgress',
+      title: 'Long-term investing has started',
+      description: 'You have retirement-focused investments already working toward the future.',
+    });
+  }
+
+  if (strengths.length === 0) {
+    strengths.push({
+      pillar: 'overall',
+      title: 'You have a clear starting point',
+      description: 'Completing the check makes the next useful step easier to identify.',
+    });
+  }
+
+  const scoreFor = (strength: ScoreStrength): number =>
+    strength.pillar === 'overall' ? -1 : scores[strength.pillar];
+
+  return dedupeByTitle(strengths)
+    .sort((a, b) => scoreFor(b) - scoreFor(a))
+    .slice(0, 3);
+}
+
+interface MoveCandidate {
+  pillar: PillarKey;
+  title: string;
+  description: string;
+  suggestedTargetAmount?: number;
+  opportunity: number;
+}
+
+function buildNextMoves(
+  input: AssessmentInput,
+  metrics: ScoreMetrics,
+  scores: PillarScores,
+): PrioritizedNextMove[] {
+  const candidates: MoveCandidate[] = [
+    cashBufferMove(input, metrics, scores.cashBuffer),
+    debtBurdenMove(metrics, scores.debtBurden),
+    savingsHabitMove(input, metrics, scores.savingsHabit),
+    longTermMove(input, metrics, scores.longTermProgress),
+  ];
+
+  return candidates
+    .sort((a, b) => b.opportunity - a.opportunity)
+    .slice(0, 3)
+    .map(({ opportunity: _opportunity, ...move }, index) => ({
+      ...move,
+      priority: (index + 1) as 1 | 2 | 3,
+    }));
+}
+
+function cashBufferMove(
+  input: AssessmentInput,
+  metrics: ScoreMetrics,
+  score: number,
+): MoveCandidate {
+  const opportunity = (100 - score) * PILLAR_WEIGHTS.cashBuffer;
+  const months = metrics.cashBufferMonths;
+
+  if (months === null) {
+    return {
+      pillar: 'cashBuffer',
+      title: 'Confirm essential monthly expenses',
+      description: 'Enter a realistic must-pay monthly amount so the cash cushion can be assessed.',
+      opportunity,
+    };
+  }
+
+  const nextMonths = months < 1 ? 1 : months < 3 ? 3 : months < 6 ? 6 : 6;
+  const target = round(input.monthlyEssentialExpenses * nextMonths, 2);
+
+  if (months >= 6) {
+    return {
+      pillar: 'cashBuffer',
+      title: 'Keep the cash buffer accessible',
+      description: 'Review the amount after major expense changes and replenish it after use.',
+      suggestedTargetAmount: target,
+      opportunity,
+    };
+  }
+
+  return {
+    pillar: 'cashBuffer',
+    title: `Build toward ${nextMonths} month${nextMonths === 1 ? '' : 's'} of essentials`,
+    description: `A staged target keeps the broader 3–6 month guidepost manageable. The next modeled checkpoint is ${formatCurrency(target)}.`,
+    suggestedTargetAmount: target,
+    opportunity,
+  };
+}
+
+function debtBurdenMove(
+  metrics: ScoreMetrics,
+  score: number,
+): MoveCandidate {
+  const opportunity = (100 - score) * PILLAR_WEIGHTS.debtBurden;
+  const dti = metrics.debtToIncomeRatio;
+
+  if (dti === null) {
+    return {
+      pillar: 'debtBurden',
+      title: 'Confirm gross annual income',
+      description: 'A non-zero income is needed to calculate the standard debt-to-income ratio.',
+      opportunity,
+    };
+  }
+
+  if (dti > 0.43) {
+    return {
+      pillar: 'debtBurden',
+      title: 'Reduce monthly debt pressure first',
+      description: 'Review required payments and borrowing costs, then choose a sustainable payoff step without draining essential cash.',
+      opportunity,
+    };
+  }
+
+  if (dti > 0.3) {
+    return {
+      pillar: 'debtBurden',
+      title: 'Create more room around debt payments',
+      description: 'Look for a realistic way to lower required monthly payments or avoid adding new high-cost debt.',
+      opportunity,
+    };
+  }
+
+  return {
+    pillar: 'debtBurden',
+    title: 'Protect the manageable debt load',
+    description: 'Keep payments on time and reassess before taking on another recurring obligation.',
+    opportunity,
+  };
+}
+
+function savingsHabitMove(
+  input: AssessmentInput,
+  metrics: ScoreMetrics,
+  score: number,
+): MoveCandidate {
+  const opportunity = (100 - score) * PILLAR_WEIGHTS.savingsHabit;
+  const rate = metrics.savingsRate;
+
+  if (rate === null) {
+    return {
+      pillar: 'savingsHabit',
+      title: 'Confirm gross annual income',
+      description: 'A non-zero income is needed to assess the monthly savings rate.',
+      opportunity,
+    };
+  }
+
+  const targetRate = rate < 0.05 ? 0.05 : rate < 0.1 ? 0.1 : rate < 0.15 ? 0.15 : 0.2;
+  const targetAmount = round(metrics.grossMonthlyIncome * targetRate, 2);
+
+  if (rate >= 0.2) {
+    return {
+      pillar: 'savingsHabit',
+      title: 'Keep the savings habit automatic',
+      description: 'Review the amount after income or goal changes rather than relying on memory each month.',
+      suggestedTargetAmount: round(input.monthlySavings, 2),
+      opportunity,
+    };
+  }
+
+  return {
+    pillar: 'savingsHabit',
+    title: `Test a ${Math.round(targetRate * 100)}% savings checkpoint`,
+    description: `If cash flow allows, work gradually toward about ${formatCurrency(targetAmount)} per month rather than changing everything at once.`,
+    suggestedTargetAmount: targetAmount,
+    opportunity,
+  };
+}
+
+function longTermMove(
+  input: AssessmentInput,
+  metrics: ScoreMetrics,
+  score: number,
+): MoveCandidate {
+  const opportunity = (100 - score) * PILLAR_WEIGHTS.longTermProgress;
+  const progress = metrics.retirementProgressRatio;
+
+  if (progress === null) {
+    return {
+      pillar: 'longTermProgress',
+      title: 'Confirm gross annual income',
+      description: 'A non-zero income is needed to compare retirement investments with an age guidepost.',
+      opportunity,
+    };
+  }
+
+  if (progress >= 1) {
+    return {
+      pillar: 'longTermProgress',
+      title: 'Review the long-term plan annually',
+      description: 'A broad guidepost cannot account for retirement age, pensions, lifestyle, or risk, so revisit the assumptions as life changes.',
+      suggestedTargetAmount: metrics.retirementTargetAmount,
+      opportunity,
+    };
+  }
+
+  const gap = Math.max(0, metrics.retirementTargetAmount - input.retirementInvestments);
+  return {
+    pillar: 'longTermProgress',
+    title: 'Narrow the long-term guidepost gap',
+    description: `The broad modeled guidepost is ${formatCurrency(metrics.retirementTargetAmount)}; the current gap is about ${formatCurrency(gap)}. Treat this as planning context, not a personalized requirement.`,
+    suggestedTargetAmount: metrics.retirementTargetAmount,
+    opportunity,
+  };
+}
+
+function buildWarnings(input: AssessmentInput, metrics: ScoreMetrics): string[] {
+  const warnings: string[] = [];
+
+  if (input.annualIncome === 0) {
+    warnings.push('Gross annual income is zero, so three income-based pillars could not be assessed and received zero points.');
+  }
+  if (input.monthlyEssentialExpenses === 0) {
+    warnings.push('Essential monthly expenses are zero, so the cash-buffer pillar could not be assessed and received zero points.');
+  }
+  if (
+    metrics.grossMonthlyIncome > 0 &&
+    input.monthlyDebtPayments > metrics.grossMonthlyIncome
+  ) {
+    warnings.push('Monthly debt payments exceed gross monthly income; double-check that every value uses the same monthly and annual units.');
+  }
+  if (
+    metrics.grossMonthlyIncome > 0 &&
+    input.monthlySavings > metrics.grossMonthlyIncome
+  ) {
+    warnings.push('Monthly savings exceed gross monthly income; double-check that every value belongs to the same person and time period.');
+  }
+
+  return warnings;
+}
+
+function scoreMetric(curve: number[][], metric: number | null): number {
+  if (metric === null || !Number.isFinite(metric)) return 0;
+  return clamp(Math.round(interpolate(curve, metric)), 0, 100);
+}
+
+function safeRatio(numerator: number, denominator: number): number | null {
+  if (!Number.isFinite(denominator) || denominator <= 0) return null;
+  return numerator / denominator;
+}
+
+function sourceUrl(id: string): string {
+  return benchmarks.sources.find((source) => source.id === id)?.url ?? '';
+}
+
+function normalizeMoney(value: unknown): number {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed) || parsed <= 0) return 0;
+  return round(Math.min(parsed, MONEY_CAP), 2);
+}
+
+function nullableRound(value: number | null, places: number): number | null {
+  return value === null ? null : round(value, places);
+}
+
+function round(value: number, places: number): number {
+  const factor = 10 ** places;
+  return Math.round(value * factor) / factor;
+}
+
+function formatNumber(value: number): string {
+  return new Intl.NumberFormat('en-US', { maximumFractionDigits: 1 }).format(value);
+}
+
+function formatCurrency(value: number): string {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    maximumFractionDigits: 0,
+  }).format(value);
+}
+
+function dedupeByTitle(strengths: ScoreStrength[]): ScoreStrength[] {
+  const seen = new Set<string>();
+  return strengths.filter((strength) => {
+    if (seen.has(strength.title)) return false;
+    seen.add(strength.title);
+    return true;
+  });
 }

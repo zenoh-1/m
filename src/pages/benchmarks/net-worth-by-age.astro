@@ -1,0 +1,117 @@
+---
+import PageLayout from '../../layouts/PageLayout.astro';
+import ContentNote from '../../components/content/ContentNote.astro';
+import EvidenceTable from '../../components/content/EvidenceTable.astro';
+import RelatedReading from '../../components/content/RelatedReading.astro';
+---
+
+<PageLayout
+  title="Net Worth by Age: 2022 Federal Reserve Data | Cooked Finance"
+  description="Median and mean U.S. family net worth by age from the Federal Reserve's 2022 Survey of Consumer Finances, with definitions and careful interpretation."
+  path="/benchmarks/net-worth-by-age"
+  eyebrow="Federal Reserve benchmark"
+  heading="Net worth by age, without the fake precision."
+  lead="These are published 2022 Survey of Consumer Finances estimates for broad U.S. family age groups—not a calculator-generated personal percentile."
+  updated="August 17, 2026"
+>
+  <ContentNote title="What this table compares" tone="caution">
+    <p>
+      The Survey of Consumer Finances reports on <strong>families</strong>, grouped
+      here by the age of the family’s reference person. It does not describe an
+      individual person of every exact age. Do not compare an individual balance
+      with this table as though the populations were identical.
+    </p>
+  </ContentNote>
+
+  <h2>2022 net worth by age group</h2>
+  <p>
+    The Federal Reserve defines net worth as a family’s assets minus its
+    liabilities. Its 2022 report presents dollar estimates in thousands of
+    inflation-adjusted 2022 dollars. The table below converts those published
+    values to full dollars without otherwise modifying them.
+  </p>
+
+  <EvidenceTable
+    caption="Median and mean U.S. family net worth by age of reference person, 2022"
+    sourceNote="Source: Federal Reserve, Changes in U.S. Family Finances from 2019 to 2022, table 2. Amounts are 2022 dollars."
+  >
+    <thead>
+      <tr>
+        <th scope="col">Age of reference person</th>
+        <th scope="col">Median net worth</th>
+        <th scope="col">Mean net worth</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><th scope="row">Under 35</th><td>$39,000</td><td>$183,500</td></tr>
+      <tr><th scope="row">35–44</th><td>$135,600</td><td>$549,600</td></tr>
+      <tr><th scope="row">45–54</th><td>$247,200</td><td>$975,800</td></tr>
+      <tr><th scope="row">55–64</th><td>$364,500</td><td>$1,566,900</td></tr>
+      <tr><th scope="row">65–74</th><td>$409,900</td><td>$1,794,600</td></tr>
+      <tr><th scope="row">75 or older</th><td>$335,600</td><td>$1,624,100</td></tr>
+    </tbody>
+  </EvidenceTable>
+  <p>
+    Primary source:
+    <a href="https://www.federalreserve.gov/publications/october-2023-changes-in-us-family-finances-from-2019-to-2022.htm" rel="noopener" target="_blank">Federal Reserve, “Changes in U.S. Family Finances from 2019 to 2022,” table 2<span class="sr-only"> (opens in a new tab)</span></a>.
+    The report is based principally on final data from 4,602 families interviewed
+    for the 2022 SCF and uses survey weights to estimate the population.
+  </p>
+
+  <h2>Why the median and mean are so different</h2>
+  <p>
+    The <strong>median</strong> is the middle observation: half of the estimated
+    population is below it and half is above it. The <strong>mean</strong> adds
+    all net worth and divides by the number of families. A relatively small
+    number of very wealthy families can pull the mean far above the median.
+  </p>
+  <p>
+    For personal context, the median is usually less sensitive to very high
+    values. The Federal Reserve also cautions that medians are not additive:
+    median assets minus median liabilities will not necessarily equal median net
+    worth. Neither statistic tells you what one household “should” have.
+  </p>
+
+  <h2>What is included in SCF net worth?</h2>
+  <p>
+    The SCF balance sheet is much broader than cash and retirement accounts. Its
+    asset categories include financial assets and nonfinancial assets such as
+    vehicles, homes, other residential real estate, nonresidential real estate,
+    and privately held businesses. Liabilities include housing debt, installment
+    loans, credit-card balances, lines of credit, and other debt categories. See
+    the Federal Reserve report’s
+    <a href="https://www.federalreserve.gov/publications/october-2023-changes-in-us-family-finances-from-2019-to-2022.htm#xappendix-b-survey-procedures-and-statistical-measures-e93c647a" rel="noopener" target="_blank">Appendix B definitions<span class="sr-only"> (opens in a new tab)</span></a>.
+  </p>
+
+  <h2>How to calculate your own net worth</h2>
+  <p><strong>Personal net worth = current value of assets − current liabilities.</strong></p>
+  <p>
+    Be consistent. If you include mortgage debt, also include the current value
+    of the home; otherwise the calculation is incomplete. Use balances from the
+    same date, avoid counting the same asset twice, and remember that estimated
+    sale values can change.
+  </p>
+
+  <h2>Four reasons not to turn this into a verdict</h2>
+  <ul>
+    <li>Each age band covers people at many different life stages.</li>
+    <li>Housing status, pensions, education, family structure, inheritance, disability, and location can create large differences.</li>
+    <li>The survey describes 2022; asset prices and individual balances change afterward.</li>
+    <li>A net-worth comparison says little about cash flow, liquidity, insurance, goals, or wellbeing.</li>
+  </ul>
+
+  <ContentNote title="Why Cooked Finance does not assign an age percentile">
+    <p>
+      The published table provides a median and mean for six broad age groups.
+      It does not provide enough verified information to claim that an arbitrary
+      balance is ahead of an exact percentage of same-age people. We would rather
+      show a defensible table than manufacture a precise-sounding rank.
+    </p>
+  </ContentNote>
+
+  <RelatedReading links={[
+    { href: '/methodology/', label: 'Cooked Score methodology', description: 'See why this benchmark does not contribute score points.' },
+    { href: '/financial-health-score/', label: 'Financial health vs. net worth', description: 'Understand the four dimensions in the broader snapshot.' },
+    { href: '/source-policy/', label: 'Our source policy', description: 'Learn how benchmark claims are selected and checked.' },
+  ]} />
+</PageLayout>

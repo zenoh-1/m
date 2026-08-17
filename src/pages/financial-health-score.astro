@@ -1,0 +1,87 @@
+---
+import PageLayout from '../layouts/PageLayout.astro';
+import ContentNote from '../components/content/ContentNote.astro';
+import RelatedReading from '../components/content/RelatedReading.astro';
+---
+
+<PageLayout
+  title="What Is a Financial Health Score? | Cooked Finance"
+  description="Understand what the Cooked Score measures, which seven inputs it uses, and how to interpret the result without mistaking it for financial advice."
+  path="/financial-health-score"
+  eyebrow="Score guide"
+  heading="One useful snapshot—not a verdict on your life."
+  lead="The Cooked Score turns four practical parts of financial resilience into a transparent 0–100 educational estimate."
+  updated="August 17, 2026"
+>
+  <ContentNote title="Important limitation" tone="caution">
+    <p>
+      The Cooked Score is a proprietary educational estimate. It is not a
+      standardized financial-health measure, credit score, lender decision,
+      investment recommendation, or substitute for advice tailored to you.
+    </p>
+  </ContentNote>
+
+  <h2>What the score measures</h2>
+  <p>
+    Financial health is broader than a bank balance. Version 2.0.0 looks at four
+    related questions that can be answered from information most people can
+    find without building a complete financial plan:
+  </p>
+  <ul>
+    <li><strong>Cash buffer:</strong> how many months of essential spending your liquid cash could cover.</li>
+    <li><strong>Monthly debt-payment load:</strong> how much of gross monthly income is already committed to debt payments.</li>
+    <li><strong>Savings habit:</strong> how much of gross monthly income you regularly set aside.</li>
+    <li><strong>Long-term progress:</strong> retirement assets relative to income and an age-based planning guidepost.</li>
+  </ul>
+  <p>
+    The result is designed to reveal which lever is currently helping most and
+    which one may deserve attention next. It does not rank you against other
+    people, and version 2.0.0 does not calculate a percentile or “financial age.”
+  </p>
+
+  <h2>The seven inputs</h2>
+  <ol>
+    <li>Age</li>
+    <li>Gross annual income, before tax and payroll deductions</li>
+    <li>Essential monthly spending</li>
+    <li>Liquid cash savings</li>
+    <li>Total required monthly debt payments</li>
+    <li>Recurring monthly savings and investment contributions</li>
+    <li>Vested retirement and long-term investment account balances, including a current cash-balance pension value when one is stated</li>
+  </ol>
+  <p>
+    These inputs are deliberately narrower than a full financial plan. The
+    score does not ask about taxes, dependants, insurance coverage, projected
+    defined-benefit pension income, investment allocation, local living costs, debt interest rates,
+    or near-term goals. Those omissions can materially change what a sensible
+    next step looks like.
+  </p>
+
+  <h2>What it is not</h2>
+  <ul>
+    <li><strong>Not a credit score:</strong> it does not use payment history, credit utilization, credit-file age, or lender data.</li>
+    <li><strong>Not a net-worth ranking:</strong> it does not estimate where you sit in an age percentile.</li>
+    <li><strong>Not a retirement projection:</strong> it does not model returns, inflation, taxes, Social Security, projected defined-benefit pension income, or spending in retirement.</li>
+    <li><strong>Not a diagnosis:</strong> the weights and thresholds are Cooked Finance design choices, not clinically validated standards.</li>
+  </ul>
+
+  <h2>How to use the result</h2>
+  <ol>
+    <li>Read the four component scores before focusing on the total.</li>
+    <li>Use one adult’s personal figures for every input and the same time period; run separate checks for partners.</li>
+    <li>Choose one realistic action tied to the weakest useful component.</li>
+    <li>Recheck quarterly, or after a substantial income, debt, or household change.</li>
+  </ol>
+  <p>
+    A higher score can indicate more room to absorb disruption under this
+    model, but it never guarantees security. A lower score can reflect a
+    temporary transition, caregiving, education, illness, unemployment, or a
+    deliberate choice. Context belongs to you; the calculator cannot see it.
+  </p>
+
+  <RelatedReading links={[
+    { href: '/methodology/', label: 'Read the methodology', description: 'See the formulas, weights, assumptions, and version history.' },
+    { href: '/score-ranges/', label: 'Understand score ranges', description: 'Use supportive interpretations and practical next steps.' },
+    { href: '/guides/quarterly-money-checkup/', label: 'Run a quarterly checkup', description: 'Turn the snapshot into a repeatable 45-minute routine.' },
+  ]} />
+</PageLayout>

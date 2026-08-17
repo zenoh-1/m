@@ -1,84 +1,64 @@
-# Cooked Finance — Are You Financially Cooked?
+# Cooked Finance
 
-A fun-but-credible financial health scoring tool. Answer 4 questions, get a
-0–100 **Cooked Score**, a percentile, a financial age, a personalized roast,
-and a downloadable share card — all in under 60 seconds.
+Cooked Finance is a private, client-side financial health check and educational
+calculator library for cookedfinance.com.
 
-> For entertainment and educational purposes only. Not financial advice.
+The homepage turns seven estimates into a 0–100 educational Cooked Score, four
+published pillars, supportive strengths, three ranked next moves, and an
+interactive 12-month scenario. It is not a credit score, peer percentile,
+forecast, or financial plan.
 
-## Stack
+## Current product
 
-- **Astro** (static, zero server) — one page, one client island
-- **Tailwind CSS v4** (CSS-first `@theme` config via `@tailwindcss/vite`)
-- **TypeScript** for all logic
-- **Geist + Geist Mono** self-hosted variable fonts (no external font requests)
-- Fully client-side. No auth, no DB, no APIs, no tracking.
+- Seven-input financial health check
+- Four-factor methodology with published weights and curves
+- Net worth, debt-to-income, emergency-fund, and savings-rate calculators
+- Evidence-linked methodology, score-range, benchmark, and guide pages
+- Editorial, source, corrections, privacy, and advertising policies
+- Optional local result saving; nothing is saved automatically
+- Consent-based analytics with no financial input or result parameters
+- No accounts, database, bank connection, ads, AdSense code, or ad placeholders
 
-## Design
+## Scoring model
 
-Dark-first interpretation of the Vercel design language (see `DESIGN.md`):
-mesh-gradient backdrop as the only decoration, Geist typography with negative
-tracking, hairline borders, subtle stacked elevation, pill CTAs.
+| Pillar | Weight |
+| --- | ---: |
+| Cash buffer | 30% |
+| Monthly debt-payment burden | 25% |
+| Savings habit | 20% |
+| Long-term retirement progress | 25% |
 
-## Project structure
+The source of truth is [benchmarks.json](src/data/benchmarks.json).
+Implementation lives in [scoring.ts](src/lib/scoring.ts), and the readable
+explanation lives in [methodology.astro](src/pages/methodology.astro).
 
-```
-src/
-  data/benchmarks.json     # US benchmark anchors (SCF-inspired) + scoring config
-  lib/
-    scoring.ts             # Cooked Score, percentile, financial age
-    roasts.ts              # 36 rule-based roast templates + insights
-    format.ts              # USD / compact formatting helpers
-  components/
-    Hero.astro             # Headline, tagline, CTA, example metrics
-    AssessmentForm.astro   # The 4-input quick check
-    ScoreGauge.astro       # Animated 0–100 SVG gauge
-    RoastCard.astro        # The roast
-    ShareCard.astro        # Social share card + PNG download
-    ResultsDashboard.astro # Composes the full results experience
-    AdSlot.astro           # Reserved AdSense placeholders (no CLS)
-    Disclaimer.astro / SiteHeader.astro / SiteFooter.astro
-  layouts/Layout.astro     # <head>, SEO/OG meta, mesh backdrop
-  pages/index.astro        # Page + client-side controller script
-  styles/global.css        # Design tokens + component primitives
-```
+## Privacy and monetization
 
-## How scoring works
+Calculator values are processed in the browser and are not placed in URLs or
+analytics events. A visitor can explicitly save one check to browser local
+storage and delete it from the interface.
 
-The score is a weighted blend (savings & debt dominate; income alone never
-guarantees a high score):
-
-| Factor                   | Weight |
-| ------------------------ | ------ |
-| Savings-to-income ratio  | 35%    |
-| Debt-to-income ratio     | 25%    |
-| Age-adjusted progress    | 25%    |
-| Net savings (savings−debt) | 15%  |
-
-### Updating the benchmarks
-
-All benchmark numbers live in [`src/data/benchmarks.json`](src/data/benchmarks.json).
-The values are **realistic placeholders** calibrated to public Survey of
-Consumer Finances (SCF) style ranges, not exact published figures. The file's
-`_meta.howToUpdate` block documents exactly how to refresh them:
-
-- `netWorthPercentilesByAge` → per-age percentile breakpoints for liquid +
-  invested assets net of debt (used for the percentile).
-- `savingsMultipleTargets` → Fidelity-style "save N× income by age" guideposts
-  (used for financial age + age-adjusted progress).
-- `scoring.weights` / `scoring.curves` → tune the score behavior.
-
-## Monetization (AdSense-ready)
-
-Clean, non-intrusive `<AdSlot>` placeholders reserve layout space (preventing
-CLS) in three spots: below the hero, the results sidebar (desktop), and between
-the results and the share card. Wire up AdSense by adding the publisher script
-in `Layout.astro` and replacing each placeholder's inner markup.
+Cooked Finance has not applied for AdSense and currently displays no paid
+advertising. Advertising should not be integrated until the content library and
+traffic are mature; the current planning checkpoint is stable traffic around
+100–200 daily visitors. See
+[advertising-policy.astro](src/pages/advertising-policy.astro).
 
 ## Commands
 
-| Command           | Action                          |
-| ----------------- | ------------------------------- |
-| `npm run dev`     | Start the dev server            |
-| `npm run build`   | Build the static site to `dist/`|
-| `npm run preview` | Preview the production build     |
+| Command | Action |
+| --- | --- |
+| npm run dev | Start Astro locally |
+| npm run build | Build static output to dist |
+| npm run verify | Build the site and run scoring regression assertions |
+| npm run preview | Preview the built Cloudflare Worker assets |
+
+Production hosting uses the Worker in [worker/index.js](worker/index.js) and
+[wrangler.jsonc](wrangler.jsonc). It serves the static Astro build, sends HTTP
+and `www` traffic to the HTTPS apex domain, normalizes page URLs to trailing
+slashes, and applies baseline security headers. Run `npx wrangler deploy
+--dry-run` before an intentional production deployment.
+
+The sitemap is generated from page files by
+[sitemap.xml.ts](src/pages/sitemap.xml.ts). The production origin is configured
+in [astro.config.mjs](astro.config.mjs).

@@ -3,57 +3,69 @@ import PageLayout from '../layouts/PageLayout.astro';
 ---
 
 <PageLayout
-  title="About Us | Cooked Finance — Financial Health Score Calculator"
-  description="Learn about Cooked Finance, the free financial health score calculator that turns savings, debt, and net worth into a fun, shareable money checkup in under 60 seconds."
+  title="About Cooked Finance | Independent Financial Education"
+  description="Why Cooked Finance exists, how its private financial health check works, and the standards behind its calculators and educational content."
   path="/about"
-  eyebrow="About us"
-  heading="A money checkup that doesn't put you to sleep."
-  lead="Cooked Finance turns the dry world of personal finance into a 60-second score you actually want to share."
+  eyebrow="About Cooked Finance"
+  heading="A clearer starting point for your money."
+  lead="Cooked Finance is an independent educational website built to make a basic financial checkup understandable, transparent, and a little less intimidating."
+  updated="August 17, 2026"
 >
-  <h2>Why we built this</h2>
+  <h2>Why this site exists</h2>
   <p>
-    Most people have no idea how their finances stack up. Bank apps show
-    balances, not context. Spreadsheets are intimidating. And serious financial
-    tools tend to feel like homework. We wanted the opposite: a fast, friendly
-    way to get a real read on your <strong>financial health score</strong> — then
-    laugh a little and maybe get motivated to do better.
-  </p>
-  <p>
-    So we built Cooked Finance around one simple question: <em>are you
-    financially cooked?</em> Answer four quick inputs — age, income, savings, and
-    debt — and you get a 0–100 Cooked Score, a percentile versus other Americans
-    your age, a Financial Age, and a personalized (lighthearted) roast.
+    Balances alone do not explain whether someone has breathing room, and a
+    generic checklist rarely shows what to address first. Cooked Finance turns
+    seven estimates into four visible signals and a short list of next moves.
+    It is designed to start a useful review—not to issue a verdict about a
+    person or replace a financial plan.
   </p>
 
-  <h2>How it works</h2>
-  <p>
-    Our scoring engine weighs the things that actually matter for long-term
-    financial health, in order of impact:
-  </p>
+  <h2>What the financial health check measures</h2>
+  <p>The current Cooked Score combines four narrowly defined pillars:</p>
   <ul>
-    <li><strong>Savings-to-income ratio</strong> — the biggest factor.</li>
-    <li><strong>Debt-to-income ratio</strong> — the second-heaviest.</li>
-    <li><strong>Net savings</strong> — your savings minus total debt.</li>
-    <li><strong>Age-adjusted progress</strong> — how you track against typical milestones.</li>
+    <li><strong>Cash buffer (30%):</strong> liquid savings divided by essential monthly spending.</li>
+    <li><strong>Debt burden (25%):</strong> required monthly debt payments divided by gross monthly income.</li>
+    <li><strong>Savings habit (20%):</strong> monthly saving and investing divided by gross monthly income.</li>
+    <li><strong>Long-term progress (25%):</strong> retirement investments compared with a broad age-based guidepost.</li>
   </ul>
   <p>
-    The benchmarks are inspired by the Federal Reserve's Survey of Consumer
-    Finances and Fidelity-style savings guideposts, calibrated to feel realistic.
-    Income alone never wins — strong savings and low debt do.
+    The formulas, weights, interpolation rules, sources, and limitations are
+    published on the <a href="/methodology/">methodology page</a>. The score is
+    not a credit score, population percentile, forecast, or statement of net
+    worth.
   </p>
 
-  <h2>What we believe</h2>
-  <ul>
-    <li><strong>Privacy first.</strong> Everything runs in your browser. We don't collect, store, or transmit your financial inputs.</li>
-    <li><strong>Free, always.</strong> No accounts, no paywalls, no upsells.</li>
-    <li><strong>Fun beats fear.</strong> A score you'll share does more good than a lecture you'll ignore.</li>
-  </ul>
-
-  <h2>One important note</h2>
+  <h2>Our publishing standards</h2>
   <p>
-    Cooked Finance is for entertainment and educational purposes only. It is not
-    financial advice. For decisions about your specific situation, please talk to
-    a qualified financial professional. Questions or feedback? Visit our
-    <a href="/contact">contact page</a> — we'd love to hear from you.
+    We separate sourced facts from our own educational model, link to primary
+    sources where practical, date material updates, and correct material errors.
+    You can review the <a href="/editorial-policy/">editorial policy</a>,
+    <a href="/source-policy/">source policy</a>, and
+    <a href="/corrections-policy/">corrections policy</a>.
+  </p>
+  <p>
+    Cooked Finance does not claim to be a financial adviser or fiduciary.
+    Because finance is personal and the calculator sees only seven values,
+    important context—including taxes, dependents, insurance, interest rates,
+    projected defined-benefit pension income, location, goals, and risk tolerance—is outside the result.
+  </p>
+
+  <h2>Privacy and funding</h2>
+  <ul>
+    <li><strong>Private by design:</strong> calculations run in the browser and financial inputs are not sent to our servers or analytics.</li>
+    <li><strong>No account required:</strong> there is no login, bank connection, or database profile.</li>
+    <li><strong>Currently ad-free:</strong> Cooked Finance has not applied for AdSense and displays no paid advertising.</li>
+  </ul>
+  <p>
+    Optional analytics load only after consent and never receive the seven
+    calculator inputs or result values. Read the <a href="/privacy/">privacy policy</a>
+    and <a href="/advertising-policy/">advertising policy</a> for details.
+  </p>
+
+  <h2>Questions, evidence, or corrections</h2>
+  <p>
+    If a formula is unclear, a source has changed, or a page contains an error,
+    please use the <a href="/contact/">contact page</a>. Specific, verifiable
+    feedback helps improve the site.
   </p>
 </PageLayout>

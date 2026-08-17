@@ -1,0 +1,66 @@
+---
+interface Props {
+  caption: string;
+  sourceNote?: string;
+}
+
+const { caption, sourceNote } = Astro.props;
+---
+
+<div class="evidence-table" role="region" aria-label={caption} tabindex="0">
+  <table>
+    <caption>{caption}</caption>
+    <slot />
+  </table>
+</div>
+{sourceNote && <p class="evidence-table__note">{sourceNote}</p>}
+
+<style>
+  .evidence-table {
+    width: 100%;
+    margin-block: 1.5rem 0.5rem;
+    overflow-x: auto;
+    border: 1px solid var(--color-hairline);
+    border-radius: var(--radius-md);
+  }
+  .evidence-table:focus-visible {
+    outline: 2px solid var(--color-link);
+    outline-offset: 3px;
+  }
+  table {
+    width: 100%;
+    min-width: 34rem;
+    border-collapse: collapse;
+    font-variant-numeric: tabular-nums;
+  }
+  caption {
+    padding: 0.9rem 1rem;
+    text-align: left;
+    color: var(--color-ink);
+    font-weight: 600;
+    background: var(--color-canvas-soft-2);
+    border-bottom: 1px solid var(--color-hairline);
+  }
+  :global(th),
+  :global(td) {
+    padding: 0.75rem 1rem;
+    text-align: left;
+    vertical-align: top;
+    border-bottom: 1px solid var(--color-hairline);
+    color: var(--color-body);
+    line-height: 1.45;
+  }
+  :global(th) {
+    color: var(--color-ink);
+    font-size: 0.875rem;
+    font-weight: 600;
+    background: var(--color-canvas-soft);
+  }
+  :global(tbody tr:last-child th),
+  :global(tbody tr:last-child td) { border-bottom: 0; }
+  .evidence-table__note {
+    margin-top: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--color-mute);
+  }
+</style>

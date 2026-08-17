@@ -1,215 +1,56 @@
----
-/**
- * Hero — Headline, tagline, primary CTA, and example metrics.
- * Vercel-style: mono eyebrow, sentence-case display headline w/ negative
- * tracking, gradient-accented keyword, pill CTA.
- */
----
+<div class="hero-copy">
+  <span class="hero-copy__kicker">
+    <span aria-hidden="true">●</span> Private financial heat check
+  </span>
 
-<section class="hero">
-  <div class="container-page hero__inner">
-    <span class="eyebrow hero__eyebrow animate-fade-in">
-      <span class="hero__dot"></span> 60-second financial health check
-    </span>
+  <h1>A Financial Health Check That Shows Your <em>Next Move.</em></h1>
 
-    <h1 class="hero__title animate-fade-up">
-      Are You <span class="hero__cooked">Financially&nbsp;Cooked?</span>
-    </h1>
+  <p class="hero-copy__lead">
+    Seven reasonable estimates become one clear score, four transparent signals, and a practical action plan—without connecting a bank account.
+  </p>
 
-    <p class="hero__tagline animate-fade-up">
-      Find out how financially cooked you really are in under 60 seconds.
-    </p>
-
-    <div class="hero__cta animate-fade-up">
-      <a href="#check" class="btn-primary" data-scroll>
-        Check My Score
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-          <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </a>
-      <span class="hero__note">Free · No signup · 100% private</span>
-    </div>
-
-    <!-- Quick links to the standalone pages -->
-    <nav class="hero__links animate-fade-up" aria-label="Site pages">
-      <a href="/about" class="hero__link">About Us</a>
-      <span class="hero__link-sep" aria-hidden="true">·</span>
-      <a href="/privacy" class="hero__link">Privacy Policy</a>
-      <span class="hero__link-sep" aria-hidden="true">·</span>
-      <a href="/terms" class="hero__link">Terms &amp; Conditions</a>
-      <span class="hero__link-sep" aria-hidden="true">·</span>
-      <a href="/contact" class="hero__link">Contact Us</a>
-    </nav>
-
-    <!-- Example metrics below the hero -->
-    <ul class="hero__metrics animate-fade-up" aria-label="Example result">
-      <li class="hero__metric">
-        <span class="hero__metric-value">73<span class="hero__metric-unit">/100</span></span>
-        <span class="hero__metric-label">Cooked Score</span>
-      </li>
-      <li class="hero__metric">
-        <span class="hero__metric-value">68%</span>
-        <span class="hero__metric-label">Ahead of Americans</span>
-      </li>
-      <li class="hero__metric">
-        <span class="hero__metric-value">41</span>
-        <span class="hero__metric-label">Financial Age</span>
-      </li>
-    </ul>
-    <p class="hero__example-tag">Example result</p>
+  <div class="hero-copy__actions">
+    <a href="#check" class="btn-primary" data-scroll>
+      Check My Financial Health
+      <svg width="17" height="17" viewBox="0 0 17 17" fill="none" aria-hidden="true">
+        <path d="M3 8.5h11M10 4.5l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+      </svg>
+    </a>
+    <a href="/methodology/" class="hero-copy__method">Read the methodology</a>
   </div>
-</section>
+
+  <ul class="hero-copy__trust" aria-label="Key facts">
+    <li><span aria-hidden="true">✓</span> Runs on your device</li>
+    <li><span aria-hidden="true">✓</span> No signup</li>
+    <li><span aria-hidden="true">✓</span> Transparent formulas</li>
+  </ul>
+
+  <div class="hero-copy__note">
+    <span class="hero-copy__note-mark" aria-hidden="true">01</span>
+    <p><strong>Serious math, light delivery.</strong> The score is an educational estimate—not a credit score, approval signal, or financial advice.</p>
+  </div>
+</div>
 
 <style>
-  .hero {
-    padding-top: clamp(2.5rem, 12vh, 8rem);
-    padding-bottom: clamp(2.5rem, 6vh, 4rem);
-    text-align: center;
-  }
-
-  .hero__inner {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .hero__eyebrow {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.375rem 0.875rem;
-    border: 1px solid var(--color-hairline);
-    border-radius: var(--radius-pill);
-    background: rgba(255, 255, 255, 0.02);
-    backdrop-filter: blur(8px);
-  }
-  .hero__dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 9999px;
-    background: var(--color-status-cooking);
-    box-shadow: 0 0 8px var(--color-status-cooking);
-  }
-
-  .hero__title {
-    margin: 1.5rem 0 0;
-    font-size: clamp(2.25rem, 8vw, 5rem);
-    font-weight: 600;
-    line-height: 1.02;
-    letter-spacing: -0.04em;
-    max-width: 16ch;
-    animation-delay: 0.05s;
-  }
-
-  .hero__cooked {
-    background: linear-gradient(
-      90deg,
-      var(--color-grad-coral) 0%,
-      var(--color-grad-amber) 100%
-    );
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-  }
-
-  .hero__tagline {
-    margin: 1.25rem 0 0;
-    max-width: 36ch;
-    font-size: clamp(1.0625rem, 2.5vw, 1.25rem);
-    line-height: 1.5;
-    color: var(--color-body);
-    animation-delay: 0.12s;
-  }
-
-  .hero__cta {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.875rem;
-    margin-top: 2rem;
-    animation-delay: 0.18s;
-  }
-  .hero__note {
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    color: var(--color-mute);
-  }
-
-  .hero__links {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem 0.75rem;
-    margin-top: 1.5rem;
-    animation-delay: 0.22s;
-  }
-  .hero__link {
-    font-size: 0.875rem;
-    color: var(--color-body);
-    text-decoration: none;
-    transition: color 0.18s var(--ease-out-expo);
-  }
-  .hero__link:hover {
-    color: var(--color-ink);
-    text-decoration: underline;
-    text-underline-offset: 2px;
-  }
-  .hero__link-sep { color: var(--color-hairline-strong); font-size: 0.75rem; }
-  @media (max-width: 420px) {
-    .hero__link-sep { display: none; }
-  }
-
-  .hero__metrics {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    justify-content: center;
-    gap: 0.75rem;
-    margin: 3.5rem auto 0;
-    padding: 0;
-    max-width: 34rem;
-    list-style: none;
-    animation-delay: 0.26s;
-  }
-  .hero__metric {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.25rem;
-    min-width: 0;
-    padding: 1.25rem 0.75rem;
-    background: var(--color-surface);
-    border: 1px solid var(--color-hairline);
-    border-radius: var(--radius-lg);
-    box-shadow: 0 1px 1px rgba(0,0,0,0.2), 0 2px 6px rgba(0,0,0,0.18);
-  }
-  .hero__metric-value {
-    font-size: clamp(1.375rem, 5vw, 1.875rem);
-    font-weight: 600;
-    letter-spacing: -0.03em;
-    color: var(--color-ink);
-    white-space: nowrap;
-  }
-  .hero__metric-unit {
-    font-size: 0.875rem;
-    color: var(--color-mute);
-    font-weight: 500;
-  }
-  .hero__metric-label {
-    font-family: var(--font-mono);
-    font-size: 0.625rem;
-    text-transform: uppercase;
-    letter-spacing: 0.03em;
-    color: var(--color-body);
-    text-align: center;
-    line-height: 1.3;
-  }
-  .hero__example-tag {
-    margin: 0.75rem 0 0;
-    font-family: var(--font-mono);
-    font-size: 0.6875rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--color-mute);
+  .hero-copy { align-self: center; padding-block: clamp(1rem, 4vw, 3rem); }
+  .hero-copy__kicker { display: inline-flex; align-items: center; gap: 0.55rem; color: var(--color-sage); font-family: var(--font-mono); font-size: 0.72rem; font-weight: 680; letter-spacing: 0.07em; text-transform: uppercase; }
+  .hero-copy__kicker span { color: var(--color-ember); font-size: 0.58rem; }
+  h1 { max-width: 12ch; margin: 1rem 0 0; font-family: var(--font-serif); font-size: clamp(3.35rem, 7.4vw, 6.7rem); font-weight: 500; letter-spacing: -0.055em; line-height: 0.91; }
+  h1 em { color: var(--color-ember); font-weight: inherit; }
+  .hero-copy__lead { max-width: 54ch; margin: 1.5rem 0 0; color: var(--color-body); font-size: clamp(1.05rem, 2vw, 1.22rem); line-height: 1.65; }
+  .hero-copy__actions { margin-top: 1.8rem; display: flex; flex-wrap: wrap; align-items: center; gap: 1rem 1.2rem; }
+  .hero-copy__method { color: var(--color-body); font-size: 0.86rem; font-weight: 650; text-underline-offset: 0.22em; }
+  .hero-copy__method:hover { color: var(--color-ink); }
+  .hero-copy__trust { margin: 1.7rem 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0.65rem 1.25rem; color: var(--color-body); font-size: 0.8rem; list-style: none; }
+  .hero-copy__trust li { display: inline-flex; align-items: center; gap: 0.38rem; }
+  .hero-copy__trust span { color: var(--color-sage); font-weight: 800; }
+  .hero-copy__note { max-width: 36rem; margin-top: clamp(2.3rem, 6vw, 4.5rem); padding-top: 1rem; display: grid; grid-template-columns: auto 1fr; gap: 0.9rem; border-top: 1px solid var(--color-hairline-strong); }
+  .hero-copy__note-mark { width: 2.1rem; height: 2.1rem; display: grid; place-items: center; border-radius: 50%; background: var(--color-ink); color: var(--color-paper); font-family: var(--font-mono); font-size: 0.66rem; }
+  .hero-copy__note p { margin: 0; color: var(--color-body); font-size: 0.83rem; line-height: 1.55; }
+  .hero-copy__note strong { color: var(--color-ink); }
+  @media (max-width: 520px) {
+    h1 { font-size: clamp(3rem, 15vw, 4.4rem); }
+    .hero-copy__actions { align-items: stretch; flex-direction: column; }
+    .hero-copy__method { text-align: center; }
   }
 </style>

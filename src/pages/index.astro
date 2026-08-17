@@ -3,7 +3,6 @@ import Layout from '../layouts/Layout.astro';
 import SiteHeader from '../components/SiteHeader.astro';
 import SiteFooter from '../components/SiteFooter.astro';
 import Hero from '../components/Hero.astro';
-import AdSlot from '../components/AdSlot.astro';
 import AssessmentForm from '../components/AssessmentForm.astro';
 import ResultsDashboard from '../components/ResultsDashboard.astro';
 import SeoContent from '../components/SeoContent.astro';
@@ -11,23 +10,25 @@ import Faq from '../components/Faq.astro';
 ---
 
 <Layout path="/" structuredData={true}>
-  <span id="top"></span>
   <SiteHeader />
 
-  <main>
-    <Hero />
+  <main id="main-content">
+    <section class="home-hero" aria-label="Financial health check">
+      <div class="container-page home-hero__grid">
+        <Hero />
+        <AssessmentForm />
+      </div>
+      <h2 class="sr-only" id="how-check-works">How the check works</h2>
+      <ol class="container-page home-proof" aria-labelledby="how-check-works">
+        <li><strong>01</strong><span>Seven estimates</span><small>No account connection</small></li>
+        <li><strong>02</strong><span>Four visible pillars</span><small>Every weight published</small></li>
+        <li><strong>03</strong><span>Three next moves</span><small>Ranked by opportunity</small></li>
+      </ol>
+    </section>
 
-    <!-- Ad placeholder below the hero -->
-    <div class="container-page home-ad">
-      <AdSlot minHeight={100} slot="home-below-hero" />
-    </div>
-
-    <AssessmentForm />
-
+    <p class="sr-only" data-result-announcement role="status" aria-live="polite" aria-atomic="true"></p>
     <ResultsDashboard />
-
     <SeoContent />
-
     <Faq />
   </main>
 
@@ -35,415 +36,537 @@ import Faq from '../components/Faq.astro';
 </Layout>
 
 <style>
-  .home-ad { margin-block: 1rem 2rem; }
+  .home-hero { padding-block: clamp(2rem, 5vw, 4.75rem) 0; overflow: clip; }
+  .home-hero__grid { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(22rem, 0.72fr); gap: clamp(2rem, 6vw, 5rem); align-items: start; }
+  .home-proof { margin-top: clamp(3rem, 7vw, 5.5rem); display: grid; grid-template-columns: repeat(3, 1fr); border-block: 1px solid var(--color-hairline-strong); }
+  .home-proof { padding-left: max(1.1rem, env(safe-area-inset-left)); list-style: none; }
+  .home-proof li { min-height: 6.5rem; margin: 0; padding: 1.2rem; display: grid; grid-template-columns: auto 1fr; gap: 0.15rem 0.75rem; align-content: center; border-right: 1px solid var(--color-hairline); }
+  .home-proof li:last-child { border-right: 0; }
+  .home-proof strong { grid-row: span 2; color: var(--color-ember-deep); font-family: var(--font-mono); font-size: 0.65rem; }
+  .home-proof span { color: var(--color-ink); font-size: 0.8rem; font-weight: 720; }
+  .home-proof small { color: var(--color-mute); font-size: 0.68rem; }
+  @media (max-width: 920px) {
+    .home-hero__grid { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 620px) {
+    .home-proof { grid-template-columns: 1fr; }
+    .home-proof li { min-height: 5rem; border-right: 0; border-bottom: 1px solid var(--color-hairline); }
+    .home-proof li:last-child { border-bottom: 0; }
+  }
 </style>
 
 <script>
-  import { calculateScore, type StatusKey } from '../lib/scoring';
-  import { getRoast, getInsights } from '../lib/roasts';
-  import { formatUSD, formatCompactUSD } from '../lib/format';
+  import {
+    calculateScenario,
+    calculateScore,
+    type AssessmentInput,
+    type ScoreResult,
+  } from '../lib/scoring';
+  import { getRoast } from '../lib/roasts';
 
-  const STORAGE_KEY = 'cookedfinance:lastResult';
+  const STORAGE_KEY = 'cooked-finance-saved-check-v2';
+  const LEGACY_STORAGE_KEY = 'cookedfinance:lastResult';
+  const MAX_MONEY = 10_000_000_000;
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const dollars = new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    maximumFractionDigits: 0,
+  });
+  const plainNumber = new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 });
 
-  // ── Status → color theming for gauge + badge ────────────────────────────
-  const STATUS_THEME: Record<StatusKey, { from: string; to: string; glow: string; color: string; bg: string }> = {
-    apocalypse:  { from: '#ff7a7a', to: '#ff4d4d', glow: 'rgba(255,77,77,0.45)',  color: '#ff6b6b', bg: 'rgba(255,77,77,0.10)' },
-    'deep-fried':{ from: '#ffb15c', to: '#ff8a3d', glow: 'rgba(255,138,61,0.45)', color: '#ff9d4d', bg: 'rgba(255,138,61,0.10)' },
-    'medium-rare':{ from: '#ffe07a', to: '#f9cb28', glow: 'rgba(249,203,40,0.40)', color: '#f9cb28', bg: 'rgba(249,203,40,0.10)' },
-    stable:      { from: '#00dfd8', to: '#19b3ff', glow: 'rgba(0,223,216,0.40)',  color: '#34e3dd', bg: 'rgba(0,223,216,0.10)' },
-    cooking:     { from: '#2bd576', to: '#00dfa8', glow: 'rgba(43,213,118,0.45)', color: '#2bd576', bg: 'rgba(43,213,118,0.10)' },
+  type SavedCheck = {
+    version: 2;
+    savedAt: string;
+    scope?: 'individual' | 'household';
+    input: AssessmentInput;
+    result: { score: number; statusKey: string; statusLabel: string };
   };
 
-  // ── Helpers ──────────────────────────────────────────────────────────────
-  const $ = <T extends Element = HTMLElement>(sel: string, root: ParentNode = document) =>
-    root.querySelector<T>(sel);
+  const $ = <T extends Element = HTMLElement>(selector: string, root: ParentNode = document) =>
+    root.querySelector<T>(selector);
 
-  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let currentResult: ScoreResult | null = null;
+  let assessmentStarted = false;
 
-  function parseMoney(value: string): number {
-    return Math.max(0, Number(String(value).replace(/[^0-9.]/g, '')) || 0);
+  function track(eventName: 'assessment_started' | 'assessment_completed' | 'result_saved') {
+    const analyticsWindow = window as typeof window & {
+      cookedAnalyticsAllowed?: boolean;
+      gtag?: (...args: unknown[]) => void;
+    };
+    if (analyticsWindow.cookedAnalyticsAllowed === true) {
+      analyticsWindow.gtag?.('event', eventName);
+    }
   }
 
-  // Live-format money inputs with thousands separators.
-  function attachMoneyFormatting() {
-    document.querySelectorAll<HTMLInputElement>('.field-input--money').forEach((input) => {
-      input.addEventListener('input', () => {
-        const digits = input.value.replace(/[^0-9]/g, '');
-        input.value = digits ? Number(digits).toLocaleString('en-US') : '';
-      });
+  function parseMoney(raw: string): number {
+    const cleaned = raw.trim().replace(/[$,\s]/g, '');
+    if (!/^(?:\d+|\d*\.\d{1,2})$/.test(cleaned)) return Number.NaN;
+    return Number(cleaned);
+  }
+
+  function topSignal(result: ScoreResult): string {
+    const strongest = result.factors.reduce((best, factor) =>
+      factor.score > best.score ? factor : best
+    );
+    return strongest.score > 0 ? strongest.label : 'No pillar leads yet';
+  }
+
+  function setError(id: string, message = '') {
+    const input = document.getElementById(id) as HTMLInputElement | null;
+    const error = document.querySelector<HTMLElement>(`[data-error-for="${id}"]`);
+    if (!input || !error) return;
+    error.textContent = message;
+    if (message) input.setAttribute('aria-invalid', 'true');
+    else input.removeAttribute('aria-invalid');
+  }
+
+  function readInput(): AssessmentInput | null {
+    const ids = [
+      'age',
+      'annual-income',
+      'monthly-expenses',
+      'liquid-savings',
+      'monthly-debt',
+      'retirement-investments',
+      'monthly-savings',
+    ];
+    ids.forEach((id) => setError(id));
+
+    const ageField = $('#age') as HTMLInputElement;
+    const age = Number(ageField.value);
+    let valid = true;
+
+    if (!Number.isInteger(age) || age < 18 || age > 80) {
+      setError('age', 'Enter a whole-number age from 18 to 80.');
+      valid = false;
+    }
+
+    const moneyRules: Array<[keyof Omit<AssessmentInput, 'age'>, string, string, boolean]> = [
+      ['annualIncome', 'annual-income', 'gross annual income', true],
+      ['monthlyEssentialExpenses', 'monthly-expenses', 'essential monthly spending', true],
+      ['liquidSavings', 'liquid-savings', 'liquid savings', false],
+      ['monthlyDebtPayments', 'monthly-debt', 'monthly debt payments', false],
+      ['retirementInvestments', 'retirement-investments', 'retirement and investment savings', false],
+      ['monthlySavings', 'monthly-savings', 'monthly savings', false],
+    ];
+
+    const values: Partial<AssessmentInput> = { age };
+    moneyRules.forEach(([key, id, label, mustBePositive]) => {
+      const field = document.getElementById(id) as HTMLInputElement;
+      const value = parseMoney(field.value);
+      if (!Number.isFinite(value)) {
+        setError(id, mustBePositive ? `Enter ${label}.` : `Enter ${label}; use 0 if none.`);
+        valid = false;
+      } else if (value < 0 || value > MAX_MONEY || (mustBePositive && value <= 0)) {
+        setError(id, mustBePositive ? `Enter a ${label} greater than 0.` : `Enter a ${label} from 0 to ${dollars.format(MAX_MONEY)}.`);
+        valid = false;
+      } else {
+        values[key] = value;
+      }
     });
+
+    const essentialSpending = values.monthlyEssentialExpenses;
+    const debtPayments = values.monthlyDebtPayments;
+    if (
+      Number.isFinite(essentialSpending) &&
+      Number.isFinite(debtPayments) &&
+      (debtPayments as number) >= (essentialSpending as number)
+    ) {
+      setError(
+        'monthly-debt',
+        'Debt payments must be lower than essential spending, which also includes living costs.',
+      );
+      valid = false;
+    }
+
+    if (!valid) {
+      document.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus();
+      return null;
+    }
+
+    return values as AssessmentInput;
   }
 
-  // ── Validation ─────────────────────────────────────────────────────────
-  function setError(name: string, message: string | null) {
-    const input = document.getElementById(name) as HTMLInputElement | null;
-    const errEl = document.querySelector<HTMLElement>(`[data-error-for="${name}"]`);
-    if (!input || !errEl) return;
-    if (message) {
-      input.setAttribute('aria-invalid', 'true');
-      errEl.textContent = message;
-      errEl.hidden = false;
-    } else {
-      input.removeAttribute('aria-invalid');
-      errEl.textContent = '';
-      errEl.hidden = true;
+  function animateScore(element: HTMLElement, target: number) {
+    if (prefersReducedMotion) {
+      element.textContent = String(target);
+      return;
     }
-  }
-
-  function validate(age: number, income: number, savings: number, debt: number): boolean {
-    let ok = true;
-    setError('age', null);
-    setError('income', null);
-    setError('savings', null);
-    setError('debt', null);
-
-    if (!age || age < 18 || age > 70) {
-      setError('age', 'Enter an age between 18 and 70.');
-      ok = false;
-    }
-    if (income <= 0) {
-      setError('income', 'Enter your annual income.');
-      ok = false;
-    }
-    if (savings < 0) { setError('savings', 'Savings can’t be negative.'); ok = false; }
-    if (debt < 0) { setError('debt', 'Debt can’t be negative.'); ok = false; }
-    return ok;
-  }
-
-  // ── Count-up animation ───────────────────────────────────────────────────
-  function animateNumber(el: HTMLElement, to: number, duration = 1400) {
-    if (prefersReduced) { el.textContent = String(to); return; }
-    const start = performance.now();
-    const from = 0;
-    function tick(now: number) {
-      const t = Math.min(1, (now - start) / duration);
-      const eased = 1 - Math.pow(1 - t, 3); // easeOutCubic
-      el.textContent = String(Math.round(from + (to - from) * eased));
-      if (t < 1) requestAnimationFrame(tick);
-      else el.textContent = String(to);
-    }
+    const startedAt = performance.now();
+    const duration = 720;
+    const tick = (now: number) => {
+      const progress = Math.min(1, (now - startedAt) / duration);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      element.textContent = String(Math.round(target * eased));
+      if (progress < 1) requestAnimationFrame(tick);
+    };
     requestAnimationFrame(tick);
   }
 
-  // ── Render results ─────────────────────────────────────────────────────
-  type Result = ReturnType<typeof calculateScore>;
+  function metric(value: number | null, suffix: string, digits = 1): string {
+    return value === null ? 'Not available' : `${value.toFixed(digits)}${suffix}`;
+  }
 
-  function render(result: Result) {
-    const roast = getRoast(result);
-    const insights = getInsights(result);
-    const theme = STATUS_THEME[result.status.key];
+  function renderList<T extends { title: string; description: string }>(container: HTMLElement, items: T[]) {
+    container.replaceChildren();
+    items.forEach((item) => {
+      const li = document.createElement('li');
+      const title = document.createElement('strong');
+      const description = document.createElement('span');
+      title.textContent = item.title;
+      description.textContent = item.description;
+      li.append(title, description);
+      container.appendChild(li);
+    });
+  }
 
+  function renderFactors(result: ScoreResult) {
+    result.factors.forEach((factor) => {
+      const card = document.querySelector<HTMLElement>(`[data-factor="${factor.key}"]`);
+      if (!card) return;
+      const value = $('[data-factor-value]', card);
+      const bar = $('[data-factor-bar]', card) as HTMLElement | null;
+      const note = $('[data-factor-note]', card);
+      if (value) value.textContent = `${Math.round(factor.score)}/100`;
+      if (bar) bar.style.width = `${factor.score}%`;
+      if (note) note.textContent = factor.explanation;
+    });
+  }
+
+  function renderWarnings(warnings: string[]) {
+    const wrapper = $('[data-warnings]') as HTMLElement | null;
+    const list = $('[data-warnings-list]') as HTMLElement | null;
+    if (!wrapper || !list) return;
+    list.replaceChildren();
+    warnings.forEach((warning) => {
+      const item = document.createElement('li');
+      item.textContent = warning;
+      list.appendChild(item);
+    });
+    wrapper.hidden = warnings.length === 0;
+  }
+
+  function renderResult(result: ScoreResult) {
+    currentResult = result;
     const results = $('[data-results]') as HTMLElement;
     results.hidden = false;
 
-    // Gauge theming + animation
-    const gauge = $('[data-gauge]') as HTMLElement;
-    const arc = $('[data-gauge-arc]') as SVGCircleElement | null;
-    const number = $('[data-gauge-number]') as HTMLElement;
-    gauge.style.setProperty('--gauge-from', theme.from);
-    gauge.style.setProperty('--gauge-to', theme.to);
-    gauge.style.setProperty('--gauge-glow', theme.glow);
+    const score = $('[data-score]') as HTMLElement;
+    animateScore(score, result.score);
+    ($('[data-status-label]') as HTMLElement).textContent = `${result.status.emoji} ${result.status.label}`;
+    ($('[data-status-summary]') as HTMLElement).textContent = result.status.summary;
+    ($('[data-method-version]') as HTMLElement).textContent = result.methodologyVersion;
 
-    if (arc) {
-      const arcLength = Number(($('[data-arc-length]') as HTMLElement)?.dataset.arcLength || 0);
-      const offset = arcLength * (1 - result.score / 100);
-      // Force a reflow so the transition runs from full → target.
-      arc.style.strokeDashoffset = String(arcLength);
-      requestAnimationFrame(() => {
-        if (prefersReduced) arc.style.transition = 'none';
-        arc.style.strokeDashoffset = String(offset);
-      });
-    }
-    animateNumber(number, result.score);
+    const heat = $('[data-heat-scale]') as HTMLElement;
+    const marker = $('[data-heat-marker]') as HTMLElement;
+    const markerValue = $('[data-heat-marker-value]') as HTMLElement;
+    heat.setAttribute('aria-label', `Cooked Score ${result.score} out of 100: ${result.status.label}`);
+    marker.style.left = `${Math.min(97, Math.max(3, result.score))}%`;
+    markerValue.textContent = String(result.score);
 
-    // Status badge
-    const badge = $('[data-status-badge]') as HTMLElement;
-    badge.style.setProperty('--status-color', theme.color);
-    badge.style.setProperty('--status-bg', theme.bg);
-    ($('[data-status-emoji]') as HTMLElement).textContent = result.status.emoji;
-    ($('[data-status-label]') as HTMLElement).textContent = result.status.label;
+    ($('[data-metric-buffer]') as HTMLElement).textContent = metric(result.metrics.cashBufferMonths, ' mo');
+    ($('[data-metric-dti]') as HTMLElement).textContent = metric(result.metrics.debtToIncomePercent, '%');
+    ($('[data-metric-savings]') as HTMLElement).textContent = metric(result.metrics.savingsRatePercent, '%');
+    ($('[data-metric-retirement]') as HTMLElement).textContent = metric(result.metrics.retirementSavingsMultiple, '×');
+    ($('[data-metric-retirement-target]') as HTMLElement).textContent = `vs ${result.metrics.retirementTargetMultiple.toFixed(1)}× age guidepost`;
 
-    // Percentile
-    ($('[data-percentile-text]') as HTMLElement).innerHTML =
-      `You're ahead of <strong>${result.percentile}%</strong> of Americans your age.`;
+    renderFactors(result);
+    renderList($('[data-strengths]') as HTMLElement, result.strengths);
+    renderList($('[data-next-moves]') as HTMLElement, result.nextMoves);
+    renderWarnings(result.warnings);
 
-    // Stats
-    ($('[data-finage]') as HTMLElement).textContent = String(result.financialAge);
-    const finageNote = $('[data-finage-note]') as HTMLElement;
-    const diff = result.financialAge - result.input.age;
-    finageNote.textContent =
-      diff <= -1 ? `${Math.abs(diff)} yrs younger than you` :
-      diff >= 1 ? `${diff} yrs older than you` :
-      'Right on pace';
-    ($('[data-networth]') as HTMLElement).textContent = formatCompactUSD(result.metrics.netWorth);
-
-    // Roast
+    const roast = getRoast(result);
     ($('[data-roast-text]') as HTMLElement).textContent = roast;
-
-    // Insights
-    const strengthsEl = $('[data-strengths]') as HTMLElement;
-    const improvementsEl = $('[data-improvements]') as HTMLElement;
-    strengthsEl.innerHTML = '';
-    improvementsEl.innerHTML = '';
-    (insights.strengths.length ? insights.strengths : ['Every journey starts somewhere.']).forEach((s) => {
-      const li = document.createElement('li'); li.textContent = s; strengthsEl.appendChild(li);
-    });
-    (insights.improvements.length ? insights.improvements : ['Keep doing what you’re doing.']).forEach((s) => {
-      const li = document.createElement('li'); li.textContent = s; improvementsEl.appendChild(li);
-    });
-
-    // Share card
     ($('[data-share-score]') as HTMLElement).textContent = String(result.score);
-    ($('[data-share-badge]') as HTMLElement).textContent = `${result.status.emoji} ${result.status.label}`;
-    ($('[data-share-roast]') as HTMLElement).textContent = roast;
-    ($('[data-share-percentile]') as HTMLElement).textContent = `${result.percentile}%`;
-    ($('[data-share-finage]') as HTMLElement).textContent = String(result.financialAge);
+    ($('[data-share-badge]') as HTMLElement).textContent = result.status.label;
+    ($('[data-share-strength]') as HTMLElement).textContent = topSignal(result);
 
-    setupSharing(result, roast);
+    resetScenario(result);
+    setupSharing(result);
+    updateSaveControls();
 
-    // Reveal + scroll
-    results.scrollIntoView({ behavior: prefersReduced ? 'auto' : 'smooth', block: 'start' });
+    window.setTimeout(() => {
+      ($('[data-result-announcement]') as HTMLElement).textContent = `Your Cooked Score is ${result.score} out of 100, ${result.status.label}.`;
+    }, 0);
+    const heading = document.getElementById('results-title');
+    heading?.scrollIntoView({ behavior: prefersReducedMotion ? 'auto' : 'smooth', block: 'start' });
+    window.setTimeout(() => heading?.focus({ preventScroll: true }), prefersReducedMotion ? 0 : 350);
   }
 
-  // ── Sharing ──────────────────────────────────────────────────────────────
-  function shareText(result: Result, roast: string): string {
-    return `I scored ${result.score}/100 on the Cooked Finance test ${result.status.emoji} (${result.status.label}). "${roast}" — are you financially cooked?`;
+  function resetScenario(result: ScoreResult) {
+    const extra = $('#scenario-extra-savings') as HTMLInputElement;
+    const debt = $('#scenario-debt-reduction') as HTMLInputElement;
+    const grossMonthlyIncome = result.input.annualIncome / 12;
+    const plausibleExtraSavings = Math.max(
+      0,
+      Math.floor(grossMonthlyIncome - result.input.monthlyEssentialExpenses - result.input.monthlySavings),
+    );
+    extra.value = '0';
+    extra.max = String(Math.min(10_000, plausibleExtraSavings));
+    extra.setAttribute('aria-valuetext', '$0 extra saved each month');
+    debt.value = '0';
+    debt.max = String(Math.max(0, result.input.monthlyDebtPayments));
+    debt.step = 'any';
+    debt.setAttribute('aria-valuetext', '$0 lower monthly debt payments');
+    ($('[data-scenario-extra]') as HTMLElement).textContent = dollars.format(0);
+    ($('[data-scenario-debt]') as HTMLElement).textContent = dollars.format(0);
+    ($('[data-scenario-score]') as HTMLElement).textContent = String(result.score);
+    ($('[data-scenario-change]') as HTMLElement).textContent = 'Move a slider to test a change.';
+    const warning = $('[data-scenario-warning]') as HTMLElement;
+    warning.textContent = '';
+    warning.hidden = true;
   }
 
-  function setupSharing(result: Result, roast: string) {
-    const url = 'https://cookedfinance.com';
-    const text = shareText(result, roast);
-    const enc = encodeURIComponent;
-
-    const x = $('[data-share-x]') as HTMLAnchorElement;
-    x.href = `https://twitter.com/intent/tweet?text=${enc(text)}&url=${enc(url)}`;
-    const reddit = $('[data-share-reddit]') as HTMLAnchorElement;
-    reddit.href = `https://www.reddit.com/submit?url=${enc(url)}&title=${enc(text)}`;
-    const linkedin = $('[data-share-linkedin]') as HTMLAnchorElement;
-    linkedin.href = `https://www.linkedin.com/sharing/share-offsite/?url=${enc(url)}`;
-
-    const copyBtn = $('[data-copy-link]') as HTMLButtonElement;
-    copyBtn.onclick = async () => {
-      try {
-        await navigator.clipboard.writeText(`${text} ${url}`);
-        toast('Copied! Paste it anywhere (Discord, etc.)');
-      } catch { toast('Copy failed — long-press to copy.'); }
-    };
-
-    const nativeBtn = $('[data-share-native]') as HTMLButtonElement;
-    if ('share' in navigator) {
-      nativeBtn.onclick = async () => {
-        try { await (navigator as Navigator).share({ title: 'Cooked Finance', text, url }); }
-        catch { /* user cancelled */ }
-      };
-    } else {
-      nativeBtn.hidden = true;
-    }
-
-    const dlBtn = $('[data-download-share]') as HTMLButtonElement;
-    dlBtn.onclick = () => downloadShareImage(result, roast);
+  function updateScenario() {
+    if (!currentResult) return;
+    const extra = Number(($('#scenario-extra-savings') as HTMLInputElement).value);
+    const extraInput = $('#scenario-extra-savings') as HTMLInputElement;
+    const debtInput = $('#scenario-debt-reduction') as HTMLInputElement;
+    const debtReduction = Math.min(
+      currentResult.input.monthlyDebtPayments,
+      Number(debtInput.value),
+    );
+    const remainingDebtPayments = Math.max(
+      0,
+      currentResult.input.monthlyDebtPayments - debtReduction,
+    );
+    const nonDebtEssentialSpending = Math.max(
+      0.01,
+      currentResult.input.monthlyEssentialExpenses - currentResult.input.monthlyDebtPayments,
+    );
+    const scenario = calculateScenario(currentResult.input, {
+      monthlySavings: currentResult.input.monthlySavings + extra,
+      liquidSavings: currentResult.input.liquidSavings + extra * 12,
+      monthlyEssentialExpenses: nonDebtEssentialSpending + remainingDebtPayments,
+      monthlyDebtPayments: remainingDebtPayments,
+    });
+    const difference = scenario.score - currentResult.score;
+    ($('[data-scenario-extra]') as HTMLElement).textContent = dollars.format(extra);
+    ($('[data-scenario-debt]') as HTMLElement).textContent = dollars.format(debtReduction);
+    extraInput.setAttribute('aria-valuetext', `${dollars.format(extra)} extra saved each month`);
+    debtInput.setAttribute('aria-valuetext', `${dollars.format(debtReduction)} lower monthly debt payments`);
+    ($('[data-scenario-score]') as HTMLElement).textContent = String(scenario.score);
+    ($('[data-scenario-change]') as HTMLElement).textContent = difference > 0
+      ? `Illustrative change: +${difference} points.`
+      : difference < 0
+        ? `Illustrative change: ${difference} points. Review the scenario assumptions.`
+        : 'No whole-point change at these settings.';
+    const warning = $('[data-scenario-warning]') as HTMLElement;
+    warning.textContent = scenario.warnings.join(' ');
+    warning.hidden = scenario.warnings.length === 0;
   }
 
-  function toast(msg: string) {
-    const el = $('[data-share-toast]') as HTMLElement;
-    el.textContent = msg;
-    el.hidden = false;
-    window.setTimeout(() => { el.hidden = true; }, 2600);
-  }
-
-  // ── Canvas share image (1200×630 PNG) ────────────────────────────────────
-  function downloadShareImage(result: Result, roast: string) {
+  function drawShareCard(result: ScoreResult) {
     const canvas = $('[data-share-canvas]') as HTMLCanvasElement;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-    const W = 1200, H = 630;
-    const theme = STATUS_THEME[result.status.key];
+    const context = canvas.getContext('2d');
+    if (!context) return;
+    const width = canvas.width;
+    const height = canvas.height;
+    const strength = topSignal(result);
 
-    // Background
-    ctx.fillStyle = '#0a0a0a';
-    ctx.fillRect(0, 0, W, H);
-    // Gradient glows
-    const g1 = ctx.createRadialGradient(W, 0, 0, W, 0, 760);
-    g1.addColorStop(0, 'rgba(121,40,202,0.45)');
-    g1.addColorStop(1, 'rgba(121,40,202,0)');
-    ctx.fillStyle = g1; ctx.fillRect(0, 0, W, H);
-    const g2 = ctx.createRadialGradient(0, H, 0, 0, H, 720);
-    g2.addColorStop(0, 'rgba(0,124,240,0.35)');
-    g2.addColorStop(1, 'rgba(0,124,240,0)');
-    ctx.fillStyle = g2; ctx.fillRect(0, 0, W, H);
-
-    const pad = 72;
-    ctx.textBaseline = 'alphabetic';
-
-    // Brand
-    ctx.fillStyle = '#a1a1a1';
-    ctx.font = '500 26px "Geist Mono Variable", monospace';
-    ctx.fillText('cookedfinance.com', pad, pad + 12);
-
-    // Badge (top-right)
-    const badgeText = `${result.status.emoji} ${result.status.label}`;
-    ctx.font = '500 26px "Geist Variable", sans-serif';
-    const bw = ctx.measureText(badgeText).width + 44;
-    const bx = W - pad - bw, by = pad - 18;
-    roundRect(ctx, bx, by, bw, 50, 25);
-    ctx.fillStyle = 'rgba(255,255,255,0.06)'; ctx.fill();
-    ctx.strokeStyle = theme.color; ctx.lineWidth = 1.5; ctx.stroke();
-    ctx.fillStyle = '#ededed';
-    ctx.fillText(badgeText, bx + 22, by + 33);
-
-    // Big score
-    ctx.fillStyle = '#ededed';
-    ctx.font = '600 180px "Geist Variable", sans-serif';
-    const scoreStr = String(result.score);
-    ctx.fillText(scoreStr, pad - 4, 340);
-    const sw = ctx.measureText(scoreStr).width;
-    ctx.fillStyle = '#6f6f6f';
-    ctx.font = '500 54px "Geist Variable", sans-serif';
-    ctx.fillText('/100', pad + sw + 8, 340);
-    ctx.fillStyle = '#a1a1a1';
-    ctx.font = '500 24px "Geist Mono Variable", monospace';
-    ctx.fillText('COOKED SCORE', pad, 386);
-
-    // Roast (wrapped)
-    ctx.fillStyle = '#ededed';
-    ctx.font = '500 34px "Geist Variable", sans-serif';
-    wrapText(ctx, `“${roast}”`, pad, 452, W - pad * 2, 44, 2);
-
-    // Stats row
-    const statsY = 560;
-    ctx.fillStyle = '#ededed';
-    ctx.font = '600 40px "Geist Variable", sans-serif';
-    ctx.fillText(`${result.percentile}%`, pad, statsY);
-    ctx.fillText(String(result.financialAge), pad + 320, statsY);
-    ctx.fillStyle = '#6f6f6f';
-    ctx.font = '500 20px "Geist Mono Variable", monospace';
-    ctx.fillText('AHEAD OF AMERICANS', pad, statsY + 28);
-    ctx.fillText('FINANCIAL AGE', pad + 320, statsY + 28);
+    context.fillStyle = '#f5efe4';
+    context.fillRect(0, 0, width, height);
+    context.fillStyle = '#1c1914';
+    context.fillRect(54, 54, width - 108, height - 108);
+    context.fillStyle = '#dda24b';
+    context.fillRect(54, 54, 18, height - 108);
+    context.fillStyle = '#fffcf7';
+    context.font = '700 24px Arial, sans-serif';
+    context.fillText('COOKED FINANCE', 112, 118);
+    context.fillStyle = '#dda24b';
+    context.font = '500 58px Georgia, serif';
+    context.fillText(result.status.label, 112, 218);
+    context.fillStyle = '#fffcf7';
+    context.font = '500 190px Georgia, serif';
+    context.fillText(String(result.score), 105, 430);
+    const scoreWidth = context.measureText(String(result.score)).width;
+    context.fillStyle = 'rgba(255,252,247,0.55)';
+    context.font = '400 30px Arial, sans-serif';
+    context.fillText('/100', 112 + scoreWidth, 430);
+    context.fillStyle = 'rgba(255,252,247,0.55)';
+    context.font = '700 17px Arial, sans-serif';
+    context.fillText('STRONGEST SIGNAL', 690, 315);
+    context.fillStyle = '#fffcf7';
+    context.font = '500 34px Georgia, serif';
+    context.fillText(strength.slice(0, 34), 690, 360);
+    context.fillStyle = 'rgba(255,252,247,0.62)';
+    context.font = '400 20px Arial, sans-serif';
+    context.fillText('What temperature are your finances?', 690, 420);
+    context.fillText('cookedfinance.com', 690, 455);
 
     const link = document.createElement('a');
-    link.download = `cooked-score-${result.score}.png`;
+    link.download = `cooked-finance-score-${result.score}.png`;
     link.href = canvas.toDataURL('image/png');
     link.click();
-    toast('Image downloaded — share it anywhere!');
   }
 
-  function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
-    ctx.beginPath();
-    ctx.moveTo(x + r, y);
-    ctx.arcTo(x + w, y, x + w, y + h, r);
-    ctx.arcTo(x + w, y + h, x, y + h, r);
-    ctx.arcTo(x, y + h, x, y, r);
-    ctx.arcTo(x, y, x + w, y, r);
-    ctx.closePath();
+  function showShareToast(message: string) {
+    const toast = $('[data-share-toast]') as HTMLElement;
+    toast.textContent = message;
+    window.setTimeout(() => {
+      if (toast.textContent === message) toast.textContent = '';
+    }, 2600);
   }
 
-  function wrapText(
-    ctx: CanvasRenderingContext2D, text: string, x: number, y: number,
-    maxWidth: number, lineHeight: number, maxLines: number,
-  ) {
-    const words = text.split(' ');
-    let line = '';
-    let lines = 0;
-    for (let i = 0; i < words.length; i++) {
-      const test = line + words[i] + ' ';
-      if (ctx.measureText(test).width > maxWidth && line !== '') {
-        ctx.fillText(line.trim(), x, y);
-        line = words[i] + ' ';
-        y += lineHeight;
-        lines++;
-        if (lines >= maxLines - 1) {
-          // Last allowed line: dump remaining (trim with ellipsis if needed).
-          let rest = words.slice(i).join(' ');
-          while (ctx.measureText(rest + '…').width > maxWidth && rest.length > 0) {
-            rest = rest.slice(0, -1);
-          }
-          ctx.fillText(rest + (i < words.length ? '' : ''), x, y);
-          return;
-        }
-      } else {
-        line = test;
+  function setupSharing(result: ScoreResult) {
+    const url = `${window.location.origin}/`;
+    const text = `My Cooked Finance result landed in the ${result.status.label} band. What temperature are your finances?`;
+    const nativeButton = $('[data-share-native]') as HTMLButtonElement;
+    nativeButton.hidden = !('share' in navigator);
+    nativeButton.onclick = async () => {
+      try {
+        await navigator.share({ title: 'Cooked Finance', text, url });
+      } catch {
+        // Closing the operating-system share sheet is not an error.
       }
-    }
-    ctx.fillText(line.trim(), x, y);
+    };
+    ($('[data-copy-link]') as HTMLButtonElement).onclick = async () => {
+      try {
+        await navigator.clipboard.writeText(url);
+        showShareToast('Generic link copied—no result data included.');
+      } catch {
+        showShareToast('Copy failed. Use your browser address bar instead.');
+      }
+    };
+    ($('[data-download-share]') as HTMLButtonElement).onclick = () => drawShareCard(result);
   }
 
-  // ── Persistence ──────────────────────────────────────────────────────────
-  function save(result: Result) {
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(result.input)); } catch {}
-  }
-  function restore() {
+  function getSavedCheck(): SavedCheck | null {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) return;
-      const input = JSON.parse(raw);
-      // Pre-fill form
-      const ageEl = document.getElementById('age') as HTMLInputElement | null;
-      const incEl = document.getElementById('income') as HTMLInputElement | null;
-      const savEl = document.getElementById('savings') as HTMLInputElement | null;
-      const debtEl = document.getElementById('debt') as HTMLInputElement | null;
-      if (ageEl && input.age) ageEl.value = String(input.age);
-      if (incEl && input.income) incEl.value = Number(input.income).toLocaleString('en-US');
-      if (savEl && input.savings != null) savEl.value = Number(input.savings).toLocaleString('en-US');
-      if (debtEl && input.debt != null) debtEl.value = Number(input.debt).toLocaleString('en-US');
-      // Render last result automatically.
-      render(calculateScore(input));
-    } catch {}
+      if (!raw) return null;
+      const parsed = JSON.parse(raw) as SavedCheck;
+      return parsed.version === 2 && parsed.input ? parsed : null;
+    } catch {
+      return null;
+    }
   }
 
-  // ── Smooth-scroll for in-page anchors ────────────────────────────────────
-  function setupScrollLinks() {
-    document.querySelectorAll<HTMLAnchorElement>('[data-scroll]').forEach((a) => {
-      a.addEventListener('click', (e) => {
-        const href = a.getAttribute('href');
-        if (!href) return;
-        // Accept "#check" and "/#check"; only intercept when the target exists
-        // on the current page (i.e. we're on the homepage).
-        const hashIndex = href.indexOf('#');
-        if (hashIndex === -1) return;
-        const id = href.slice(hashIndex);
-        const target = document.querySelector(id);
-        if (!target) return; // let the browser navigate (e.g. from another page)
-        e.preventDefault();
-        target.scrollIntoView({ behavior: prefersReduced ? 'auto' : 'smooth', block: 'start' });
-        (target as HTMLElement).querySelector<HTMLInputElement>('input')?.focus({ preventScroll: true });
-      });
+  function updateSaveControls() {
+    const saved = getSavedCheck();
+    const clearResult = $('[data-clear-result]') as HTMLButtonElement | null;
+    const prompt = $('[data-saved-prompt]') as HTMLElement | null;
+    if (clearResult) clearResult.hidden = !saved;
+    if (prompt) prompt.hidden = !saved;
+  }
+
+  function saveCurrentResult() {
+    if (!currentResult) return;
+    const saved: SavedCheck = {
+      version: 2,
+      savedAt: new Date().toISOString(),
+      input: currentResult.input,
+      result: {
+        score: currentResult.score,
+        statusKey: currentResult.status.key,
+        statusLabel: currentResult.status.label,
+      },
+    };
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
+      ($('[data-save-status]') as HTMLElement).textContent = 'Saved only in this browser.';
+      track('result_saved');
+      updateSaveControls();
+    } catch {
+      ($('[data-save-status]') as HTMLElement).textContent = 'This browser could not save the check.';
+    }
+  }
+
+  function clearSavedCheck(trigger: HTMLElement, messageTarget?: HTMLElement | null) {
+    if (!window.confirm('Delete the saved check from this browser?')) return;
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+      if (messageTarget) messageTarget.textContent = 'Saved check deleted.';
+      const resultStatus = $('[data-save-status]') as HTMLElement | null;
+      if (resultStatus) resultStatus.textContent = 'Saved check deleted.';
+      const announcement = $('[data-storage-announcement]') as HTMLElement | null;
+      if (announcement) announcement.textContent = 'Saved check deleted from this browser.';
+      const fromResults = trigger.hasAttribute('data-clear-result');
+      updateSaveControls();
+      window.setTimeout(() => {
+        const stableTarget = fromResults
+          ? $('[data-save-result]') as HTMLButtonElement | null
+          : document.getElementById('age') as HTMLInputElement | null;
+        stableTarget?.focus();
+      }, 0);
+    } catch {
+      if (messageTarget) messageTarget.textContent = 'This browser could not delete the saved check.';
+    }
+  }
+
+  function loadSavedInputs() {
+    const saved = getSavedCheck();
+    if (!saved) {
+      updateSaveControls();
+      return;
+    }
+    const fields: Array<[string, number]> = [
+      ['age', saved.input.age],
+      ['annual-income', saved.input.annualIncome],
+      ['monthly-expenses', saved.input.monthlyEssentialExpenses],
+      ['liquid-savings', saved.input.liquidSavings],
+      ['monthly-debt', saved.input.monthlyDebtPayments],
+      ['retirement-investments', saved.input.retirementInvestments],
+      ['monthly-savings', saved.input.monthlySavings],
+    ];
+    fields.forEach(([id, value]) => {
+      const field = document.getElementById(id) as HTMLInputElement | null;
+      if (field) field.value = id === 'age' ? String(value) : plainNumber.format(value);
     });
+    const status = $('[data-saved-prompt-status]') as HTMLElement | null;
+    if (status) status.textContent = 'Inputs loaded. Review them, then reveal your heat check.';
+    const announcement = $('[data-storage-announcement]') as HTMLElement | null;
+    if (announcement) announcement.textContent = 'Saved inputs loaded. Review them before calculating.';
+    document.getElementById('assessment-form')?.scrollIntoView({ behavior: prefersReducedMotion ? 'auto' : 'smooth', block: 'start' });
   }
 
-  // ── Wire up ──────────────────────────────────────────────────────────────
   function init() {
-    attachMoneyFormatting();
-    setupScrollLinks();
-
-    const form = document.getElementById('assessment-form') as HTMLFormElement | null;
-    form?.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const age = parseInt((document.getElementById('age') as HTMLInputElement).value, 10);
-      const income = parseMoney((document.getElementById('income') as HTMLInputElement).value);
-      const savings = parseMoney((document.getElementById('savings') as HTMLInputElement).value);
-      const debt = parseMoney((document.getElementById('debt') as HTMLInputElement).value);
-
-      if (!validate(age, income, savings, debt)) {
-        document.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus();
-        return;
-      }
-      const result = calculateScore({ age, income, savings, debt });
-      save(result);
-      render(result);
+    // The retired MVP auto-saved a different, incompatible set of financial inputs.
+    // Delete that legacy record rather than retaining invisible data.
+    try { localStorage.removeItem(LEGACY_STORAGE_KEY); } catch {}
+    document.querySelectorAll<HTMLInputElement>('.field-input--money').forEach((input) => {
+      input.addEventListener('blur', () => {
+        const value = parseMoney(input.value);
+        if (Number.isFinite(value)) input.value = plainNumber.format(value);
+      });
+      input.addEventListener('input', () => setError(input.id));
     });
+    $('#age')?.addEventListener('input', () => setError('age'));
 
-    // Retake → back to form
-    ($('[data-retake]') as HTMLButtonElement | null)?.addEventListener('click', () => {
-      document.getElementById('check')?.scrollIntoView({ behavior: prefersReduced ? 'auto' : 'smooth' });
-      (document.getElementById('age') as HTMLInputElement | null)?.focus({ preventScroll: true });
+    const form = $('#assessment-form') as HTMLElement | null;
+    form?.addEventListener('focusin', () => {
+      if (assessmentStarted) return;
+      assessmentStarted = true;
+      track('assessment_started');
     });
+    const runAssessment = () => {
+      const input = readInput();
+      if (!input) return;
+      const result = calculateScore(input);
+      renderResult(result);
+      track('assessment_completed');
+    };
+    form?.addEventListener('keydown', (event) => {
+      if (event.key !== 'Enter' || (event.target as HTMLElement).tagName === 'BUTTON') return;
+      event.preventDefault();
+      runAssessment();
+    });
+    $('[data-run-assessment]')?.addEventListener('click', runAssessment);
 
-    restore();
+    $('#scenario-extra-savings')?.addEventListener('input', updateScenario);
+    $('#scenario-debt-reduction')?.addEventListener('input', updateScenario);
+    $('[data-save-result]')?.addEventListener('click', saveCurrentResult);
+    $('[data-clear-result]')?.addEventListener('click', (event) => clearSavedCheck(event.currentTarget as HTMLElement));
+    $('[data-load-saved]')?.addEventListener('click', loadSavedInputs);
+    $('[data-clear-saved-prompt]')?.addEventListener('click', (event) => clearSavedCheck(event.currentTarget as HTMLElement, $('[data-saved-prompt-status]')));
+    $('[data-retake]')?.addEventListener('click', () => {
+      document.getElementById('check')?.scrollIntoView({ behavior: prefersReducedMotion ? 'auto' : 'smooth', block: 'start' });
+      window.setTimeout(() => (document.getElementById('age') as HTMLInputElement | null)?.focus({ preventScroll: true }), 250);
+    });
+    updateSaveControls();
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
-    init();
-  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
 </script>

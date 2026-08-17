@@ -1,74 +1,107 @@
 {
   "_meta": {
-    "title": "US financial benchmarks",
-    "inspiredBy": "Federal Reserve Survey of Consumer Finances (SCF) 2022 + Fidelity savings-multiple guideposts",
-    "lastReviewed": "2026-06",
-    "disclaimer": "For entertainment and educational purposes only. Not financial advice.",
-    "howToUpdate": [
-      "These are realistic PLACEHOLDER values calibrated to public SCF-style ranges. They are not exact published figures.",
-      "netWorthPercentilesByAge models INVESTABLE net worth (savings + investments minus total debt), which is intentionally lower than full SCF net worth because it excludes home equity and other illiquid assets. Our form only collects savings/investments and total debt.",
-      "To refresh: pull the latest SCF release (https://www.federalreserve.gov/econres/scfindex.htm), recompute per-age percentile breakpoints for liquid + investment assets net of debt, and replace the anchors below.",
-      "savingsMultipleTargets follow the Fidelity-style 'save X times your income by age Y' rule of thumb and can be tuned freely.",
-      "All dollar values are in USD. Ages are in years."
+    "title": "Cooked Finance educational score methodology",
+    "version": "2.0.0",
+    "reviewedDate": "2026-08-17",
+    "scope": "A deterministic educational estimate based only on the seven values a visitor enters. It is not a population percentile, credit score, financial plan, or prediction.",
+    "disclaimer": "For educational purposes only. The score is a simplified starting point, not financial, investment, tax, or legal advice.",
+    "inputConsistency": "Use one adult's personal figures for every field. Run a separate check for a partner; combining adults makes the age-based retirement guidepost misleading.",
+    "notIncluded": [
+      "Credit history or credit score",
+      "Interest rates or debt types",
+      "Taxes, government benefits, projected defined-benefit pension income, or employer matching not explicitly included in the monthly-saving input",
+      "Home equity, property, or other assets",
+      "Dependents, cost of living, retirement age, or risk tolerance",
+      "Any comparison with other people or households"
     ]
   },
-
-  "ageBrackets": [
-    { "minAge": 18, "maxAge": 24, "label": "18–24", "medianIncome": 38000 },
-    { "minAge": 25, "maxAge": 34, "label": "25–34", "medianIncome": 55000 },
-    { "minAge": 35, "maxAge": 44, "label": "35–44", "medianIncome": 85000 },
-    { "minAge": 45, "maxAge": 54, "label": "45–54", "medianIncome": 90000 },
-    { "minAge": 55, "maxAge": 64, "label": "55–64", "medianIncome": 80000 },
-    { "minAge": 65, "maxAge": 70, "label": "65–70", "medianIncome": 55000 }
-  ],
-
-  "savingsMultipleTargets": [
-    { "age": 25, "target": 0.3 },
-    { "age": 30, "target": 1.0 },
-    { "age": 35, "target": 2.0 },
-    { "age": 40, "target": 3.0 },
-    { "age": 45, "target": 4.5 },
-    { "age": 50, "target": 6.0 },
-    { "age": 55, "target": 7.0 },
-    { "age": 60, "target": 8.0 },
-    { "age": 67, "target": 10.0 },
-    { "age": 70, "target": 10.0 }
-  ],
-
-  "netWorthPercentilesByAge": [
-    { "age": 21, "p10": -25000, "p25": -8000,  "p50": 1000,   "p75": 12000,  "p90": 45000,   "p95": 90000 },
-    { "age": 25, "p10": -22000, "p25": -5000,  "p50": 6000,   "p75": 30000,  "p90": 85000,   "p95": 160000 },
-    { "age": 30, "p10": -20000, "p25": 0,      "p50": 18000,  "p75": 70000,  "p90": 180000,  "p95": 320000 },
-    { "age": 35, "p10": -18000, "p25": 5000,   "p50": 40000,  "p75": 130000, "p90": 320000,  "p95": 560000 },
-    { "age": 40, "p10": -15000, "p25": 12000,  "p50": 75000,  "p75": 220000, "p90": 520000,  "p95": 900000 },
-    { "age": 45, "p10": -12000, "p25": 20000,  "p50": 120000, "p75": 330000, "p90": 760000,  "p95": 1300000 },
-    { "age": 50, "p10": -10000, "p25": 30000,  "p50": 165000, "p75": 450000, "p90": 1000000, "p95": 1700000 },
-    { "age": 55, "p10": -8000,  "p25": 40000,  "p50": 210000, "p75": 560000, "p90": 1250000, "p95": 2100000 },
-    { "age": 60, "p10": -6000,  "p25": 48000,  "p50": 250000, "p75": 650000, "p90": 1450000, "p95": 2500000 },
-    { "age": 65, "p10": -4000,  "p25": 55000,  "p50": 280000, "p75": 720000, "p90": 1600000, "p95": 2800000 },
-    { "age": 70, "p10": -3000,  "p25": 58000,  "p50": 290000, "p75": 740000, "p90": 1650000, "p95": 2900000 }
-  ],
-
-  "scoring": {
-    "incomeFloor": 15000,
-    "_incomeFloorNote": "Income-relative ratios (savings-to-income, debt-to-income, net-savings, age-adjusted progress) are computed against max(income, incomeFloor). This prevents an unrealistically low income (e.g. $90) from inflating ratios and producing a higher score than a larger income with identical savings/debt. ~ full-time minimum wage; tune freely.",
-    "weights": {
-      "savingsToIncome": 0.35,
-      "debtToIncome": 0.25,
-      "netSavings": 0.15,
-      "ageAdjustedProgress": 0.25
+  "sources": [
+    {
+      "id": "cfpb-dti-definition",
+      "publisher": "Consumer Financial Protection Bureau",
+      "title": "What is a debt-to-income ratio?",
+      "url": "https://www.consumerfinance.gov/ask-cfpb/what-is-a-debt-to-income-ratio-en-1791/",
+      "supports": "DTI is monthly debt payments divided by gross monthly income. The source does not define Cooked Finance score thresholds."
     },
+    {
+      "id": "fidelity-emergency-savings",
+      "publisher": "Fidelity",
+      "title": "Guide to emergency savings",
+      "url": "https://www.fidelity.com/learning-center/smart-money/emergency-fund",
+      "supports": "A general goal of 3 to 6 months of essential expenses in emergency savings. Personal needs can differ."
+    },
+    {
+      "id": "fidelity-retirement-guideposts",
+      "publisher": "Fidelity",
+      "title": "How much do I need to retire?",
+      "url": "https://www.fidelity.com/viewpoints/retirement/how-much-do-i-need-to-retire",
+      "supports": "General retirement-savings guideposts of 1x income at 30, 3x at 40, 6x at 50, 8x at 60, and 10x at 67, plus a general 15% annual savings guideline including employer contributions. Personal targets can differ."
+    }
+  ],
+  "scoring": {
+    "weights": {
+      "cashBuffer": 0.3,
+      "debtBurden": 0.25,
+      "savingsHabit": 0.2,
+      "longTermProgress": 0.25
+    },
+    "weightNote": "Weights are Cooked Finance editorial choices. They sum to 1.00 and are not survey estimates or lender rules.",
     "curves": {
-      "_note": "Each curve is a list of [input, score] anchors used for piecewise-linear interpolation. score is 0..1.",
-      "savingsToIncome": [
-        [0, 0.0], [0.25, 0.28], [0.5, 0.42], [1, 0.6], [2, 0.74], [3, 0.85], [4.5, 0.93], [6, 1.0]
+      "_note": "Each curve is a transparent piecewise-linear Cooked Finance scale of [metric, pillar score]. Pillar scores run from 0 to 100. Anchors between externally sourced guideposts are editorial modeling choices, not population benchmarks.",
+      "cashBufferMonths": [
+        [0, 0],
+        [0.5, 15],
+        [1, 30],
+        [2, 55],
+        [3, 75],
+        [4.5, 90],
+        [6, 100]
       ],
-      "debtToIncome": [
-        [0, 1.0], [0.2, 0.9], [0.4, 0.8], [1, 0.6], [2, 0.38], [3, 0.18], [4, 0.05], [6, 0.0]
+      "debtToIncomeRatio": [
+        [0, 100],
+        [0.1, 90],
+        [0.2, 75],
+        [0.3, 60],
+        [0.36, 50],
+        [0.43, 35],
+        [0.5, 20],
+        [0.6, 5],
+        [0.75, 0]
       ],
-      "netSavingsRatio": [
-        [-3, 0.0], [-1.5, 0.12], [-0.5, 0.3], [0, 0.45], [1, 0.62], [2, 0.74], [4, 0.9], [6, 1.0]
+      "monthlySavingsRate": [
+        [0, 0],
+        [0.02, 15],
+        [0.05, 35],
+        [0.1, 65],
+        [0.15, 90],
+        [0.2, 100]
+      ],
+      "retirementTargetProgress": [
+        [0, 0],
+        [0.1, 10],
+        [0.25, 30],
+        [0.5, 55],
+        [0.75, 78],
+        [1, 100]
       ]
     }
+  },
+  "retirementGuideposts": {
+    "sourceId": "fidelity-retirement-guideposts",
+    "published": [
+      { "age": 30, "target": 1 },
+      { "age": 40, "target": 3 },
+      { "age": 50, "target": 6 },
+      { "age": 60, "target": 8 },
+      { "age": 67, "target": 10 }
+    ],
+    "interpolation": "For ages 30 through 67, Cooked Finance linearly interpolates between Fidelity's published guideposts. For ages above 67, the model holds the 10x guidepost constant.",
+    "earlyCareerModel": {
+      "throughAge": 25,
+      "minimumTarget": 0.1,
+      "firstPublishedAge": 30,
+      "method": "Ages 18 through 25 use a 0.1x modeling floor. Ages 26 through 29 linearly rise from 0.1x at 25 to Fidelity's published 1x at 30. The 0.1x floor is a Cooked Finance product assumption, not a Fidelity milestone."
+    },
+    "limitations": "These guideposts assume retirement around 67 and other assumptions described by Fidelity. They are broad planning guideposts, not personalized targets."
   }
 }

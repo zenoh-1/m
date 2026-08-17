@@ -1,13 +1,8 @@
 ---
-/**
- * PageLayout — Shared shell for standalone content pages (about, privacy,
- * terms, contact). Wraps the base Layout with the site header/footer and a
- * consistent page header (eyebrow + H1 + lead). Each page passes its own SEO
- * title/description/path so canonical + meta stay unique per route (good MPA SEO).
- */
 import Layout from './Layout.astro';
 import SiteHeader from '../components/SiteHeader.astro';
 import SiteFooter from '../components/SiteFooter.astro';
+import { SITE } from '../lib/seo';
 
 interface Props {
   title: string;
@@ -16,33 +11,144 @@ interface Props {
   eyebrow?: string;
   heading: string;
   lead?: string;
-  /** Optional "last updated" date string for legal pages. */
   updated?: string;
-  /** Keep the page out of search indexes (error pages, etc.). */
   noindex?: boolean;
+  type?: 'website' | 'article';
+  jsonLd?: Record<string, unknown> | Record<string, unknown>[] | string;
 }
 
-const { title, description, path, eyebrow, heading, lead, updated, noindex } = Astro.props;
+const { title, description, path, eyebrow, heading, lead, updated, noindex, type, jsonLd } = Astro.props;
+
+const canonicalPath = path === '/' || path.endsWith('/') ? path : `${path}/`;
+const canonicalURL = new URL(canonicalPath, SITE.url).href;
+const breadcrumbPageName = title.split('|')[0].trim();
+
+type Breadcrumb = {
+  label: string;
+  href?: string;
+  current?: boolean;
+  includeInSchema?: boolean;
+};
+
+const section = canonicalPath.startsWith('/guides/')
+  ? { label: 'Guides', href: '/guides/' }
+  : canonicalPath.startsWith('/calculators/')
+    ? { label: 'Calculators', href: '/calculators/' }
+    : canonicalPath.startsWith('/benchmarks/')
+      // There is no benchmarks collection page yet, so this is a visible
+      // hierarchy label rather than a link to a nonexistent URL.
+      ? { label: 'Benchmarks', includeInSchema: false }
+      : null;
+
+const breadcrumbs: Breadcrumb[] = [{ label: 'Home', href: '/' }];
+if (section && canonicalPath !== section.href) breadcrumbs.push(section);
+breadcrumbs.push({ label: breadcrumbPageName, href: canonicalPath, current: true });
+
+const breadcrumbJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: breadcrumbs
+    .filter((crumb) => crumb.includeInSchema !== false)
+    .map((crumb, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      name: crumb.label,
+      item: new URL(crumb.href ?? canonicalPath, SITE.url).href,
+    })),
+};
+
+const updatedISO = updated
+  ? new Date(`${updated} 00:00:00 UTC`).toISOString().slice(0, 10)
+  : null;
+const isArticle = Boolean(
+  updatedISO && (
+    (canonicalPath.startsWith('/guides/') && canonicalPath !== '/guides/') ||
+    canonicalPath.startsWith('/benchmarks/') ||
+    ['/financial-health-score/', '/methodology/', '/score-ranges/'].includes(canonicalPath)
+  ),
+);
+const resolvedType = type ?? (isArticle ? 'article' : 'website');
+
+const articleJsonLd = isArticle
+  ? {
+      '@context': 'https://schema.org',
+      '@type': 'Article',
+      headline: heading,
+      description,
+      mainEntityOfPage: canonicalURL,
+      dateModified: updatedISO,
+      inLanguage: 'en-US',
+      author: {
+        '@type': 'Organization',
+        name: SITE.name,
+        url: `${SITE.url}/about/`,
+      },
+      publisher: {
+        '@type': 'Organization',
+        '@id': `${SITE.url}/#organization`,
+        name: SITE.name,
+        url: `${SITE.url}/`,
+      },
+    }
+  : null;
+
+function normalizeJsonLd(value: typeof jsonLd): Record<string, unknown>[] {
+  if (!value) return [];
+  if (Array.isArray(value)) return value;
+  if (typeof value === 'string') {
+    try {
+      const parsed = JSON.parse(value);
+      return Array.isArray(parsed) ? parsed : [parsed];
+    } catch {
+      return [];
+    }
+  }
+  return [value];
+}
+
+const mergedJsonLd = [
+  breadcrumbJsonLd,
+  ...(articleJsonLd ? [articleJsonLd] : []),
+  ...normalizeJsonLd(jsonLd),
+];
 ---
 
-<Layout title={title} description={description} path={path} noindex={noindex}>
-  <span id="top"></span>
+<Layout title={title} description={description} path={path} noindex={noindex} type={resolvedType} jsonLd={mergedJsonLd}>
   <SiteHeader />
 
-  <main class="page">
+  <main id="main-content" class="page">
     <div class="container-page">
+      <nav class="breadcrumbs" aria-label="Breadcrumb">
+        {breadcrumbs.map((crumb, index) => (
+          <>
+            {index > 0 && <span aria-hidden="true">/</span>}
+            {crumb.current || !crumb.href
+              ? <span aria-current={crumb.current ? 'page' : undefined}>{crumb.label}</span>
+              : <a href={crumb.href}>{crumb.label}</a>}
+          </>
+        ))}
+      </nav>
+
       <header class="page__head">
         {eyebrow && <span class="eyebrow">{eyebrow}</span>}
         <h1 class="page__title">{heading}</h1>
         {lead && <p class="page__lead">{lead}</p>}
-        {updated && <p class="page__updated">Last updated: {updated}</p>}
+        {updated && (
+          <div class="page__meta">
+            <p>Published by <a href="/about/">Cooked Finance</a></p>
+            <p>Last substantively reviewed: <time datetime={updatedISO ?? undefined}>{updated}</time></p>
+          </div>
+        )}
       </header>
 
       <div class="prose page__body">
         <slot />
       </div>
 
-      <a href="/" class="page__back">← Back to the score calculator</a>
+      <div class="page__next">
+        <p>Ready to turn the explanation into a useful snapshot?</p>
+        <a href="/#check" class="btn-primary">Run My Financial Heat Check</a>
+      </div>
     </div>
   </main>
 
@@ -50,49 +156,17 @@ const { title, description, path, eyebrow, heading, lead, updated, noindex } = A
 </Layout>
 
 <style>
-  .page {
-    padding-top: clamp(2.5rem, 7vh, 4.5rem);
-    padding-bottom: clamp(3rem, 8vh, 5rem);
-  }
-  .page__head {
-    max-width: 760px;
-    margin-inline: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-    margin-bottom: 2.5rem;
-    padding-bottom: 2rem;
-    border-bottom: 1px solid var(--color-hairline);
-  }
-  .page__title {
-    margin: 0;
-    font-size: clamp(2rem, 6vw, 3rem);
-    font-weight: 600;
-    letter-spacing: -0.035em;
-    line-height: 1.05;
-  }
-  .page__lead {
-    margin: 0;
-    font-size: clamp(1.0625rem, 2.5vw, 1.1875rem);
-    line-height: 1.6;
-    color: var(--color-body);
-  }
-  .page__updated {
-    margin: 0;
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    color: var(--color-mute);
-  }
-  .page__back {
-    display: inline-block;
-    margin-top: 3rem;
-    max-width: 760px;
-    margin-inline: auto;
-    width: 100%;
-    font-size: 0.9375rem;
-    color: var(--color-body);
-    text-decoration: none;
-    transition: color 0.18s var(--ease-out-expo);
-  }
-  .page__back:hover { color: var(--color-ink); }
+  .page { padding: clamp(2.25rem, 6vw, 5rem) 0 var(--section-space); }
+  .breadcrumbs { max-width: 790px; margin: 0 auto 2rem; display: flex; flex-wrap: wrap; align-items: center; gap: 0.45rem; color: var(--color-mute); font-size: 0.78rem; }
+  .breadcrumbs a { color: var(--color-body); text-underline-offset: 0.16em; }
+  .page__head { max-width: 790px; margin-inline: auto; padding-bottom: clamp(2rem, 5vw, 3.25rem); border-bottom: 1px solid var(--color-hairline); }
+  .page__title { max-width: 16ch; margin: 0.75rem 0 0; font-family: var(--font-serif); font-size: clamp(2.6rem, 8vw, 5.5rem); font-weight: 500; letter-spacing: -0.045em; line-height: 0.98; }
+  .page__lead { max-width: 62ch; margin: 1.2rem 0 0; color: var(--color-body); font-size: clamp(1.05rem, 2vw, 1.2rem); line-height: 1.7; }
+  .page__meta { margin-top: 1rem; display: flex; flex-wrap: wrap; gap: 0.35rem 1.25rem; color: var(--color-mute); font-family: var(--font-mono); font-size: 0.72rem; }
+  .page__meta p { margin: 0; }
+  .page__meta a { color: inherit; text-underline-offset: 0.16em; }
+  .page__body { padding-top: 0.7rem; }
+  .page__next { max-width: 790px; margin: 4rem auto 0; padding: clamp(1.4rem, 4vw, 2rem); display: flex; align-items: center; justify-content: space-between; gap: 1rem; border: 1px solid var(--color-hairline); border-radius: var(--radius-lg); background: var(--color-paper); }
+  .page__next p { margin: 0; max-width: 35ch; color: var(--color-body); font-weight: 620; }
+  @media (max-width: 640px) { .page__next { align-items: stretch; flex-direction: column; } }
 </style>

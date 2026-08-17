@@ -20,8 +20,3 @@ function trim(n: number): string {
   // One decimal place, but drop a trailing ".0".
   return (Math.round(n * 10) / 10).toString();
 }
-
-/** Ordinal-ish percentile phrasing helper, e.g. 68 → "68%". */
-export function pct(value: number): string {
-  return `${Math.round(value)}%`;
-}

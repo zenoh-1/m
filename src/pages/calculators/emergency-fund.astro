@@ -1,0 +1,350 @@
+---
+import PageLayout from '../../layouts/PageLayout.astro';
+import RelatedCalculators from '../../components/calculators/RelatedCalculators.astro';
+---
+
+<PageLayout
+  title="Emergency Fund Calculator: Months of Expenses | Cooked Finance"
+  description="Calculate how many months of essential expenses your liquid savings can cover, choose a target runway, and estimate your emergency-fund gap and timeline."
+  path="/calculators/emergency-fund/"
+  eyebrow="Calculator 03"
+  heading="How much breathing room does your emergency fund buy?"
+  lead="Turn liquid savings into months of essential-expense coverage, then test a target that fits your own income stability and responsibilities."
+  updated="August 17, 2026"
+>
+  <aside class="formula-strip" aria-label="Emergency fund runway formula">
+    <span>Liquid emergency savings</span>
+    <span aria-hidden="true">÷</span>
+    <span>Essential monthly expenses</span>
+    <span aria-hidden="true">=</span>
+    <strong>Months of runway</strong>
+  </aside>
+
+  <div id="emergency-form" class="calculator card" role="form" aria-label="Emergency fund calculator">
+    <p class="calculator__privacy"><span aria-hidden="true">●</span> Calculated only in this browser tab. No values are saved.</p>
+
+    <div class="field-grid">
+      <div class="money-field">
+        <label for="liquid-savings">Liquid emergency savings (USD) <span aria-hidden="true">*</span></label>
+        <div class="money-input">
+          <span aria-hidden="true">$</span>
+          <input
+            id="liquid-savings"
+            type="number"
+            inputmode="decimal"
+            autocomplete="off"
+            min="0"
+            step="0.01"
+            required
+            placeholder="12000…"
+            aria-describedby="liquid-savings-help liquid-savings-error"
+          />
+        </div>
+        <small id="liquid-savings-help">Cash you could access quickly without selling volatile investments or borrowing.</small>
+        <span class="field-error" id="liquid-savings-error" hidden></span>
+      </div>
+
+      <div class="money-field">
+        <label for="essential-expenses">Essential monthly expenses (USD) <span aria-hidden="true">*</span></label>
+        <div class="money-input">
+          <span aria-hidden="true">$</span>
+          <input
+            id="essential-expenses"
+            type="number"
+            inputmode="decimal"
+            autocomplete="off"
+            min="0.01"
+            step="0.01"
+            required
+            placeholder="3000…"
+            aria-describedby="essential-expenses-help essential-expenses-error"
+          />
+        </div>
+        <small id="essential-expenses-help">Housing, basic food, utilities, insurance, transport, minimum debt payments and required care.</small>
+        <span class="field-error" id="essential-expenses-error" hidden></span>
+      </div>
+
+      <div class="select-field">
+        <label for="target-months">Runway target</label>
+        <select id="target-months" autocomplete="off" aria-describedby="target-months-help">
+          <option value="3">3 months</option>
+          <option value="6" selected>6 months</option>
+          <option value="9">9 months</option>
+          <option value="12">12 months</option>
+        </select>
+        <small id="target-months-help">A planning scenario, not a universal recommendation.</small>
+      </div>
+
+      <div class="money-field">
+        <label for="monthly-contribution">Planned monthly contribution (USD) <span class="optional">Optional</span></label>
+        <div class="money-input">
+          <span aria-hidden="true">$</span>
+          <input
+            id="monthly-contribution"
+            type="number"
+            inputmode="decimal"
+            autocomplete="off"
+            min="0"
+            step="0.01"
+            placeholder="500…"
+            aria-describedby="monthly-contribution-help monthly-contribution-error"
+          />
+        </div>
+        <small id="monthly-contribution-help">Used only to estimate time to the chosen target; leave blank for no timeline.</small>
+        <span class="field-error" id="monthly-contribution-error" hidden></span>
+      </div>
+    </div>
+
+    <div class="calculator__actions">
+      <button class="btn-primary" type="button" data-calculate-runway>Calculate runway</button>
+      <button class="btn-secondary" type="button" data-clear-runway>Clear values</button>
+    </div>
+  </div>
+
+  <section id="emergency-result" class="result" aria-live="polite" aria-atomic="true" tabindex="-1" hidden>
+    <header class="result__head">
+      <span class="eyebrow">Current runway</span>
+      <h2><output id="runway-output" for="liquid-savings essential-expenses">0 months</output></h2>
+      <p id="runway-interpretation"></p>
+    </header>
+    <div class="runway-visual" aria-hidden="true">
+      <div id="runway-fill" class="runway-visual__fill"></div>
+      <span id="runway-target-marker" class="runway-visual__target"></span>
+    </div>
+    <p class="runway-legend"><span>0 months</span><span id="runway-scale-end">6-month target</span></p>
+    <div class="result__stats">
+      <div><span>Chosen target amount</span><strong id="target-amount-output">$0</strong></div>
+      <div><span id="gap-label">Amount still needed</span><strong id="gap-output">$0</strong></div>
+      <div><span>Estimated time to target</span><strong id="timeline-output">—</strong></div>
+    </div>
+    <p id="emergency-worked" class="result__worked"></p>
+  </section>
+
+  <section class="method" aria-labelledby="emergency-method-heading">
+    <span class="eyebrow">Method</span>
+    <h2 id="emergency-method-heading">Define “available” and “essential” consistently</h2>
+    <p>
+      This calculator divides <strong>liquid savings reserved for emergencies</strong> by the monthly costs you would
+      still need to pay during an income interruption. Retirement accounts, available credit and a hoped-for asset
+      sale are not treated as liquid emergency cash.
+    </p>
+    <p>
+      There is no single target that fits everyone. Income volatility, number of earners, dependents, health needs,
+      insurance deductibles and job-replacement time can all change an appropriate cushion. The
+      <a href="https://www.consumerfinance.gov/an-essential-guide-to-building-an-emergency-fund/" rel="external">Consumer Financial Protection Bureau’s emergency-fund guide</a>
+      likewise recommends choosing an amount based on your situation.
+    </p>
+
+    <h3>Worked example</h3>
+    <p>
+      $12,000 of liquid emergency savings divided by $3,000 of essential monthly expenses equals four months of
+      runway. A six-month scenario would require $18,000, leaving a $6,000 gap. Saving $500 a month would close that
+      simple gap in about 12 months.
+    </p>
+
+    <h3>Limitations</h3>
+    <ul>
+      <li>The timeline ignores interest, inflation, future withdrawals and changing expenses.</li>
+      <li>Planned annual costs and insurance deductibles may need a separate reserve.</li>
+      <li>Household runway can change if another earner or benefit continues during an emergency.</li>
+      <li>This does not determine where to hold cash or whether to pay debt before adding savings.</li>
+    </ul>
+  </section>
+
+  <RelatedCalculators current="emergency-fund" />
+</PageLayout>
+
+<script>
+  const emergencyInputIds = ['liquid-savings', 'essential-expenses', 'monthly-contribution'];
+  const emergencyForm = document.querySelector<HTMLElement>('#emergency-form');
+  const emergencyResult = document.querySelector<HTMLElement>('#emergency-result');
+  const emergencyMoney = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
+  const emergencyPrefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function getEmergencyInput(id: string) {
+    return document.querySelector<HTMLInputElement>(`#${id}`);
+  }
+
+  function clearEmergencyError(input: HTMLInputElement) {
+    input.removeAttribute('aria-invalid');
+    const error = document.querySelector<HTMLElement>(`#${input.id}-error`);
+    if (error) {
+      error.textContent = '';
+      error.hidden = true;
+    }
+  }
+
+  function readEmergencyAmount(input: HTMLInputElement, options: { required: boolean; positive?: boolean }) {
+    clearEmergencyError(input);
+    const raw = input.value.trim();
+    if (!options.required && raw === '') return 0;
+    const value = Number(raw);
+    const invalid = (options.required && raw === '') || !Number.isFinite(value) || (options.positive ? value <= 0 : value < 0);
+
+    if (invalid) {
+      input.setAttribute('aria-invalid', 'true');
+      const error = document.querySelector<HTMLElement>(`#${input.id}-error`);
+      if (error) {
+        error.textContent = options.positive
+          ? 'Enter an amount greater than zero.'
+          : 'Enter zero or a positive dollar amount.';
+        error.hidden = false;
+      }
+      return null;
+    }
+    return value;
+  }
+
+  function formatMonths(months: number) {
+    const rounded = Math.round(months * 10) / 10;
+    return `${rounded.toLocaleString('en-US', { maximumFractionDigits: 1 })} ${rounded === 1 ? 'month' : 'months'}`;
+  }
+
+  function calculateRunway() {
+    if (!emergencyResult) return;
+
+    const savingsInput = getEmergencyInput('liquid-savings');
+    const expensesInput = getEmergencyInput('essential-expenses');
+    const contributionInput = getEmergencyInput('monthly-contribution');
+    const targetSelect = document.querySelector<HTMLSelectElement>('#target-months');
+    if (!savingsInput || !expensesInput || !contributionInput || !targetSelect) return;
+
+    const savings = readEmergencyAmount(savingsInput, { required: true });
+    const expenses = readEmergencyAmount(expensesInput, { required: true, positive: true });
+    const contribution = readEmergencyAmount(contributionInput, { required: false });
+    const invalidInput = [savingsInput, expensesInput, contributionInput].find((input) => input.getAttribute('aria-invalid') === 'true');
+
+    if (savings === null || expenses === null || contribution === null || invalidInput) {
+      emergencyResult.hidden = true;
+      invalidInput?.focus();
+      return;
+    }
+
+    const targetMonths = Number(targetSelect.value);
+    const runway = savings / expenses;
+    const targetAmount = expenses * targetMonths;
+    const gap = Math.max(targetAmount - savings, 0);
+    const surplus = Math.max(savings - targetAmount, 0);
+
+    const runwayOutput = document.querySelector<HTMLOutputElement>('#runway-output');
+    const interpretation = document.querySelector<HTMLElement>('#runway-interpretation');
+    const targetOutput = document.querySelector<HTMLElement>('#target-amount-output');
+    const gapOutput = document.querySelector<HTMLElement>('#gap-output');
+    const gapLabel = document.querySelector<HTMLElement>('#gap-label');
+    const timelineOutput = document.querySelector<HTMLElement>('#timeline-output');
+    const worked = document.querySelector<HTMLElement>('#emergency-worked');
+    const fill = document.querySelector<HTMLElement>('#runway-fill');
+    const targetMarker = document.querySelector<HTMLElement>('#runway-target-marker');
+    const scaleEnd = document.querySelector<HTMLElement>('#runway-scale-end');
+
+    if (runwayOutput) runwayOutput.value = formatMonths(runway);
+    if (interpretation) {
+      interpretation.textContent = runway >= targetMonths
+        ? `Your current liquid savings cover the ${targetMonths}-month scenario you selected.`
+        : `Your current liquid savings cover ${formatMonths(runway)} of essential expenses, below the ${targetMonths}-month scenario you selected.`;
+    }
+    if (targetOutput) targetOutput.textContent = emergencyMoney.format(targetAmount);
+    if (gapLabel) gapLabel.textContent = gap > 0 ? 'Amount still needed' : 'Amount above target';
+    if (gapOutput) gapOutput.textContent = emergencyMoney.format(gap > 0 ? gap : surplus);
+    if (timelineOutput) {
+      timelineOutput.textContent = gap === 0
+        ? 'Target met'
+        : contribution > 0
+          ? formatMonths(gap / contribution)
+          : 'Add a contribution';
+    }
+    if (worked) {
+      worked.textContent = `${emergencyMoney.format(savings)} ÷ ${emergencyMoney.format(expenses)} = ${formatMonths(runway)}. ${targetMonths} months × ${emergencyMoney.format(expenses)} = ${emergencyMoney.format(targetAmount)} target.`;
+    }
+    if (fill) fill.style.width = `${Math.min(runway / Math.max(targetMonths, 1), 1) * 100}%`;
+    if (targetMarker) targetMarker.style.left = '100%';
+    if (scaleEnd) scaleEnd.textContent = `${targetMonths}-month target`;
+
+    emergencyResult.hidden = false;
+    emergencyResult.focus({ preventScroll: true });
+    emergencyResult.scrollIntoView({ behavior: emergencyPrefersReducedMotion ? 'auto' : 'smooth', block: 'nearest' });
+  }
+
+  document.querySelector('[data-calculate-runway]')?.addEventListener('click', calculateRunway);
+
+  emergencyForm?.addEventListener('keydown', (event) => {
+    if (event.key !== 'Enter' || event.target instanceof HTMLButtonElement) return;
+    event.preventDefault();
+    calculateRunway();
+  });
+
+  emergencyForm?.addEventListener('input', (event) => {
+    const input = event.target;
+    if (input instanceof HTMLInputElement) clearEmergencyError(input);
+  });
+
+  document.querySelector('[data-clear-runway]')?.addEventListener('click', () => {
+    const hasValues = emergencyInputIds.some((id) => Boolean(getEmergencyInput(id)?.value));
+    if (hasValues && !window.confirm('Clear all values from this emergency-fund calculation?')) return;
+    emergencyInputIds.forEach((id) => {
+      const input = getEmergencyInput(id);
+      if (input) {
+        input.value = '';
+        clearEmergencyError(input);
+      }
+    });
+    const targetSelect = document.querySelector<HTMLSelectElement>('#target-months');
+    if (targetSelect) targetSelect.value = '6';
+    if (emergencyResult) emergencyResult.hidden = true;
+    getEmergencyInput('liquid-savings')?.focus();
+  });
+</script>
+
+<style>
+  .formula-strip { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: clamp(0.4rem, 1.5vw, 0.8rem); margin-bottom: 1rem; padding: 0.9rem 1rem; overflow-x: visible; white-space: normal; border: 1px solid var(--color-hairline); border-radius: var(--radius-lg); color: var(--color-body); font-family: var(--font-mono); font-size: clamp(0.68rem, 2vw, 0.82rem); line-height: 1.45; text-align: center; }
+  .formula-strip strong { color: var(--color-ink); }
+  .calculator { padding: clamp(1rem, 3vw, 1.75rem); }
+  .calculator__privacy { margin: 0 0 1.75rem; padding-bottom: 1rem; border-bottom: 1px solid var(--color-hairline); font-size: 0.8125rem; color: var(--color-body); }
+  .calculator__privacy span { color: var(--color-status-cooking); }
+
+  .field-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.5rem 1rem; }
+  .money-field, .select-field { min-width: 0; }
+  label { display: block; margin-bottom: 0.45rem; font-weight: 600; font-size: 0.9rem; color: var(--color-ink); }
+  .optional { margin-left: 0.35rem; color: var(--color-body); font-size: 0.7rem; font-weight: 400; text-transform: uppercase; letter-spacing: 0.04em; }
+  .money-field > small, .select-field > small { display: block; margin-top: 0.4rem; color: var(--color-body); font-size: 0.75rem; line-height: 1.4; }
+  .money-input { position: relative; }
+  .money-input > span { position: absolute; top: 50%; left: 0.9rem; transform: translateY(-50%); color: var(--color-body); pointer-events: none; }
+  .money-input input, select { width: 100%; height: 50px; background: var(--color-canvas-soft); border: 1px solid var(--color-body); border-radius: var(--radius-md); color: var(--color-ink); font: inherit; }
+  .money-input input { padding: 0 0.9rem 0 2rem; }
+  .money-input input::placeholder { color: var(--color-body); opacity: 1; }
+  select { padding: 0 0.9rem; }
+  .money-input input:focus-visible, select:focus-visible { border-color: var(--color-link); outline: 2px solid color-mix(in srgb, var(--color-link) 30%, transparent); outline-offset: 1px; }
+  .money-input input[aria-invalid='true'] { border-color: var(--color-status-apocalypse); }
+  .field-error { display: block; margin-top: 0.35rem; color: var(--color-status-apocalypse); font-size: 0.8125rem; line-height: 1.4; }
+  .field-error[hidden] { display: none; }
+  .calculator__actions { display: flex; gap: 0.75rem; margin-top: 1.75rem; }
+
+  .result { margin-top: 1rem; overflow: hidden; border: 1px solid color-mix(in srgb, var(--color-status-stable) 44%, var(--color-hairline)); border-radius: var(--radius-xl); background: color-mix(in srgb, var(--color-status-stable) 5%, var(--color-surface)); }
+  .result[hidden] { display: none; }
+  .result__head { padding: clamp(1.25rem, 4vw, 2rem); }
+  .result__head h2 { margin: 0.35rem 0 0; font-family: var(--font-mono); font-size: clamp(2.1rem, 8vw, 3.75rem); line-height: 1; color: var(--color-status-stable); }
+  .result__head p { max-width: 620px; margin-bottom: 0; }
+
+  .runway-visual { position: relative; height: 12px; margin: 0 2rem; border-radius: var(--radius-pill); background: var(--color-canvas-soft-2); }
+  .runway-visual__fill { display: block; width: 0; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--color-grad-coral), var(--color-grad-amber), var(--color-status-cooking)); transition: width 400ms var(--ease-out-expo); }
+  .runway-visual__target { position: absolute; top: -5px; width: 2px; height: 22px; transform: translateX(-100%); background: var(--color-ink); }
+  .runway-legend { display: flex; justify-content: space-between; margin: 0.45rem 2rem 1.5rem; font-family: var(--font-mono); font-size: 0.7rem; }
+
+  .result__stats { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--color-hairline); border-bottom: 1px solid var(--color-hairline); }
+  .result__stats > div { display: grid; gap: 0.3rem; padding: 1rem 1.25rem; }
+  .result__stats > div + div { border-left: 1px solid var(--color-hairline); }
+  .result__stats span { color: var(--color-body); font-size: 0.72rem; }
+  .result__stats strong { font-family: var(--font-mono); font-size: 0.95rem; }
+  .result__worked { margin: 0; padding: 1rem 1.25rem; font-family: var(--font-mono); font-size: 0.8125rem; }
+  .method { margin-top: 3rem; }
+
+  @media (max-width: 600px) {
+    .field-grid { grid-template-columns: 1fr; }
+    .calculator__actions { flex-direction: column; }
+    .calculator__actions button { width: 100%; }
+    .result__stats { grid-template-columns: 1fr; }
+    .result__stats > div + div { border-left: 0; border-top: 1px solid var(--color-hairline); }
+    .runway-visual { margin-inline: 1.25rem; }
+    .runway-legend { margin-inline: 1.25rem; }
+  }
+</style>

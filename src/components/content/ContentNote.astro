@@ -1,0 +1,33 @@
+---
+interface Props {
+  title: string;
+  tone?: 'note' | 'caution';
+}
+
+const { title, tone = 'note' } = Astro.props;
+---
+
+<aside class:list={['content-note', `content-note--${tone}`]} aria-label={title}>
+  <p class="content-note__title">{title}</p>
+  <div class="content-note__body"><slot /></div>
+</aside>
+
+<style>
+  .content-note {
+    margin-block: 1.5rem;
+    padding: 1rem 1.125rem;
+    border: 1px solid var(--color-hairline-strong);
+    border-left: 4px solid var(--color-status-stable);
+    border-radius: var(--radius-md);
+    background: var(--color-canvas-soft);
+  }
+  .content-note--caution { border-left-color: var(--color-status-medium); }
+  .content-note__title {
+    margin: 0;
+    color: var(--color-ink);
+    font-weight: 600;
+  }
+  .content-note__body { margin-top: 0.4rem; }
+  .content-note__body :global(p) { margin: 0; }
+  .content-note__body :global(p + p) { margin-top: 0.75rem; }
+</style>
