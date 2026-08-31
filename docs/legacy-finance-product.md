@@ -1,8 +1,8 @@
-# Cooked Finance — current product brief
+# Cooked Finance — legacy financial-health product brief
 
-This file supersedes the original MVP prompt. It exists to prevent older
-requirements from reintroducing fabricated comparisons, automatic storage, or
-premature advertising.
+This archived brief documents the original financial-health product now housed
+under `/money-tools/`. It no longer defines the primary site direction. The
+active contract is `PRODUCT.md` at the repository root.
 
 ## Product promise
 

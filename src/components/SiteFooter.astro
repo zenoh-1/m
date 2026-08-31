@@ -11,24 +11,25 @@ const year = new Date().getFullYear();
           <BrandMark size={40} />
           <span translate="no">Cooked Finance</span>
         </a>
-        <p>A private financial heat check with transparent math and practical next steps.</p>
+        <p class="footer__statement">Run it. Care for it. Decide with the math.</p>
+        <p>Home running costs, maintenance planning, and repair decisions with transparent math.</p>
         <span class="footer__status">Independent · Educational · Currently ad-free</span>
       </div>
 
       <nav class="footer__nav" aria-label="Footer navigation">
         <div>
           <h2>Use</h2>
-          <a href="/#check">Financial Heat Check</a>
-          <a href="/calculators/">Calculators</a>
-          <a href="/score-ranges/">Score Ranges</a>
-          <a href="/methodology/">Methodology</a>
+          <a href="/systems/">System Guides</a>
+          <a href="/tools/energy-cost/">Energy Cost Calculator</a>
+          <a href="/tools/repair-or-replace/">Repair or Replace</a>
+          <a href="/my-home/">My Home</a>
         </div>
         <div>
-          <h2>Learn</h2>
-          <a href="/financial-health-score/">Financial Health</a>
-          <a href="/benchmarks/net-worth-by-age/">Benchmarks</a>
-          <a href="/guides/">Guides</a>
+          <h2>Company</h2>
           <a href="/about/">About</a>
+          <a href="/methodology/">Methodology</a>
+          <a href="/contact/">Contact</a>
+          <a href="/calculators/">Money Tools</a>
         </div>
         <div>
           <h2>Trust</h2>
@@ -42,7 +43,7 @@ const year = new Date().getFullYear();
     </div>
 
     <div class="footer__bottom">
-      <p>© {year} Cooked Finance. Educational information only—not financial advice.</p>
+      <p>© {year} Cooked Finance. Educational estimates, not professional advice.</p>
       <div>
         <a href="/terms/">Terms</a>
         <a href="/contact/">Contact</a>
@@ -59,15 +60,17 @@ const year = new Date().getFullYear();
 </script>
 
 <style>
-  .footer { padding: clamp(3.5rem, 8vw, 6.5rem) 0 max(2rem, env(safe-area-inset-bottom)); border-top: 1px solid var(--color-hairline); background: #e9dfcf; }
+  .footer { position: relative; padding: clamp(3.5rem, 8vw, 6.5rem) 0 max(2rem, env(safe-area-inset-bottom)); border-top: 1px solid var(--color-ink); background: #e5dac9; }
+  .footer::before { content: ''; position: absolute; inset: 0 0 auto; height: 7px; background: linear-gradient(90deg, var(--color-ember) 0 34%, var(--color-amber) 34% 68%, var(--color-sage) 68%); }
   .footer__top { display: grid; grid-template-columns: minmax(15rem, 0.85fr) minmax(0, 1.4fr); gap: clamp(2.5rem, 8vw, 7rem); }
   .footer__brand { display: inline-flex; align-items: center; gap: 0.75rem; color: var(--color-ink); font-weight: 780; letter-spacing: -0.025em; text-decoration: none; }
   .footer__brand-block p { max-width: 31ch; margin: 1.1rem 0; color: var(--color-body); line-height: 1.6; }
+  .footer__brand-block .footer__statement { max-width: 12ch; margin: 1.6rem 0 1rem; color: var(--color-ink); font-family: var(--font-serif); font-size: clamp(2rem, 4vw, 3rem); letter-spacing: -0.04em; line-height: 0.98; }
   .footer__status { display: inline-flex; color: var(--color-sage); font-family: var(--font-mono); font-size: 0.68rem; font-weight: 650; letter-spacing: 0.04em; text-transform: uppercase; }
   .footer__nav { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.5rem; }
-  .footer__nav > div { display: flex; flex-direction: column; gap: 0.65rem; }
-  .footer__nav h2 { margin: 0 0 0.35rem; color: var(--color-ink); font-size: 0.75rem; letter-spacing: 0.07em; text-transform: uppercase; }
-  .footer__nav a { width: fit-content; color: var(--color-body); font-size: 0.85rem; text-decoration: none; }
+  .footer__nav > div { display: flex; flex-direction: column; }
+  .footer__nav h2 { margin: 0 0 0.35rem; padding-bottom: 0.75rem; border-bottom: 1px solid var(--color-hairline-strong); color: var(--color-ink); font-family: var(--font-mono); font-size: 0.67rem; letter-spacing: 0.08em; text-transform: uppercase; }
+  .footer__nav a { width: fit-content; min-height: 44px; display: inline-flex; align-items: center; color: var(--color-body); font-size: 0.85rem; text-decoration: none; }
   .footer__nav a:hover { color: var(--color-ink); text-decoration: underline; text-underline-offset: 0.2em; }
   .footer__bottom { margin-top: clamp(2.5rem, 6vw, 5rem); padding-top: 1.2rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; border-top: 1px solid var(--color-hairline-strong); color: var(--color-mute); font-size: 0.75rem; }
   .footer__bottom p { margin: 0; }
@@ -79,4 +82,5 @@ const year = new Date().getFullYear();
     .footer__bottom { align-items: flex-start; flex-direction: column; }
   }
   @media (max-width: 520px) { .footer__nav { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 380px) { .footer__nav { grid-template-columns: 1fr; } }
 </style>

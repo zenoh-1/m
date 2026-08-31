@@ -1,0 +1,201 @@
+<section class="quick-cost card" data-quick-cost-shell aria-labelledby="quick-cost-title">
+  <div class="quick-cost__head">
+    <span class="eyebrow">Quick running-cost check</span>
+    <h2 id="quick-cost-title">Turn an EnergyGuide number into a yearly cost.</h2>
+    <p>Use the annual kWh on the yellow label and the electricity rate from your bill. The estimate updates only in this browser.</p>
+  </div>
+
+  <form class="quick-cost__form" data-quick-cost novalidate>
+    <div class="field">
+      <label class="field__label" for="quick-annual-kwh">
+        Annual energy use
+        <span class="field__hint">kWh/year</span>
+      </label>
+      <input
+        class="field-input"
+        id="quick-annual-kwh"
+        name="annualKwh"
+        type="number"
+        inputmode="decimal"
+        min="0.1"
+        max="100000"
+        step="0.1"
+        value="500"
+        autocomplete="off"
+        aria-describedby="quick-kwh-help quick-cost-error"
+        required
+      />
+      <p class="field__hint-line" id="quick-kwh-help">Example value shown. Replace it with the label or manual estimate for your appliance.</p>
+    </div>
+
+    <div class="field">
+      <label class="field__label" for="quick-rate">
+        Electricity rate
+        <span class="field__hint">cents/kWh</span>
+      </label>
+      <input
+        class="field-input"
+        id="quick-rate"
+        name="rateCents"
+        type="number"
+        inputmode="decimal"
+        min="0.1"
+        max="500"
+        step="0.01"
+        value="16"
+        autocomplete="off"
+        aria-describedby="quick-rate-help quick-cost-error"
+        required
+      />
+      <p class="field__hint-line" id="quick-rate-help">Example value shown. Your utility bill is the best source for your actual rate.</p>
+    </div>
+
+    <div class="quick-cost__presets" role="group" aria-label="Example electricity rates">
+      <span>Quick rate</span>
+      <button type="button" data-rate-preset="12">12¢</button>
+      <button type="button" data-rate-preset="16" aria-pressed="true">16¢</button>
+      <button type="button" data-rate-preset="24">24¢</button>
+    </div>
+
+    <p class="field__error" id="quick-cost-error" data-quick-cost-error role="alert" aria-live="polite"></p>
+    <button class="btn-primary" type="submit">Update My Estimate</button>
+  </form>
+
+  <div class="quick-cost__result" data-quick-cost-result aria-atomic="true">
+    <div class="quick-cost__dial" data-quick-dial aria-hidden="true">
+      <span class="quick-cost__needle"></span>
+      <span class="quick-cost__hub"></span>
+    </div>
+    <div class="quick-cost__annual">
+      <span class="quick-cost__result-label">Estimated annual cost</span>
+      <strong class="number-display" data-quick-annual>$80.00</strong>
+      <small>per year</small>
+    </div>
+    <div class="quick-cost__ledger">
+      <span>Average month <b class="number-display" data-quick-monthly>$6.67</b></span>
+      <span>Average day <b class="number-display" data-quick-daily>$0.22</b></span>
+    </div>
+  </div>
+  <p class="sr-only" data-quick-status role="status" aria-live="polite"></p>
+
+  <div class="quick-cost__foot">
+    <span>No sign-up</span>
+    <span>No values sent</span>
+    <a href="https://www.eia.gov/electricity/data.php" rel="noopener" target="_blank">Check EIA rate data<span class="sr-only"> (opens in a new tab)</span></a>
+  </div>
+</section>
+
+<script>
+  const quickCostShell = document.querySelector<HTMLElement>('[data-quick-cost-shell]');
+  const quickCostForm = quickCostShell?.querySelector<HTMLFormElement>('[data-quick-cost]');
+
+  if (quickCostForm) {
+    const annualInput = quickCostForm.elements.namedItem('annualKwh') as HTMLInputElement;
+    const rateInput = quickCostForm.elements.namedItem('rateCents') as HTMLInputElement;
+    const error = quickCostForm.querySelector<HTMLElement>('[data-quick-cost-error]');
+    const money = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
+
+    let liveUpdateTimer = 0;
+
+    const renderEstimate = (announce = false, focusInvalid = false) => {
+      const annualKwh = Number(annualInput.value);
+      const rateCents = Number(rateInput.value);
+      const validAnnual = Number.isFinite(annualKwh) && annualKwh > 0 && annualKwh <= 100_000;
+      const validRate = Number.isFinite(rateCents) && rateCents > 0 && rateCents <= 500;
+
+      annualInput.setAttribute('aria-invalid', String(!validAnnual));
+      rateInput.setAttribute('aria-invalid', String(!validRate));
+
+      if (!validAnnual || !validRate) {
+        if (error) error.textContent = 'Enter an annual kWh value and electricity rate greater than zero.';
+        if (focusInvalid) (!validAnnual ? annualInput : rateInput).focus();
+        return;
+      }
+
+      if (error) error.textContent = '';
+      const annualCost = annualKwh * (rateCents / 100);
+      const annual = quickCostShell?.querySelector<HTMLElement>('[data-quick-annual]');
+      const monthly = quickCostShell?.querySelector<HTMLElement>('[data-quick-monthly]');
+      const daily = quickCostShell?.querySelector<HTMLElement>('[data-quick-daily]');
+      const result = quickCostShell?.querySelector<HTMLElement>('[data-quick-cost-result]');
+      const dial = quickCostShell?.querySelector<HTMLElement>('[data-quick-dial]');
+      const status = quickCostShell?.querySelector<HTMLElement>('[data-quick-status]');
+      if (annual) annual.textContent = money.format(annualCost);
+      if (monthly) monthly.textContent = money.format(annualCost / 12);
+      if (daily) daily.textContent = money.format(annualCost / 365);
+      const dialRatio = Math.min(annualCost / 1_000, 1);
+      dial?.style.setProperty('--dial-angle', `${-112 + (dialRatio * 224)}deg`);
+      result?.classList.remove('is-updated');
+      window.requestAnimationFrame(() => result?.classList.add('is-updated'));
+      if (announce && status) status.textContent = `Estimate updated to ${money.format(annualCost)} per year.`;
+    };
+
+    quickCostForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+      renderEstimate(true, true);
+    });
+
+    quickCostForm.addEventListener('input', () => {
+      window.clearTimeout(liveUpdateTimer);
+      quickCostShell?.querySelectorAll<HTMLButtonElement>('[data-rate-preset]').forEach((button) => {
+        button.setAttribute('aria-pressed', String(Number(button.dataset.ratePreset) === Number(rateInput.value)));
+      });
+      liveUpdateTimer = window.setTimeout(() => renderEstimate(false, false), 220);
+    });
+
+    quickCostShell?.querySelectorAll<HTMLButtonElement>('[data-rate-preset]').forEach((button) => {
+      button.addEventListener('click', () => {
+        rateInput.value = button.dataset.ratePreset ?? rateInput.value;
+        quickCostShell.querySelectorAll<HTMLButtonElement>('[data-rate-preset]').forEach((candidate) => {
+          candidate.setAttribute('aria-pressed', String(candidate === button));
+        });
+        renderEstimate(true, false);
+      });
+    });
+  }
+</script>
+
+<style>
+  .quick-cost { overflow: hidden; border-color: var(--color-ink); border-radius: var(--radius-sm); box-shadow: none; }
+  .quick-cost__head { padding: clamp(1.35rem, 4vw, 2rem); border-bottom: 1px solid var(--color-hairline); }
+  .quick-cost__head h2 { max-width: 16ch; margin: 0.65rem 0 0; font-family: var(--font-serif); font-size: clamp(1.7rem, 4vw, 2.35rem); font-weight: 500; letter-spacing: -0.035em; line-height: 1.04; }
+  .quick-cost__head p { max-width: 56ch; margin: 0.8rem 0 0; color: var(--color-body); font-size: 0.9rem; line-height: 1.6; }
+  .quick-cost__form { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1rem; padding: clamp(1.35rem, 4vw, 2rem); }
+  .quick-cost__presets { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: 0.45rem; }
+  .quick-cost__presets > span { margin-right: 0.25rem; color: var(--color-mute); font-family: var(--font-mono); font-size: 0.62rem; font-weight: 680; letter-spacing: 0.06em; text-transform: uppercase; }
+  .quick-cost__presets button { min-width: 48px; min-height: 44px; padding: 0.45rem 0.65rem; border: 1px solid var(--color-hairline-strong); border-radius: var(--radius-pill); background: transparent; color: var(--color-body); font-size: 0.72rem; font-weight: 700; }
+  .quick-cost__presets button:hover, .quick-cost__presets button[aria-pressed='true'] { border-color: var(--color-ink); background: var(--color-ink); color: var(--color-paper); }
+  .quick-cost__form .field__error { grid-column: 1 / -1; margin: -0.25rem 0; }
+  .quick-cost__form .btn-primary { grid-column: 1 / -1; }
+  .quick-cost__result { min-height: 13rem; display: grid; grid-template-columns: 9rem minmax(0, 1fr); align-items: center; gap: 1rem 1.5rem; padding: clamp(1.35rem, 4vw, 2rem); background: var(--color-ink); color: var(--color-paper); }
+  .quick-cost__dial { --dial-angle: -94deg; position: relative; width: 9rem; aspect-ratio: 1; border: 1px solid rgba(255,253,248,0.35); border-radius: 50%; background: repeating-conic-gradient(from -112deg, rgba(255,253,248,0.72) 0 1deg, transparent 1deg 10deg); clip-path: polygon(0 0, 100% 0, 100% 78%, 0 78%); }
+  .quick-cost__dial::before { content: ''; position: absolute; inset: 18%; border: 1px solid rgba(255,253,248,0.24); border-radius: 50%; background: var(--color-ink); }
+  .quick-cost__needle { position: absolute; left: 50%; bottom: 22%; z-index: 2; width: 42%; height: 2px; transform: rotate(var(--dial-angle)); transform-origin: left center; background: var(--color-amber); transition: transform 420ms var(--ease-out-expo); }
+  .quick-cost__hub { position: absolute; left: calc(50% - 0.28rem); bottom: calc(22% - 0.28rem); z-index: 3; width: 0.56rem; height: 0.56rem; border-radius: 50%; background: var(--color-amber); }
+  .quick-cost__annual { min-width: 0; }
+  .quick-cost__result-label { margin-bottom: 0.45rem; color: rgba(255, 252, 247, 0.64); font-family: var(--font-mono); font-size: 0.68rem; font-weight: 650; letter-spacing: 0.08em; text-transform: uppercase; }
+  .quick-cost__annual strong { display: block; overflow-wrap: anywhere; font-family: var(--font-serif); font-size: clamp(2.2rem, 6vw, 4.15rem); font-weight: 500; letter-spacing: -0.045em; line-height: 1; }
+  .quick-cost__annual small { display: block; margin-top: 0.2rem; color: rgba(255,253,248,0.6); }
+  .quick-cost__ledger { grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1fr; border-top: 1px solid rgba(255,253,248,0.16); }
+  .quick-cost__ledger span { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding-top: 0.8rem; color: rgba(255,253,248,0.62); font-family: var(--font-mono); font-size: 0.66rem; }
+  .quick-cost__ledger span + span { padding-left: 1rem; border-left: 1px solid rgba(255,253,248,0.16); }
+  .quick-cost__result b { color: var(--color-paper); font-weight: 680; }
+  .quick-cost__result.is-updated { animation: result-pulse 420ms ease; }
+  @keyframes result-pulse { 50% { box-shadow: inset 0 0 0 2px var(--color-amber); } }
+  .quick-cost__foot { display: flex; flex-wrap: wrap; align-items: center; gap: 0.55rem 1rem; padding: 0.85rem clamp(1.35rem, 4vw, 2rem); border-top: 1px solid var(--color-hairline); background: var(--color-surface-2); color: var(--color-mute); font-family: var(--font-mono); font-size: 0.68rem; }
+  .quick-cost__foot span::before { content: '✓'; margin-right: 0.35rem; color: var(--color-sage); font-family: var(--font-sans); font-weight: 800; }
+  .quick-cost__foot a { margin-left: auto; color: var(--color-link); font-weight: 700; text-underline-offset: 0.16em; }
+  @media (max-width: 560px) {
+    .quick-cost__form { grid-template-columns: 1fr; }
+    .quick-cost__form .field__error, .quick-cost__form .btn-primary { grid-column: auto; }
+    .quick-cost__foot a { width: 100%; margin-left: 0; }
+    .quick-cost__result { grid-template-columns: 6.5rem minmax(0, 1fr); }
+    .quick-cost__dial { width: 6.5rem; }
+    .quick-cost__ledger { grid-template-columns: 1fr; }
+    .quick-cost__ledger span + span { padding-left: 0; border-left: 0; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .quick-cost__needle { transition: none; }
+    .quick-cost__result.is-updated { animation: none; }
+  }
+</style>

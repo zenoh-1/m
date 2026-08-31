@@ -6,7 +6,7 @@ const measurementId = 'G-SG7VP5RKS2';
   <div>
     <p id="consent-title" class="consent__title">Help Improve Cooked Finance?</p>
     <p id="consent-copy" class="consent__copy">
-      Optional analytics tell us which pages are useful. Financial inputs and results are never included.
+      Optional analytics tell us which pages are useful. Calculator values, home-plan records, and financial results are never included.
       <a href="/privacy/">Privacy details</a>
     </p>
   </div>
@@ -120,6 +120,7 @@ const measurementId = 'G-SG7VP5RKS2';
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-raised);
   }
+  :global(body:has(.consent:not([hidden]))) { padding-bottom: 9rem; }
   .consent[hidden] { display: none; }
   .consent__title { margin: 0 0 0.25rem; font-weight: 700; }
   .consent__copy { margin: 0; color: rgba(255, 252, 247, 0.74); font-size: 0.875rem; line-height: 1.45; }
@@ -131,5 +132,6 @@ const measurementId = 'G-SG7VP5RKS2';
     .consent { grid-template-columns: 1fr; }
     .consent__actions { justify-content: stretch; }
     .consent__actions > * { flex: 1; }
+    :global(body:has(.consent:not([hidden]))) { padding-bottom: 15rem; }
   }
 </style>

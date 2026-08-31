@@ -1,0 +1,196 @@
+<section class="tool-shell" data-energy-shell aria-labelledby="energy-tool-title">
+  <div class="tool-shell__intro">
+    <span class="eyebrow">Runs in your browser</span>
+    <h2 id="energy-tool-title">Estimate annual electricity and gas cost.</h2>
+    <p>Enter annual usage from a utility bill or product label and your own unit rate. Fixed fees and tiered pricing are not added unless your rate already includes them.</p>
+  </div>
+
+  <form class="tool-form" data-energy-form novalidate>
+    <fieldset>
+      <legend>Electricity</legend>
+      <div class="tool-form__grid">
+        <div class="field">
+          <label class="field__label" for="energy-kwh">Annual electricity use <span class="field__hint">kWh</span></label>
+          <input class="field-input" id="energy-kwh" name="annualElectricityKwh" type="number" inputmode="decimal" min="0" max="1000000" step="0.1" value="500" autocomplete="off" required />
+          <p class="field__hint-line">Look for “estimated yearly electricity use” on an EnergyGuide label.</p>
+        </div>
+        <div class="field">
+          <label class="field__label" for="energy-rate">Electricity rate <span class="field__hint">$/kWh</span></label>
+          <input class="field-input" id="energy-rate" name="electricityRatePerKwh" type="number" inputmode="decimal" min="0" max="10" step="0.001" value="0.16" autocomplete="off" required />
+          <p class="field__hint-line">Use the rate from your bill when possible.</p>
+        </div>
+      </div>
+    </fieldset>
+
+    <details class="tool-form__optional">
+      <summary>Add natural gas</summary>
+      <div class="tool-form__grid">
+        <div class="field">
+          <label class="field__label" for="energy-therms">Annual gas use <span class="field__hint">therms</span></label>
+          <input class="field-input" id="energy-therms" name="annualGasTherms" type="number" inputmode="decimal" min="0" max="1000000" step="0.1" autocomplete="off" />
+        </div>
+        <div class="field">
+          <label class="field__label" for="energy-gas-rate">Gas rate <span class="field__hint">$/therm</span></label>
+          <input class="field-input" id="energy-gas-rate" name="gasRatePerTherm" type="number" inputmode="decimal" min="0" max="100" step="0.001" autocomplete="off" />
+        </div>
+      </div>
+    </details>
+
+    <p class="field__error" data-energy-error role="alert" aria-live="polite"></p>
+    <div class="tool-form__actions">
+      <button class="btn-primary" type="submit">Update Energy Cost</button>
+      <button class="btn-secondary" type="reset">Reset Example</button>
+    </div>
+  </form>
+
+  <div class="tool-formula" aria-label="Current calculation"><span data-energy-formula>500 kWh × $0.16</span><b>=</b><strong data-energy-formula-total>$80.00 / year</strong></div>
+  <div class="tool-results" data-energy-results aria-atomic="true">
+    <div>
+      <span>Annual total</span>
+      <strong class="number-display" data-energy-annual>$80.00</strong>
+    </div>
+    <div>
+      <span>Average month</span>
+      <strong class="number-display" data-energy-monthly>$6.67</strong>
+    </div>
+    <div>
+      <span>Average day</span>
+      <strong class="number-display" data-energy-daily>$0.22</strong>
+    </div>
+  </div>
+  <div class="tool-result-actions">
+    <button class="btn-quiet" type="button" data-copy-energy>Copy Estimate</button>
+    <a class="btn-secondary" href="/tools/repair-or-replace/" data-use-energy>Use in Repair Comparison →</a>
+  </div>
+  <p class="sr-only" data-energy-status role="status" aria-live="polite"></p>
+  <ul class="tool-warnings" data-energy-warnings aria-label="Calculation notes"></ul>
+</section>
+
+<script>
+  import { calculateHomeEnergyCost } from '../../lib/home-cost';
+
+  const energyShell = document.querySelector<HTMLElement>('[data-energy-shell]');
+  const energyForm = energyShell?.querySelector<HTMLFormElement>('[data-energy-form]');
+  if (energyForm) {
+    const money = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
+    let latestAnnualTotal = 80;
+    let updateTimer = 0;
+    const readOptional = (name: string) => {
+      const field = energyForm.elements.namedItem(name) as HTMLInputElement;
+      return field.value.trim() === '' ? undefined : Number(field.value);
+    };
+
+    const render = (announce = false) => {
+      const electricityField = energyForm.elements.namedItem('annualElectricityKwh') as HTMLInputElement;
+      const electricityRateField = energyForm.elements.namedItem('electricityRatePerKwh') as HTMLInputElement;
+      const result = calculateHomeEnergyCost({
+        annualElectricityKwh: Number(electricityField.value),
+        electricityRatePerKwh: Number(electricityRateField.value),
+        annualGasTherms: readOptional('annualGasTherms'),
+        gasRatePerTherm: readOptional('gasRatePerTherm'),
+      });
+      const error = energyForm.querySelector<HTMLElement>('[data-energy-error]');
+      const errors = result.warnings.filter((warning) => warning.severity === 'error');
+
+      if (errors.length || result.annualTotal === null || result.averageMonthlyTotal === null) {
+        if (error) error.textContent = errors.map((warning) => warning.message).join(' ');
+        return;
+      }
+
+      if (error) error.textContent = '';
+      const annual = energyShell?.querySelector<HTMLElement>('[data-energy-annual]');
+      const monthly = energyShell?.querySelector<HTMLElement>('[data-energy-monthly]');
+      const daily = energyShell?.querySelector<HTMLElement>('[data-energy-daily]');
+      const formula = energyShell?.querySelector<HTMLElement>('[data-energy-formula]');
+      const formulaTotal = energyShell?.querySelector<HTMLElement>('[data-energy-formula-total]');
+      const results = energyShell?.querySelector<HTMLElement>('[data-energy-results]');
+      const status = energyShell?.querySelector<HTMLElement>('[data-energy-status]');
+      if (annual) annual.textContent = money.format(result.annualTotal);
+      if (monthly) monthly.textContent = money.format(result.averageMonthlyTotal);
+      if (daily) daily.textContent = money.format(result.annualTotal / 365);
+      latestAnnualTotal = result.annualTotal;
+      if (formula) {
+        const electricFormula = `${electricityField.value || '0'} kWh × ${money.format(Number(electricityRateField.value) || 0)}`;
+        const gasValue = readOptional('annualGasTherms');
+        formula.textContent = gasValue === undefined ? electricFormula : `${electricFormula} + gas`;
+      }
+      if (formulaTotal) formulaTotal.textContent = `${money.format(result.annualTotal)} / year`;
+      results?.classList.remove('is-updated');
+      window.requestAnimationFrame(() => results?.classList.add('is-updated'));
+      if (announce && status) status.textContent = `Energy estimate updated to ${money.format(result.annualTotal)} per year.`;
+
+      const warnings = energyShell?.querySelector<HTMLElement>('[data-energy-warnings]');
+      warnings?.replaceChildren(...result.assumptions.map((assumption) => {
+        const item = document.createElement('li');
+        item.textContent = assumption;
+        return item;
+      }));
+    };
+
+    energyForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+      render(true);
+    });
+
+    energyForm.addEventListener('input', () => {
+      window.clearTimeout(updateTimer);
+      updateTimer = window.setTimeout(() => render(false), 240);
+    });
+
+    energyForm.addEventListener('reset', () => window.setTimeout(() => render(true), 0));
+
+    energyShell?.querySelector<HTMLButtonElement>('[data-copy-energy]')?.addEventListener('click', async () => {
+      const text = `Estimated home energy cost: ${money.format(latestAnnualTotal)} per year (${money.format(latestAnnualTotal / 12)} per month).`;
+      try {
+        await navigator.clipboard.writeText(text);
+        const status = energyShell.querySelector<HTMLElement>('[data-energy-status]');
+        if (status) status.textContent = 'Estimate copied to the clipboard.';
+      } catch {
+        const status = energyShell.querySelector<HTMLElement>('[data-energy-status]');
+        if (status) status.textContent = 'Copy failed. Select the visible estimate and copy it manually.';
+      }
+    });
+
+    energyShell?.querySelector<HTMLAnchorElement>('[data-use-energy]')?.addEventListener('click', () => {
+      try { sessionStorage.setItem('cooked-finance-current-operating-cost', String(latestAnnualTotal)); } catch { /* Link navigation still works. */ }
+    });
+  }
+</script>
+
+<style>
+  .tool-shell { overflow: hidden; border: 1px solid var(--color-ink); border-radius: var(--radius-sm); background: var(--color-paper); box-shadow: 5px 5px 0 var(--color-ink); }
+  .tool-shell__intro { padding: clamp(1.4rem, 4vw, 2.2rem); border-bottom: 1px solid var(--color-hairline); }
+  .tool-shell__intro h2 { max-width: 17ch; margin: 0.65rem 0 0; font-family: var(--font-serif); font-size: clamp(2rem, 5vw, 3rem); font-weight: 500; letter-spacing: -0.04em; line-height: 1; }
+  .tool-shell__intro p { max-width: 62ch; margin: 0.9rem 0 0; color: var(--color-body); line-height: 1.65; }
+  .tool-form { padding: clamp(1.4rem, 4vw, 2.2rem); display: grid; gap: 1.25rem; }
+  .tool-form fieldset { margin: 0; padding: 0; border: 0; }
+  .tool-form legend { margin-bottom: 0.8rem; color: var(--color-ink); font-size: 0.82rem; font-weight: 750; }
+  .tool-form__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+  .tool-form__optional { padding: 0.9rem 1rem; border: 1px solid var(--color-hairline); border-radius: var(--radius-md); background: var(--color-surface-2); }
+  .tool-form__optional summary { min-height: 44px; display: flex; align-items: center; font-weight: 700; cursor: pointer; }
+  .tool-form__optional[open] summary { margin-bottom: 0.85rem; }
+  .tool-form .field__error { margin: -0.25rem 0; }
+  .tool-form__actions { display: flex; flex-wrap: wrap; gap: 0.65rem; }
+  .tool-formula { min-height: 54px; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 0.6rem; padding: 0.8rem 1.2rem; border-top: 1px dashed var(--color-hairline-strong); background: var(--color-surface-2); color: var(--color-body); font-family: var(--font-mono); font-size: 0.72rem; }
+  .tool-formula b { color: var(--color-ember-deep); }
+  .tool-formula strong { color: var(--color-ink); }
+  .tool-results { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--color-hairline); background: var(--color-ink); color: var(--color-paper); }
+  .tool-results div { min-width: 0; padding: clamp(1.25rem, 4vw, 2rem); border-right: 1px solid rgba(255,255,255,0.14); }
+  .tool-results div:last-child { border-right: 0; }
+  .tool-results span { display: block; color: rgba(255,252,247,0.62); font-family: var(--font-mono); font-size: 0.67rem; font-weight: 650; letter-spacing: 0.06em; text-transform: uppercase; }
+  .tool-results strong { display: block; margin-top: 0.45rem; font-family: var(--font-serif); font-size: clamp(1.65rem, 5vw, 2.8rem); font-weight: 500; letter-spacing: -0.04em; }
+  .tool-results.is-updated { animation: results-pulse 420ms ease; }
+  .tool-result-actions { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.65rem; padding: 0.85rem 1rem; border-top: 1px solid var(--color-hairline); }
+  .tool-result-actions .btn-quiet, .tool-result-actions .btn-secondary { min-height: 42px; font-size: 0.76rem; }
+  @keyframes results-pulse { 50% { box-shadow: inset 0 0 0 2px var(--color-amber); } }
+  .tool-warnings { margin: 0; padding: 1rem clamp(1.4rem, 4vw, 2.2rem) 1rem calc(clamp(1.4rem, 4vw, 2.2rem) + 1rem); display: grid; gap: 0.35rem; color: var(--color-mute); font-size: 0.78rem; line-height: 1.5; }
+  .tool-warnings:empty { display: none; }
+  @media (max-width: 620px) {
+    .tool-form__grid, .tool-results { grid-template-columns: 1fr; }
+    .tool-results div { border-right: 0; border-bottom: 1px solid rgba(255,255,255,0.14); }
+    .tool-results div:last-child { border-bottom: 0; }
+    .tool-form__actions, .tool-result-actions { align-items: stretch; flex-direction: column; }
+    .tool-form__actions > *, .tool-result-actions > * { width: 100%; }
+  }
+  @media (prefers-reduced-motion: reduce) { .tool-results.is-updated { animation: none; } }
+</style>

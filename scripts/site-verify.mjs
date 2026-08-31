@@ -30,6 +30,16 @@ async function exists(path) {
 
 const files = await walk(outputDirectory);
 const htmlFiles = files.filter((file) => file.endsWith('.html'));
+const expectedSystemSlugs = [
+  'refrigerator',
+  'freezer',
+  'clothes-washer',
+  'electric-dryer',
+  'dishwasher',
+  'electric-water-heater',
+  'room-air-conditioner',
+  'dehumidifier',
+];
 
 for (const file of htmlFiles) {
   const html = await readFile(file, 'utf8');
@@ -63,6 +73,33 @@ for (const file of htmlFiles) {
     }
     const target = join(outputDirectory, href.slice(1), 'index.html');
     if (!await exists(target)) failures.push(`${relative}: broken internal link ${href}`);
+  }
+}
+
+const homepage = await readFile(join(outputDirectory, 'index.html'), 'utf8');
+if (!homepage.includes('Know what your home costs before it surprises you.')) {
+  failures.push('/index.html: missing the new home-cost product promise');
+}
+
+const myHome = await readFile(join(outputDirectory, 'my-home', 'index.html'), 'utf8');
+if (!/<meta name="robots" content="noindex(?:,|\s)/i.test(myHome)) {
+  failures.push('/my-home/index.html: private workspace must remain noindex');
+}
+
+for (const slug of expectedSystemSlugs) {
+  if (!await exists(join(outputDirectory, 'systems', slug, 'index.html'))) {
+    failures.push(`/systems/${slug}/: expected system guide was not built`);
+  }
+}
+
+const sitemap = await readFile(join(outputDirectory, 'sitemap.xml'), 'utf8');
+const sitemapUrls = [...sitemap.matchAll(/<url><loc>([^<]+)<\/loc><lastmod>([^<]+)<\/lastmod><\/url>/g)];
+if (sitemapUrls.length === 0) failures.push('/sitemap.xml: no complete URL records found');
+if (sitemap.includes('[slug]')) failures.push('/sitemap.xml: contains an unresolved dynamic route');
+if (sitemap.includes('/my-home/')) failures.push('/sitemap.xml: contains the private My Home route');
+for (const slug of expectedSystemSlugs) {
+  if (!sitemap.includes(`https://cookedfinance.com/systems/${slug}/`)) {
+    failures.push(`/sitemap.xml: missing /systems/${slug}/`);
   }
 }
 

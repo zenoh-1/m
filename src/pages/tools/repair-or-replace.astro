@@ -1,0 +1,23 @@
+---
+import ToolPageLayout from '../../layouts/ToolPageLayout.astro';
+import RepairReplaceTool from '../../components/home/RepairReplaceTool.astro';
+---
+
+<ToolPageLayout
+  title="Repair or Replace Cost Calculator | Cooked Finance"
+  description="Compare the modeled cost of repairing versus replacing an appliance using your quote, installed price, operating costs, and planning horizon."
+  path="/tools/repair-or-replace/"
+  heading="Repair or Replace Cost Scenario"
+  lead="Put both options on the same timeline. This is a transparent cost comparison—not a prediction about safety, reliability, or remaining life."
+>
+  <RepairReplaceTool />
+  <div class="tool-copy prose">
+    <h2>How to use the result</h2>
+    <p>First compare the modeled totals. Then separately consider warranty coverage, parts availability, safety, comfort, downtime, prior repairs, and whether a qualified technician believes the current equipment can be repaired safely.</p>
+    <p>For gas appliances, damaged electrical equipment, refrigerant systems, active leaks, burning smells, sparks, or carbon-monoxide concerns, stop using the equipment and seek qualified help. A cost result should never override a safety decision.</p>
+    <h2>Why there is no universal percentage rule</h2>
+    <p>A repair quote equal to a particular percentage of replacement price does not reveal the condition of the equipment, the quality of the repair, or the value of improved efficiency. This tool keeps the numerical assumptions visible so you can change them.</p>
+  </div>
+</ToolPageLayout>
+
+<style>.tool-copy { padding-top: clamp(2rem, 5vw, 3.5rem); }</style>

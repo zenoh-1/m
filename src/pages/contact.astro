@@ -11,7 +11,7 @@ const email = 'hello@cookedfinance.com';
   eyebrow="Contact"
   heading="Get in touch."
   lead="Send a correction, source update, bug report, accessibility issue, or general question."
-  updated="August 17, 2026"
+  updated="August 31, 2026"
 >
   <h2>Email us</h2>
   <p>
@@ -25,32 +25,32 @@ const email = 'hello@cookedfinance.com';
     ready to send. The form itself does not submit anything to Cooked Finance.
   </p>
 
-  <div id="contact-form" class="card contact-form" role="form" aria-label="Contact Cooked Finance">
+  <form id="contact-form" class="card contact-form" aria-label="Contact Cooked Finance" novalidate>
     <div class="contact-field">
       <label class="contact-label" for="name">Name</label>
-      <input class="field-input" id="name" type="text" autocomplete="name" placeholder="Alex Carter…" required aria-describedby="name-error" />
+      <input class="field-input" id="name" name="name" type="text" autocomplete="name" placeholder="Alex Carter…" required aria-describedby="name-error" />
       <p class="contact-error" id="name-error" data-error-for="name" aria-live="polite"></p>
     </div>
 
     <div class="contact-field">
       <label class="contact-label" for="email">Email</label>
-      <input class="field-input" id="email" type="email" inputmode="email" autocomplete="email" placeholder="you@example.com…" spellcheck="false" required aria-describedby="email-error" />
+      <input class="field-input" id="email" name="email" type="email" inputmode="email" autocomplete="email" placeholder="you@example.com…" spellcheck="false" required aria-describedby="email-error" />
       <p class="contact-error" id="email-error" data-error-for="email" aria-live="polite"></p>
     </div>
 
     <div class="contact-field">
       <label class="contact-label" for="message">Message</label>
-      <textarea class="field-input contact-textarea" id="message" rows="5" autocomplete="off" placeholder="Example: I found a source issue on…" required aria-describedby="message-error"></textarea>
+      <textarea class="field-input contact-textarea" id="message" name="message" rows="5" autocomplete="off" placeholder="Example: I found a source issue on…" required aria-describedby="message-error"></textarea>
       <p class="contact-error" id="message-error" data-error-for="message" aria-live="polite"></p>
     </div>
 
-    <button type="button" class="btn-primary contact-submit" data-open-email-draft>
+    <button type="submit" class="btn-primary contact-submit" data-open-email-draft>
       Open Email Draft
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
         <path d="M2 4.5 8 9l6-4.5M2.5 3.5h11a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1h-11a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1Z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
     </button>
-  </div>
+  </form>
 
   <h2>Other things</h2>
   <ul>
@@ -151,9 +151,7 @@ const email = 'hello@cookedfinance.com';
     window.location.href = `mailto:hello@cookedfinance.com?subject=${subject}&body=${body}`;
   }
 
-  document.querySelector('[data-open-email-draft]')?.addEventListener('click', openEmailDraft);
-  form?.addEventListener('keydown', (event) => {
-    if (event.key !== 'Enter' || event.target instanceof HTMLTextAreaElement || event.target instanceof HTMLButtonElement) return;
+  form?.addEventListener('submit', (event) => {
     event.preventDefault();
     openEmailDraft();
   });

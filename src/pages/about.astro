@@ -1,71 +1,44 @@
 ---
 import PageLayout from '../layouts/PageLayout.astro';
+import RelatedReading from '../components/content/RelatedReading.astro';
 ---
 
 <PageLayout
-  title="About Cooked Finance | Independent Financial Education"
-  description="Why Cooked Finance exists, how its private financial health check works, and the standards behind its calculators and educational content."
-  path="/about"
+  title="About Cooked Finance | Home Cost Intelligence"
+  description="Cooked Finance creates transparent, privacy-first tools for home running costs, maintenance planning, and repair-versus-replace decisions."
+  path="/about/"
   eyebrow="About Cooked Finance"
-  heading="A clearer starting point for your money."
-  lead="Cooked Finance is an independent educational website built to make a basic financial checkup understandable, transparent, and a little less intimidating."
-  updated="August 17, 2026"
+  heading="The numbers behind running a home."
+  lead="Cooked Finance turns appliance labels, utility rates, service quotes, and maintenance dates into practical decisions you can inspect."
+  updated="August 31, 2026"
 >
-  <h2>Why this site exists</h2>
-  <p>
-    Balances alone do not explain whether someone has breathing room, and a
-    generic checklist rarely shows what to address first. Cooked Finance turns
-    seven estimates into four visible signals and a short list of next moves.
-    It is designed to start a useful review—not to issue a verdict about a
-    person or replace a financial plan.
-  </p>
+  <h2>What this site is becoming</h2>
+  <p>Cooked Finance began as a private financial-health experiment. The useful parts were the transparent calculations, local-first privacy, source discipline, and practical next steps. The site now applies those strengths to an everyday financial problem with many recurring decisions: the cost of running and caring for a home.</p>
 
-  <h2>What the financial health check measures</h2>
-  <p>The current Cooked Score combines four narrowly defined pillars:</p>
+  <h2>What you can do here</h2>
   <ul>
-    <li><strong>Cash buffer (30%):</strong> liquid savings divided by essential monthly spending.</li>
-    <li><strong>Debt burden (25%):</strong> required monthly debt payments divided by gross monthly income.</li>
-    <li><strong>Savings habit (20%):</strong> monthly saving and investing divided by gross monthly income.</li>
-    <li><strong>Long-term progress (25%):</strong> retirement investments compared with a broad age-based guidepost.</li>
+    <li>Convert annual electricity or gas use into an annual and average monthly cost.</li>
+    <li>Compare a repair quote with an installed replacement price over one planning horizon.</li>
+    <li>Learn which exact label metric belongs in the calculation.</li>
+    <li>Build a private maintenance plan stored only in your browser.</li>
+    <li>Inspect the sources, assumptions, exclusions, and substantive review date for each guide.</li>
   </ul>
-  <p>
-    The formulas, weights, interpolation rules, sources, and limitations are
-    published on the <a href="/methodology/">methodology page</a>. The score is
-    not a credit score, population percentile, forecast, or statement of net
-    worth.
-  </p>
 
-  <h2>Our publishing standards</h2>
-  <p>
-    We separate sourced facts from our own educational model, link to primary
-    sources where practical, date material updates, and correct material errors.
-    You can review the <a href="/editorial-policy/">editorial policy</a>,
-    <a href="/source-policy/">source policy</a>, and
-    <a href="/corrections-policy/">corrections policy</a>.
-  </p>
-  <p>
-    Cooked Finance does not claim to be a financial adviser or fiduciary.
-    Because finance is personal and the calculator sees only seven values,
-    important context—including taxes, dependents, insurance, interest rates,
-    projected defined-benefit pension income, location, goals, and risk tolerance—is outside the result.
-  </p>
+  <h2>What we do not claim</h2>
+  <p>We do not inspect equipment, diagnose internal faults, predict breakdowns, guarantee savings, or replace product manuals and qualified professionals. Home safety content is intentionally conservative. Smoke, burning odor, shock, sparking, recurring breaker trips, refrigerant work, active leaks near electricity, and pressurized safety devices are outside the DIY scope.</p>
 
-  <h2>Privacy and funding</h2>
-  <ul>
-    <li><strong>Private by design:</strong> calculations run in the browser and financial inputs are not sent to our servers or analytics.</li>
-    <li><strong>No account required:</strong> there is no login, bank connection, or database profile.</li>
-    <li><strong>Currently ad-free:</strong> Cooked Finance has not applied for AdSense and displays no paid advertising.</li>
-  </ul>
-  <p>
-    Optional analytics load only after consent and never receive the seven
-    calculator inputs or result values. Read the <a href="/privacy/">privacy policy</a>
-    and <a href="/advertising-policy/">advertising policy</a> for details.
-  </p>
+  <h2>U.S.-first scope</h2>
+  <p>The initial source set is U.S.-first because it relies on FTC EnergyGuide rules, DOE test procedures, ENERGY STAR product data, EPA guidance, CPSC recalls, and U.S. utility units. The formulas can accept other prices, but regulatory labels, currency, safety resources, and terminology may differ elsewhere.</p>
 
-  <h2>Questions, evidence, or corrections</h2>
-  <p>
-    If a formula is unclear, a source has changed, or a page contains an error,
-    please use the <a href="/contact/">contact page</a>. Specific, verifiable
-    feedback helps improve the site.
-  </p>
+  <h2>Who publishes the work</h2>
+  <p>Cooked Finance is currently an independent publication, not a utility, manufacturer, repair company, government agency, engineering firm, or financial adviser. Until a guide has a genuinely qualified individual reviewer, it is attributed to the publication and does not imply credentials that do not exist.</p>
+
+  <h2>The original money tools</h2>
+  <p>The original private financial check and standalone calculators remain available under <a href="/calculators/">Money Tools</a>. They are secondary educational resources and retain their separate <a href="/money-tools/financial-health-check/methodology/">financial model methodology</a>.</p>
+
+  <RelatedReading links={[
+    { href: '/methodology/', label: 'Home cost methodology', description: 'See every formula, assumption, and omission.' },
+    { href: '/source-policy/', label: 'Source policy', description: 'How evidence is selected and maintained.' },
+    { href: '/editorial-policy/', label: 'Editorial policy', description: 'How safety, authorship, and corrections are handled.' },
+  ]} />
 </PageLayout>

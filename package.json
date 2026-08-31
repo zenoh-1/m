@@ -1,16 +1,17 @@
 {
-  "name": "m",
+  "name": "cooked-finance-home-cost",
   "type": "module",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "engines": {
     "node": ">=22.12.0"
   },
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
+    "verify:home": "node scripts/run-home-cost-verify.mjs",
     "verify:score": "node scripts/run-score-verify.mjs",
     "verify:site": "node scripts/site-verify.mjs",
-    "verify": "astro build && node scripts/run-score-verify.mjs && node scripts/site-verify.mjs",
+    "verify": "astro build && node scripts/run-home-cost-verify.mjs && node scripts/run-score-verify.mjs && node scripts/site-verify.mjs",
     "preview": "wrangler dev",
     "astro": "astro",
     "deploy": "npm run verify && wrangler deploy"

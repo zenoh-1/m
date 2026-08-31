@@ -1,0 +1,33 @@
+---
+import PageLayout from '../../layouts/PageLayout.astro';
+---
+
+<PageLayout
+  title="Free Home Cost Tools | Cooked Finance"
+  description="Private browser-based tools for appliance running costs, repair-versus-replace scenarios, and home planning."
+  path="/tools/"
+  eyebrow="Home cost tools"
+  heading="Useful numbers for the home you actually run."
+  lead="Start with your own label, bill, quote, or installed price. Every result shows the assumptions instead of hiding them."
+>
+  <div class="content-cards">
+    <a class="content-card card" href="/tools/energy-cost/">
+      <span class="tag">Energy</span>
+      <h2 class="content-card__title">Energy Cost Calculator</h2>
+      <p class="content-card__copy">Convert annual electricity and natural-gas use into annual and average monthly cost.</p>
+      <span class="content-card__link">Calculate a running cost →</span>
+    </a>
+    <a class="content-card card" href="/tools/repair-or-replace/">
+      <span class="tag">Decision</span>
+      <h2 class="content-card__title">Repair or Replace Scenario</h2>
+      <p class="content-card__copy">Compare up-front prices and operating costs over one shared planning horizon.</p>
+      <span class="content-card__link">Compare two scenarios →</span>
+    </a>
+    <a class="content-card card" href="/my-home/">
+      <span class="tag">Private plan</span>
+      <h2 class="content-card__title">My Home</h2>
+      <p class="content-card__copy">Save equipment details and next maintenance dates only in this browser.</p>
+      <span class="content-card__link">Build your home plan →</span>
+    </a>
+  </div>
+</PageLayout>

@@ -1,0 +1,98 @@
+---
+interface Props { systemName: string; }
+const { systemName } = Astro.props;
+const steps = [
+  { id: 'guide-cost', number: '01', label: 'Cost' },
+  { id: 'guide-care', number: '02', label: 'Care' },
+  { id: 'guide-safety', number: '!', label: 'Safety' },
+  { id: 'guide-decision', number: '03', label: 'Decide' },
+  { id: 'guide-sources', number: '↗', label: 'Sources' },
+];
+---
+
+<nav class="guide-nav" data-guide-nav aria-label={`${systemName} guide sections`}>
+  <div class="guide-nav__label"><span>Operating Manual</span><b>{systemName}</b></div>
+  <div class="guide-nav__links">
+    {steps.map((step, index) => (
+      <a href={`#${step.id}`} data-guide-link={step.id} aria-current={index === 0 ? 'location' : undefined}>
+        <span aria-hidden="true">{step.number}</span>{step.label}
+      </a>
+    ))}
+  </div>
+  <div class="guide-nav__progress" aria-hidden="true"><span data-guide-progress></span></div>
+</nav>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-guide-nav]').forEach((nav) => {
+    const links = [...nav.querySelectorAll<HTMLAnchorElement>('[data-guide-link]')];
+    const sections = links
+      .map((link) => document.getElementById(link.dataset.guideLink ?? ''))
+      .filter((section): section is HTMLElement => Boolean(section));
+    const progress = nav.querySelector<HTMLElement>('[data-guide-progress]');
+
+    const setActive = (id: string) => {
+      const activeIndex = Math.max(sections.findIndex((section) => section.id === id), 0);
+      links.forEach((link) => {
+        if (link.dataset.guideLink === id) link.setAttribute('aria-current', 'location');
+        else link.removeAttribute('aria-current');
+      });
+      progress?.style.setProperty('--guide-progress', String((activeIndex + 1) / sections.length));
+    };
+
+    links.forEach((link) => link.addEventListener('click', () => setActive(link.dataset.guideLink ?? '')));
+
+    if ('IntersectionObserver' in window) {
+      const observer = new IntersectionObserver((entries) => {
+        const visible = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+        if (visible) setActive((visible.target as HTMLElement).id);
+      }, { rootMargin: '-24% 0px -62% 0px', threshold: [0, 0.15, 0.5] });
+      sections.forEach((section) => observer.observe(section));
+    }
+
+    setActive(sections[0]?.id ?? '');
+  });
+</script>
+
+<style>
+  .guide-nav {
+    position: sticky;
+    top: 76px;
+    z-index: 44;
+    min-height: 58px;
+    display: grid;
+    grid-template-columns: minmax(9rem, 0.5fr) minmax(0, 1fr);
+    align-items: stretch;
+    margin: 0 calc(clamp(1.1rem, 4vw, 2rem) * -1) clamp(3rem, 7vw, 5rem);
+    border: 1px solid var(--color-ink);
+    background: rgba(255, 253, 248, 0.96);
+    box-shadow: 3px 3px 0 rgba(25, 23, 18, 0.18);
+    backdrop-filter: blur(16px);
+  }
+
+  .guide-nav__label { min-width: 0; display: grid; align-content: center; padding: 0.55rem 1rem; border-right: 1px solid var(--color-hairline-strong); }
+  .guide-nav__label span { color: var(--color-mute); font-family: var(--font-mono); font-size: 0.54rem; letter-spacing: 0.08em; text-transform: uppercase; }
+  .guide-nav__label b { overflow: hidden; font-size: 0.76rem; text-overflow: ellipsis; white-space: nowrap; }
+  .guide-nav__links { min-width: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  .guide-nav__links a { min-width: 0; min-height: 56px; display: flex; align-items: center; justify-content: center; gap: 0.4rem; padding: 0.55rem 0.7rem; border-right: 1px solid var(--color-hairline); color: var(--color-body); font-size: 0.76rem; font-weight: 680; text-decoration: none; transition: background-color 160ms ease, color 160ms ease; }
+  .guide-nav__links a:last-child { border-right: 0; }
+  .guide-nav__links a span { color: var(--color-ember-deep); font-family: var(--font-mono); font-size: 0.62rem; }
+  .guide-nav__links a:hover { background: var(--color-surface-2); color: var(--color-ink); }
+  .guide-nav__links a[aria-current='location'] { background: var(--color-ink); color: var(--color-paper); }
+  .guide-nav__links a[aria-current='location'] span { color: var(--color-amber); }
+  .guide-nav__progress { position: absolute; inset: auto 0 0; height: 3px; overflow: hidden; }
+  .guide-nav__progress span { width: 100%; height: 100%; display: block; transform: scaleX(var(--guide-progress, 0.2)); transform-origin: left; background: var(--color-ember); transition: transform 260ms var(--ease-out-expo); }
+
+  @media (max-width: 760px) {
+    .guide-nav { top: 76px; grid-template-columns: 1fr; margin-inline: -1rem; }
+    .guide-nav__label { display: none; }
+    .guide-nav__links { overflow-x: auto; overscroll-behavior-inline: contain; scrollbar-width: none; }
+    .guide-nav__links::-webkit-scrollbar { display: none; }
+    .guide-nav__links a { min-width: 5.2rem; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .guide-nav__links a, .guide-nav__progress span { transition: none; }
+  }
+</style>

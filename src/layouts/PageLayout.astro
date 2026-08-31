@@ -33,7 +33,13 @@ type Breadcrumb = {
 const section = canonicalPath.startsWith('/guides/')
   ? { label: 'Guides', href: '/guides/' }
   : canonicalPath.startsWith('/calculators/')
-    ? { label: 'Calculators', href: '/calculators/' }
+    ? { label: 'Money Tools', href: '/calculators/' }
+    : canonicalPath.startsWith('/money-tools/')
+      ? { label: 'Money Tools', href: '/calculators/' }
+    : canonicalPath.startsWith('/tools/')
+      ? { label: 'Tools', href: '/tools/' }
+    : canonicalPath.startsWith('/systems/')
+      ? { label: 'Systems', href: '/systems/' }
     : canonicalPath.startsWith('/benchmarks/')
       // There is no benchmarks collection page yet, so this is a visible
       // hierarchy label rather than a link to a nonexistent URL.
@@ -111,6 +117,14 @@ const mergedJsonLd = [
   ...(articleJsonLd ? [articleJsonLd] : []),
   ...normalizeJsonLd(jsonLd),
 ];
+const legacyFinancePath = canonicalPath.startsWith('/calculators/')
+  || canonicalPath.startsWith('/money-tools/')
+  || canonicalPath.startsWith('/guides/')
+  || canonicalPath.startsWith('/benchmarks/')
+  || ['/financial-health-score/', '/score-ranges/'].includes(canonicalPath);
+const nextPrompt = legacyFinancePath
+  ? { text: 'Want the original private financial snapshot?', href: '/money-tools/financial-health-check/', label: 'Run the Financial Health Check' }
+  : { text: 'Ready to use the new home-cost toolkit?', href: '/systems/', label: 'Browse Home System Guides' };
 ---
 
 <Layout title={title} description={description} path={path} noindex={noindex} type={resolvedType} jsonLd={mergedJsonLd}>
@@ -146,8 +160,8 @@ const mergedJsonLd = [
       </div>
 
       <div class="page__next">
-        <p>Ready to turn the explanation into a useful snapshot?</p>
-        <a href="/#check" class="btn-primary">Run My Financial Heat Check</a>
+        <p>{nextPrompt.text}</p>
+        <a href={nextPrompt.href} class="btn-primary">{nextPrompt.label}</a>
       </div>
     </div>
   </main>
@@ -167,6 +181,7 @@ const mergedJsonLd = [
   .page__meta a { color: inherit; text-underline-offset: 0.16em; }
   .page__body { padding-top: 0.7rem; }
   .page__next { max-width: 790px; margin: 4rem auto 0; padding: clamp(1.4rem, 4vw, 2rem); display: flex; align-items: center; justify-content: space-between; gap: 1rem; border: 1px solid var(--color-hairline); border-radius: var(--radius-lg); background: var(--color-paper); }
-  .page__next p { margin: 0; max-width: 35ch; color: var(--color-body); font-weight: 620; }
-  @media (max-width: 640px) { .page__next { align-items: stretch; flex-direction: column; } }
+  .page__next p { min-width: 0; margin: 0; max-width: 35ch; color: var(--color-body); font-weight: 620; }
+  .page__next a { flex: 0 0 auto; }
+  @media (max-width: 760px) { .page__next { align-items: stretch; flex-direction: column; } }
 </style>

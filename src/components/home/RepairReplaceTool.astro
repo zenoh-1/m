@@ -1,0 +1,202 @@
+<section class="decision-tool" data-decision-tool aria-labelledby="decision-tool-title">
+  <div class="decision-tool__intro">
+    <span class="eyebrow">Scenario, not a verdict</span>
+    <h2 id="decision-tool-title">Compare repair and replacement over the same number of years.</h2>
+    <p>This models up-front price plus operating cost. It cannot predict failure, safety, comfort, reliability, or how long either option will last.</p>
+  </div>
+
+  <div class="decision-import" data-decision-import hidden>
+    <span>Imported from your last running-cost estimate.</span>
+    <button type="button" data-dismiss-import aria-label="Dismiss imported estimate notice">×</button>
+  </div>
+
+  <form class="decision-form" data-decision-form novalidate>
+    <div class="decision-form__grid">
+      <div class="field">
+        <label class="field__label" for="repair-quote">Repair quote <span class="field__hint">$</span></label>
+        <input class="field-input" id="repair-quote" name="repairQuote" type="number" inputmode="decimal" min="0" max="1000000" step="0.01" value="450" autocomplete="off" required />
+      </div>
+      <div class="field">
+        <label class="field__label" for="replacement-price">Replacement installed price <span class="field__hint">$</span></label>
+        <input class="field-input" id="replacement-price" name="replacementPrice" type="number" inputmode="decimal" min="0" max="1000000" step="0.01" value="1200" autocomplete="off" required />
+      </div>
+      <div class="field">
+        <label class="field__label" for="current-operating">Current annual operating cost <span class="field__hint">$</span></label>
+        <input class="field-input" id="current-operating" name="currentAnnualOperatingCost" type="number" inputmode="decimal" min="0" max="1000000" step="0.01" value="180" autocomplete="off" required />
+      </div>
+      <div class="field">
+        <label class="field__label" for="replacement-operating">Replacement annual operating cost <span class="field__hint">$</span></label>
+        <input class="field-input" id="replacement-operating" name="replacementAnnualOperatingCost" type="number" inputmode="decimal" min="0" max="1000000" step="0.01" value="110" autocomplete="off" required />
+      </div>
+      <div class="field">
+        <label class="field__label" for="planning-horizon">Planning horizon <span class="field__hint">years</span></label>
+        <input class="field-input" id="planning-horizon" name="planningHorizonYears" type="number" inputmode="decimal" min="1" max="30" step="1" value="5" autocomplete="off" required />
+      </div>
+    </div>
+    <p class="field__error" data-decision-error role="alert" aria-live="polite"></p>
+    <button class="btn-primary" type="submit">Compare the Scenarios</button>
+  </form>
+
+  <div class="decision-results" data-decision-results aria-atomic="true">
+    <div class="decision-result">
+      <span>Repair scenario</span>
+      <strong data-repair-total>$1,350</strong>
+      <small>quote + operating cost</small>
+    </div>
+    <div class="decision-result">
+      <span>Replacement scenario</span>
+      <strong data-replace-total>$1,750</strong>
+      <small>installed price + operating cost</small>
+    </div>
+    <div class="decision-summary">
+      <span>Lower modeled cost</span>
+      <strong data-decision-summary>Repair by $400 over 5 years</strong>
+      <p data-decision-payback>Operating savings alone would recover the additional replacement price in 10.71 years.</p>
+    </div>
+  </div>
+  <div class="decision-bars" aria-label="Modeled total cost comparison">
+    <div><span>Repair</span><i><b data-repair-bar></b></i><strong class="number-display" data-repair-bar-value>$1,350</strong></div>
+    <div><span>Replace</span><i><b data-replace-bar></b></i><strong class="number-display" data-replace-bar-value>$1,750</strong></div>
+    <p>Bar length compares modeled total cost over the selected planning horizon.</p>
+  </div>
+  <p class="sr-only" data-decision-status role="status" aria-live="polite"></p>
+  <ul class="decision-warnings" data-decision-warnings aria-label="Important assumptions">
+    <li>This comparison does not predict failures or remaining service life.</li>
+  </ul>
+</section>
+
+<script>
+  import { compareRepairVsReplace } from '../../lib/home-cost';
+
+  const decisionTool = document.querySelector<HTMLElement>('[data-decision-tool]');
+  const decisionForm = decisionTool?.querySelector<HTMLFormElement>('[data-decision-form]');
+  if (decisionForm) {
+    const money = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
+    const value = (name: string) => Number((decisionForm.elements.namedItem(name) as HTMLInputElement).value);
+
+    let updateTimer = 0;
+    const renderDecision = (announce = false) => {
+      const horizon = value('planningHorizonYears');
+      const result = compareRepairVsReplace({
+        repairQuote: value('repairQuote'),
+        replacementPrice: value('replacementPrice'),
+        currentAnnualOperatingCost: value('currentAnnualOperatingCost'),
+        replacementAnnualOperatingCost: value('replacementAnnualOperatingCost'),
+        planningHorizonYears: horizon,
+      });
+      const error = decisionForm.querySelector<HTMLElement>('[data-decision-error]');
+      const errors = result.warnings.filter((warning) => warning.severity === 'error');
+      if (errors.length || result.repairTotalCost === null || result.replacementTotalCost === null || result.modeledReplacementSavings === null) {
+        if (error) error.textContent = errors.map((warning) => warning.message).join(' ');
+        return;
+      }
+      if (error) error.textContent = '';
+
+      const repair = decisionTool?.querySelector<HTMLElement>('[data-repair-total]');
+      const replace = decisionTool?.querySelector<HTMLElement>('[data-replace-total]');
+      const summary = decisionTool?.querySelector<HTMLElement>('[data-decision-summary]');
+      const payback = decisionTool?.querySelector<HTMLElement>('[data-decision-payback]');
+      if (repair) repair.textContent = money.format(result.repairTotalCost);
+      if (replace) replace.textContent = money.format(result.replacementTotalCost);
+
+      const difference = Math.abs(result.modeledReplacementSavings);
+      const option = result.lowerModeledCostOption === 'tie'
+        ? 'The modeled costs are equal'
+        : `${result.lowerModeledCostOption === 'repair' ? 'Repair' : 'Replacement'} by ${money.format(difference)} over ${horizon} ${horizon === 1 ? 'year' : 'years'}`;
+      if (summary) summary.textContent = option;
+      if (payback) payback.textContent = result.simplePaybackYears === null
+        ? 'The entered replacement does not produce a positive operating-cost payback.'
+        : `Operating savings alone recover the additional replacement price in ${result.simplePaybackYears} years.`;
+
+      const warnings = decisionTool?.querySelector<HTMLElement>('[data-decision-warnings]');
+      warnings?.replaceChildren(...result.warnings.filter((warning) => warning.severity !== 'error').map((warning) => {
+        const item = document.createElement('li');
+        item.textContent = warning.message;
+        return item;
+      }));
+
+      const repairBar = decisionTool?.querySelector<HTMLElement>('[data-repair-bar]');
+      const replaceBar = decisionTool?.querySelector<HTMLElement>('[data-replace-bar]');
+      const repairBarValue = decisionTool?.querySelector<HTMLElement>('[data-repair-bar-value]');
+      const replaceBarValue = decisionTool?.querySelector<HTMLElement>('[data-replace-bar-value]');
+      const maximum = Math.max(result.repairTotalCost, result.replacementTotalCost, 1);
+      repairBar?.style.setProperty('--decision-width', `${(result.repairTotalCost / maximum) * 100}%`);
+      replaceBar?.style.setProperty('--decision-width', `${(result.replacementTotalCost / maximum) * 100}%`);
+      if (repairBarValue) repairBarValue.textContent = money.format(result.repairTotalCost);
+      if (replaceBarValue) replaceBarValue.textContent = money.format(result.replacementTotalCost);
+      if (announce) {
+        const status = decisionTool?.querySelector<HTMLElement>('[data-decision-status]');
+        if (status) status.textContent = `Scenario updated. ${option}.`;
+      }
+    };
+
+    decisionForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+      renderDecision(true);
+    });
+
+    decisionForm.addEventListener('input', () => {
+      window.clearTimeout(updateTimer);
+      updateTimer = window.setTimeout(() => renderDecision(false), 240);
+    });
+
+    try {
+      const importedCost = Number(sessionStorage.getItem('cooked-finance-current-operating-cost'));
+      if (Number.isFinite(importedCost) && importedCost >= 0) {
+        const currentCost = decisionForm.elements.namedItem('currentAnnualOperatingCost') as HTMLInputElement;
+        currentCost.value = String(Math.round(importedCost * 100) / 100);
+        const importedNotice = decisionTool?.querySelector<HTMLElement>('[data-decision-import]');
+        if (importedNotice) importedNotice.hidden = false;
+        renderDecision(true);
+      }
+    } catch { /* The comparison still works without a handoff. */ }
+
+    decisionTool?.querySelector<HTMLButtonElement>('[data-dismiss-import]')?.addEventListener('click', () => {
+      const importedNotice = decisionTool?.querySelector<HTMLElement>('[data-decision-import]');
+      if (importedNotice) importedNotice.hidden = true;
+    });
+  }
+</script>
+
+<style>
+  .decision-tool { overflow: hidden; border: 1px solid var(--color-ink); border-radius: var(--radius-sm); background: var(--color-paper); box-shadow: 5px 5px 0 var(--color-ink); }
+  .decision-tool__intro { padding: clamp(1.4rem, 4vw, 2.2rem); border-bottom: 1px solid var(--color-hairline); }
+  .decision-tool__intro h2 { max-width: 21ch; margin: 0.65rem 0 0; font-family: var(--font-serif); font-size: clamp(2rem, 5vw, 3rem); font-weight: 500; letter-spacing: -0.04em; line-height: 1; }
+  .decision-tool__intro p { max-width: 62ch; margin: 0.9rem 0 0; color: var(--color-body); line-height: 1.65; }
+  .decision-import { min-height: 44px; display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 0.65rem 1rem; border-bottom: 1px solid color-mix(in srgb, var(--color-sage) 45%, var(--color-hairline)); background: var(--color-sage-soft); color: var(--color-sage); font-size: 0.78rem; font-weight: 680; }
+  .decision-import[hidden] { display: none; }
+  .decision-import button { width: 44px; height: 44px; border: 0; border-radius: 50%; background: transparent; color: inherit; font-size: 1.2rem; }
+  .decision-import button:hover { background: rgba(78,117,100,0.12); }
+  .decision-form { padding: clamp(1.4rem, 4vw, 2.2rem); display: grid; gap: 1.25rem; }
+  .decision-form__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+  .decision-form__grid .field:last-child { grid-column: 1 / -1; max-width: calc(50% - 0.5rem); }
+  .decision-form .field__error { margin: -0.25rem 0; }
+  .decision-results { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border-top: 1px solid var(--color-hairline); }
+  .decision-result { padding: clamp(1.35rem, 4vw, 2rem); background: var(--color-surface-2); }
+  .decision-result:first-child { border-right: 1px solid var(--color-hairline); }
+  .decision-result span, .decision-summary span { display: block; color: var(--color-mute); font-family: var(--font-mono); font-size: 0.67rem; font-weight: 650; letter-spacing: 0.06em; text-transform: uppercase; }
+  .decision-result strong { display: block; margin-top: 0.45rem; font-family: var(--font-serif); font-size: clamp(2rem, 5vw, 3.2rem); font-weight: 500; letter-spacing: -0.04em; }
+  .decision-result small { color: var(--color-mute); }
+  .decision-summary { grid-column: 1 / -1; padding: clamp(1.35rem, 4vw, 2rem); background: var(--color-ink); color: var(--color-paper); }
+  .decision-summary span { color: rgba(255,252,247,0.6); }
+  .decision-summary strong { display: block; margin-top: 0.5rem; font-family: var(--font-serif); font-size: clamp(1.65rem, 4vw, 2.5rem); font-weight: 500; }
+  .decision-summary p { margin: 0.65rem 0 0; color: rgba(255,252,247,0.7); line-height: 1.55; }
+  .decision-bars { display: grid; gap: 0.75rem; padding: clamp(1.35rem, 4vw, 2rem); border-top: 1px solid var(--color-hairline); background: var(--color-surface-2); }
+  .decision-bars > div { display: grid; grid-template-columns: 4rem minmax(0, 1fr) 5.5rem; align-items: center; gap: 0.75rem; }
+  .decision-bars span { color: var(--color-body); font-size: 0.76rem; font-weight: 700; }
+  .decision-bars i { height: 14px; overflow: hidden; border: 1px solid var(--color-hairline-strong); border-radius: var(--radius-pill); background: var(--color-paper); }
+  .decision-bars i b { width: var(--decision-width, 50%); height: 100%; display: block; border-radius: inherit; background: var(--color-ember); transition: width 360ms var(--ease-out-expo); }
+  .decision-bars > div:nth-child(2) i b { background: var(--color-sage); }
+  .decision-bars strong { color: var(--color-ink); font-family: var(--font-mono); font-size: 0.75rem; text-align: right; }
+  .decision-bars p { margin: 0.2rem 0 0; color: var(--color-mute); font-size: 0.7rem; }
+  .decision-warnings { margin: 0; padding: 1rem clamp(1.4rem, 4vw, 2.2rem) 1rem calc(clamp(1.4rem, 4vw, 2.2rem) + 1rem); color: var(--color-mute); font-size: 0.78rem; line-height: 1.5; }
+  @media (max-width: 620px) {
+    .decision-form__grid, .decision-results { grid-template-columns: 1fr; }
+    .decision-form__grid .field:last-child { grid-column: auto; max-width: none; }
+    .decision-result:first-child { border-right: 0; border-bottom: 1px solid var(--color-hairline); }
+    .decision-summary { grid-column: auto; }
+    .decision-bars > div { grid-template-columns: 3.5rem minmax(0, 1fr); }
+    .decision-bars strong { grid-column: 2; text-align: left; }
+  }
+  @media (prefers-reduced-motion: reduce) { .decision-bars i b { transition: none; } }
+</style>

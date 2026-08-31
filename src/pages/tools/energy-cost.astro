@@ -1,0 +1,24 @@
+---
+import ToolPageLayout from '../../layouts/ToolPageLayout.astro';
+import EnergyCostTool from '../../components/home/EnergyCostTool.astro';
+---
+
+<ToolPageLayout
+  title="Appliance Energy Cost Calculator | Cooked Finance"
+  description="Calculate annual and monthly electricity or natural-gas cost from your actual yearly usage and utility rates."
+  path="/tools/energy-cost/"
+  heading="Energy Cost Calculator"
+  lead="Use annual kWh from an EnergyGuide label, utility bill, or power meter. Add natural gas only when you have both therm usage and a per-therm rate."
+>
+  <EnergyCostTool />
+  <div class="tool-copy prose">
+    <h2>Where to find the inputs</h2>
+    <p>For many major appliances, the yellow EnergyGuide label includes estimated annual electricity use in kWh. For equipment already in your home, a full utility bill or plug-in energy monitor can provide a more personal figure.</p>
+    <p>Your utility bill is the best source for your rate. If you need a comparison point, the U.S. Energy Information Administration publishes current electricity data by state.</p>
+    <h2>What this estimate leaves out</h2>
+    <p>The calculator multiplies annual use by the unit rate you enter. Fixed customer charges, taxes, tiered prices, rebates, demand charges, and seasonal variation are excluded unless the rate you enter already incorporates them.</p>
+    <p><a href="https://www.ftc.gov/business-guidance/resources/energyguide-labeling-faqs-appliance-manufacturers" rel="noopener" target="_blank">Learn how EnergyGuide estimates work<span class="sr-only"> (opens in a new tab)</span></a> · <a href="https://www.eia.gov/electricity/data.php" rel="noopener" target="_blank">See EIA electricity data<span class="sr-only"> (opens in a new tab)</span></a></p>
+  </div>
+</ToolPageLayout>
+
+<style>.tool-copy { padding-top: clamp(2rem, 5vw, 3.5rem); }</style>

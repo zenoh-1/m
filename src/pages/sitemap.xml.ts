@@ -8,15 +8,17 @@
  */
 import type { APIRoute } from 'astro';
 import { SITE } from '../lib/seo';
+import { HOME_SYSTEMS } from '../data/homeSystems';
 
 // Eagerly collect every page component under src/pages.
 const pageModules = import.meta.glob('./**/*.astro', { eager: true });
 
 // Routes that should never appear in the sitemap.
-const EXCLUDED = new Set(['404', '500']);
+const EXCLUDED = new Set(['404', '500', 'my-home']);
 
 /** Convert a glob key like "./about.astro" into a canonical path like "/about/". */
 function toRoute(filePath: string): string | null {
+  if (filePath.includes('[')) return null;
   const slug = filePath
     .replace(/^\.\//, '') // drop leading "./"
     .replace(/\.astro$/, '') // drop extension
@@ -29,13 +31,26 @@ function toRoute(filePath: string): string | null {
   return slug === '' ? '/' : `/${slug}/`;
 }
 
-const routes = [...new Set(Object.keys(pageModules).map(toRoute))]
+const systemRoutes = HOME_SYSTEMS.map((system) => `/systems/${system.slug}/`);
+const routes = [...new Set([...Object.keys(pageModules).map(toRoute), ...systemRoutes])]
   .filter((route): route is string => route !== null)
   .sort();
 
+function lastModified(route: string): string {
+  const system = HOME_SYSTEMS.find((candidate) => route === `/systems/${candidate.slug}/`);
+  if (system) return system.reviewedAt;
+  const legacyFinance = route.startsWith('/calculators/')
+    || route.startsWith('/guides/')
+    || route.startsWith('/benchmarks/')
+    || route.startsWith('/financial-health-score/')
+    || route.startsWith('/score-ranges/')
+    || route.startsWith('/money-tools/financial-health-check/');
+  return legacyFinance ? '2026-08-17' : '2026-08-31';
+}
+
 export const GET: APIRoute = () => {
   const urls = routes
-    .map((route) => `<url><loc>${SITE.url}${route}</loc></url>`)
+    .map((route) => `<url><loc>${SITE.url}${route}</loc><lastmod>${lastModified(route)}</lastmod></url>`)
     .join('');
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>

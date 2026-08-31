@@ -1,0 +1,98 @@
+---
+interface Props {
+  label: string;
+  category: string;
+  index?: number;
+  compact?: boolean;
+}
+
+const { label, category, index = 1, compact = false } = Astro.props;
+const words = label.replace(/[^a-zA-Z0-9 ]/g, '').split(/\s+/).filter(Boolean);
+const code = words.length > 1
+  ? `${words[0][0]}${words[words.length - 1][0]}`
+  : label.slice(0, 2);
+const categoryKey = category.toLowerCase().replace(/\s+/g, '-');
+---
+
+<div class:list={['system-signal', `system-signal--${categoryKey}`, { 'system-signal--compact': compact }]} aria-hidden="true">
+  <span class="system-signal__orbit"></span>
+  <span class="system-signal__code">{code.toUpperCase()}</span>
+  <span class="system-signal__index">{String(index).padStart(2, '0')}</span>
+  <span class="system-signal__tick system-signal__tick--one"></span>
+  <span class="system-signal__tick system-signal__tick--two"></span>
+</div>
+
+<style>
+  .system-signal {
+    --signal: var(--color-ember);
+    position: relative;
+    width: clamp(8rem, 16vw, 12rem);
+    aspect-ratio: 1;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    flex: 0 0 auto;
+    border: 1px solid color-mix(in srgb, var(--signal) 50%, var(--color-hairline));
+    border-radius: 50%;
+    background:
+      radial-gradient(circle, transparent 0 31%, color-mix(in srgb, var(--signal) 16%, transparent) 31% 32%, transparent 32% 48%, color-mix(in srgb, var(--signal) 22%, transparent) 48% 49%, transparent 49%),
+      var(--color-surface-2);
+    color: var(--color-ink);
+    transition: transform 220ms var(--ease-out-expo), border-color 180ms ease, background-color 180ms ease;
+  }
+
+  .system-signal--water, .system-signal--cooling, .system-signal--air-quality { --signal: var(--color-water); }
+  .system-signal--laundry { --signal: var(--color-sage); }
+
+  .system-signal__orbit {
+    position: absolute;
+    inset: 12%;
+    border: 1px dashed color-mix(in srgb, var(--signal) 58%, transparent);
+    border-radius: 50%;
+    transition: transform 360ms var(--ease-out-expo);
+  }
+
+  .system-signal__code {
+    font-family: var(--font-serif);
+    font-size: clamp(2.2rem, 6vw, 4rem);
+    font-style: italic;
+    letter-spacing: -0.08em;
+    line-height: 1;
+  }
+
+  .system-signal__index {
+    position: absolute;
+    right: 12%;
+    bottom: 12%;
+    min-width: 2rem;
+    min-height: 2rem;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--signal);
+    color: #fffdf8;
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    font-weight: 760;
+  }
+
+  .system-signal__tick { position: absolute; width: 1px; height: 14%; background: var(--signal); transform-origin: center calc(50% + 230%); }
+  .system-signal__tick--one { top: 2%; transform: rotate(28deg); }
+  .system-signal__tick--two { bottom: 2%; transform: rotate(208deg); }
+
+  .system-signal--compact { width: 7.25rem; }
+  .system-signal--compact .system-signal__code { font-size: 2.5rem; }
+
+  :global(a:hover) > .system-signal,
+  :global(a:focus-visible) > .system-signal {
+    transform: rotate(-3deg) scale(1.025);
+    border-color: var(--signal);
+  }
+
+  :global(a:hover) > .system-signal .system-signal__orbit,
+  :global(a:focus-visible) > .system-signal .system-signal__orbit { transform: rotate(22deg); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .system-signal, .system-signal__orbit { transition: none; }
+  }
+</style>

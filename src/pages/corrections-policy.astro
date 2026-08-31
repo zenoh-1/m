@@ -1,82 +1,19 @@
 ---
 import PageLayout from '../layouts/PageLayout.astro';
-import ContentNote from '../components/content/ContentNote.astro';
-import RelatedReading from '../components/content/RelatedReading.astro';
 ---
 
 <PageLayout
   title="Corrections Policy | Cooked Finance"
-  description="How to report a Cooked Finance error and how we investigate, correct, annotate, and document material changes."
-  path="/corrections-policy"
-  eyebrow="Accountability"
-  heading="Corrections should be visible, not quietly buried."
-  lead="When a factual, methodological, or product error could change a reader’s understanding, we document the repair."
-  updated="August 17, 2026"
+  description="How Cooked Finance receives, verifies, corrects, and discloses factual, mathematical, source, safety, and privacy errors."
+  path="/corrections-policy/"
+  eyebrow="Corrections"
+  heading="Errors should become visible improvements."
+  lead="Send the page, disputed passage or behavior, and strongest available source. Safety and calculation errors receive priority."
+  updated="August 31, 2026"
 >
-  <h2>What to report</h2>
-  <p>We welcome reports about:</p>
-  <ul>
-    <li>incorrect figures, definitions, formulas, units, or source descriptions;</li>
-    <li>a citation that does not support the claim beside it;</li>
-    <li>calculator behavior that differs from the published methodology;</li>
-    <li>missing context that materially changes an interpretation;</li>
-    <li>broken accessibility, privacy, or security behavior; and</li>
-    <li>outdated statements presented as current.</li>
-  </ul>
-
-  <h2>How to submit a correction</h2>
-  <p>
-    Use the <a href="/contact/">contact page</a> and include the page URL, the
-    exact sentence or behavior, why it appears wrong, and—if available—a primary
-    source or steps that reproduce the issue. Do not send account numbers,
-    financial statements, passwords, or other sensitive personal information.
-  </p>
-
-  <h2>How reports are reviewed</h2>
-  <ol>
-    <li>Reproduce the product behavior or reopen the cited source.</li>
-    <li>Check the claim’s population, date, definition, units, and surrounding context.</li>
-    <li>Decide whether the issue is material, minor, disputed, or unsupported.</li>
-    <li>Correct the page and any affected calculator, cross-link, or explanation.</li>
-    <li>Add a correction note when the original could have materially misled a reader.</li>
-  </ol>
-
-  <h2>Material versus minor changes</h2>
-  <p>
-    A <strong>material correction</strong> changes a formula, result, data value,
-    source interpretation, safety implication, or central conclusion. The page
-    should receive a dated note explaining what changed. A <strong>minor edit</strong>
-    fixes spelling, grammar, formatting, a non-substantive broken link, or wording
-    without changing meaning; it may be corrected without a formal note.
-  </p>
-
-  <ContentNote title="Updates are not corrections">
-    <p>
-      Replacing an older, accurately described dataset with a newly released wave
-      is an update. Fixing a value that was transcribed incorrectly is a correction.
-      When both happen together, the note should distinguish them.
-    </p>
-  </ContentNote>
-
-  <h2>Calculator and methodology changes</h2>
-  <p>
-    If the model changes intentionally, the <a href="/methodology/">methodology
-    version history</a> records the new version, date, and material differences.
-    If code does not match the published version, that is treated as an error.
-    Results from materially different model versions should not be represented as
-    directly comparable.
-  </p>
-
-  <h2>Correction log</h2>
-  <p>
-    Material correction entries will be listed here with the date, affected page,
-    original problem, and resolution. No entries are currently listed for model
-    version 2.0.0.
-  </p>
-
-  <RelatedReading links={[
-    { href: '/contact/', label: 'Report an issue', description: 'Send the affected URL and enough detail to verify the concern.' },
-    { href: '/editorial-policy/', label: 'Editorial policy', description: 'The publication process intended to prevent avoidable errors.' },
-    { href: '/source-policy/', label: 'Source policy', description: 'The checks applied to claims, tables, and external evidence.' },
-  ]} />
+  <h2>What counts as a material correction</h2><ul><li>A wrong formula, unit, result, label metric, or test assumption</li><li>Unsafe, incomplete, or overconfident maintenance guidance</li><li>An incorrect source interpretation, citation, review date, or recall statement</li><li>A privacy or storage behavior that differs from the disclosure</li><li>A broken route or interaction that prevents the promised task</li></ul>
+  <h2>How to report an issue</h2><p>Use the <a href="/contact/">contact page</a>. Include the URL, what appears wrong, the expected correction, and a primary source when possible. Do not include account passwords, access codes, sensitive financial figures, or unnecessary household details.</p>
+  <h2>Review process</h2><p>We reproduce the issue, inspect the calculation or cited source, classify its impact, and correct the page, shared data, or engine. A shared-data problem is checked across every generated page that uses it.</p>
+  <h2>Disclosure</h2><p>Material changes update the substantive review date and, when they affect an engine or decision model, its version history. Minor spelling and formatting repairs may be made silently.</p>
+  <h2>Intentional model changes</h2><p>A deliberate new assumption is documented in the relevant <a href="/methodology/">methodology</a>. It is not disguised as a factual correction.</p>
 </PageLayout>

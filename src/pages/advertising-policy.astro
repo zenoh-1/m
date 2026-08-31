@@ -1,87 +1,21 @@
 ---
 import PageLayout from '../layouts/PageLayout.astro';
 import ContentNote from '../components/content/ContentNote.astro';
-import RelatedReading from '../components/content/RelatedReading.astro';
 ---
 
 <PageLayout
   title="Advertising Policy | Cooked Finance"
-  description="Cooked Finance does not currently carry ads. Read our standards for any future advertising, labelling, privacy, placement, and editorial independence."
-  path="/advertising-policy"
+  description="Cooked Finance is currently ad-free. These rules govern any future advertising placement, privacy, labeling, and editorial independence."
+  path="/advertising-policy/"
   eyebrow="Commercial transparency"
-  heading="No ads today. Clear rules before any arrive."
-  lead="Cooked Finance has not applied for Google AdSense and does not currently display paid advertising."
-  updated="August 17, 2026"
+  heading="No ads today. Clear boundaries before any arrive."
+  lead="The site currently carries no paid advertising, affiliate placement, sponsored ranking, or AdSense code."
+  updated="August 31, 2026"
 >
-  <ContentNote title="Current status">
-    <p>
-      The site plans to consider an AdSense application only after it has a mature
-      content library and a stable audience of roughly 100–200 visitors per day.
-      That traffic target is our own publishing decision, not a stated AdSense
-      eligibility rule. No application or approval is implied by this page.
-    </p>
-  </ContentNote>
-
-  <h2>Rules for future advertising</h2>
-  <p>If Cooked Finance introduces ads, the following standards will apply:</p>
-  <ul>
-    <li>Ads will be visually distinguishable from navigation, calculator controls, results, and editorial recommendations.</li>
-    <li>Ad units will use clear labels such as “Advertisement” or “Sponsored links,” as applicable.</li>
-    <li>Payment will not change Cooked Score formulas, score ranges, benchmark interpretation, editorial conclusions, or internal rankings.</li>
-    <li>Ads will not be positioned to look like a required next step or a personalized recommendation.</li>
-    <li>Advertising relationships will not buy positive coverage, hidden links, or removal of accurate criticism.</li>
-  </ul>
-
-  <h2>Places we do not plan to monetize with display ads</h2>
-  <ul>
-    <li>The calculator input flow</li>
-    <li>Personalized score results and component explanations</li>
-    <li>The methodology and source-policy pages</li>
-    <li>Privacy, legal, corrections, and advertising-policy pages</li>
-  </ul>
-  <p>
-    If display advertising is introduced, initial placements should be limited to
-    substantive guides and benchmark explainers after readers have received useful
-    content. Any later change to this approach should be reflected here.
-  </p>
-
-  <h2>Financial-input privacy</h2>
-  <p>
-    Income, expenses, cash balances, debt payments, contribution amounts,
-    retirement balances, Cooked Score, component scores, and result labels must
-    not be sent to advertising platforms, used to build advertising audiences,
-    placed in ad-request parameters, or exposed in shareable URLs. Advertising
-    must not be personalized from the financial values entered into the calculator.
-  </p>
-
-  <h2>Consent and third parties</h2>
-  <p>
-    Before activating advertising technology, Cooked Finance will update its
-    privacy disclosures, implement legally required consent controls, and publish
-    the appropriate advertising-system records. Third-party vendors may have their
-    own data practices, which will be linked from the privacy policy when relevant.
-  </p>
-
-  <h2>Sponsored and affiliate content</h2>
-  <p>
-    Cooked Finance does not currently publish sponsored content or affiliate
-    recommendations. If either is introduced, the commercial relationship will be
-    disclosed prominently on the affected page before the first compensated link
-    or claim. Sponsored material will not be presented as independent editorial
-    review. Affiliate compensation will not justify unsupported rankings or claims.
-  </p>
-
-  <h2>Reporting a problem</h2>
-  <p>
-    If a future ad is misleading, unsafe, inappropriately placed, or difficult to
-    distinguish from site content, report the page and approximate time through
-    the <a href="/contact/">contact page</a>. Do not click a suspicious ad merely
-    to collect more information.
-  </p>
-
-  <RelatedReading links={[
-    { href: '/editorial-policy/', label: 'Editorial independence', description: 'How commercial interests are kept out of editorial decisions.' },
-    { href: '/privacy/', label: 'Privacy policy', description: 'Read current information about analytics, storage, and third parties.' },
-    { href: '/corrections-policy/', label: 'Report a material issue', description: 'How factual and product problems are investigated.' },
-  ]} />
+  <ContentNote title="Advertising is a later-stage decision"><p>There is no public minimum-traffic number that guarantees AdSense approval. Cooked Finance will consider advertising only after the home-cost library is substantial, useful, stable, and receiving consistent non-branded traffic.</p></ContentNote>
+  <h2>Future placement rules</h2><ul><li>Ads must be visibly distinguishable from navigation, controls, sources, results, safety notices, and editorial links.</li><li>Ads must never appear to be the next required step or a personalized recommendation.</li><li>Payment cannot change formulas, assumptions, rankings, safety conclusions, or source selection.</li><li>Advertising cannot buy hidden links, favorable coverage, or removal of accurate criticism.</li></ul>
+  <h2>Places display ads should not appear</h2><ul><li>Inside calculator forms or personalized result blocks</li><li>Inside My Home or near add, delete, clear, and export controls</li><li>Inside safety warnings, recall checks, evidence panels, or methodology</li><li>On privacy, legal, corrections, contact, and advertising-policy pages</li><li>On thin or unfinished pages</li></ul>
+  <h2>Privacy boundary</h2><p>Home-plan records, model numbers, notes, service dates, calculator values, quotes, financial inputs, and result bands must not be sent as advertising parameters or used to construct advertising audiences.</p>
+  <h2>Consent and policy compliance</h2><p>Before advertising technology is activated, privacy disclosures and legally required consent controls will be updated. Advertising will remain subordinate to publisher content and will follow the applicable platform and publisher policies.</p>
+  <h2>Sponsored and affiliate content</h2><p>If either is introduced, it will be labeled at the point of use. A commercial link will not be described as an official, safest, or best option without independent evidence that supports that claim.</p>
 </PageLayout>

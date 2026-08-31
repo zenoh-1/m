@@ -37,11 +37,16 @@ const calculators = [
   title="Free Personal Finance Calculators | Cooked Finance"
   description="Use four free, private financial calculators for net worth, debt-to-income ratio, emergency savings, and savings rate. No signup and no stored inputs."
   path="/calculators/"
-  eyebrow="Financial tools"
-  heading="Four numbers that make your money easier to understand."
-  lead="Each calculator answers one specific question with a transparent formula. Your inputs stay in this browser tab and disappear when you leave."
+  eyebrow="Original money tools"
+  heading="The financial calculators are still here."
+  lead="Cooked Finance now focuses on home costs, but the original private assessment and four transparent money calculators remain available as educational tools."
   updated="August 17, 2026"
 >
+  <aside class="archive-check card">
+    <div><span class="tag">Seven-input assessment</span><h2>Original Financial Health Check</h2><p>One private snapshot, four published pillars, and a separate versioned methodology.</p></div>
+    <a class="btn-primary" href="/money-tools/financial-health-check/">Run the Original Check</a>
+  </aside>
+
   <section class="tool-grid" aria-label="Available financial calculators">
     {calculators.map((calculator) => (
       <a class="tool-card" href={calculator.href}>
@@ -82,11 +87,15 @@ const calculators = [
 </PageLayout>
 
 <style>
+  .archive-check { margin-bottom: 1rem; padding: 1.35rem; display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; box-shadow: none; }
+  .archive-check h2 { margin: 0.8rem 0 0; font-family: var(--font-serif); font-size: clamp(1.5rem, 3vw, 2.1rem); font-weight: 500; }
+  .archive-check p { margin: 0.45rem 0 0; color: var(--color-body); }
   .tool-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 1rem;
   }
+  @media (max-width: 620px) { .archive-check { align-items: stretch; flex-direction: column; } }
 
   .tool-card {
     position: relative;

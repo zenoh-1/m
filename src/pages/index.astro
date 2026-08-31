@@ -2,571 +2,241 @@
 import Layout from '../layouts/Layout.astro';
 import SiteHeader from '../components/SiteHeader.astro';
 import SiteFooter from '../components/SiteFooter.astro';
-import Hero from '../components/Hero.astro';
-import AssessmentForm from '../components/AssessmentForm.astro';
-import ResultsDashboard from '../components/ResultsDashboard.astro';
-import SeoContent from '../components/SeoContent.astro';
-import Faq from '../components/Faq.astro';
+import QuickEnergyCost from '../components/home/QuickEnergyCost.astro';
+import SystemSignal from '../components/SystemSignal.astro';
+import AmbientHomeScene from '../components/AmbientHomeScene.astro';
+import { HOME_SYSTEMS } from '../data/homeSystems';
 ---
 
 <Layout path="/" structuredData={true}>
   <SiteHeader />
 
   <main id="main-content">
-    <section class="home-hero" aria-label="Financial health check">
-      <div class="container-page home-hero__grid">
-        <Hero />
-        <AssessmentForm />
+    <section class="cost-hero" aria-labelledby="cost-hero-title">
+      <AmbientHomeScene variant="landing" />
+      <div class="container-page cost-hero__frame">
+        <div class="cost-hero__register" aria-hidden="true"><span>CF / HOME OPS</span><span>MANUAL 001</span></div>
+        <div class="cost-hero__grid">
+        <div class="cost-hero__copy" data-reveal>
+          <span class="eyebrow">Home cost intelligence</span>
+          <h1 id="cost-hero-title">Know what your home costs before it surprises you.</h1>
+          <p class="cost-hero__lead">
+            Calculate appliance running costs, plan maintenance, and compare repair with replacement—using transparent math you can check.
+          </p>
+          <div class="cost-hero__actions">
+            <a class="btn-primary" href="/systems/">Browse Home Systems</a>
+            <a class="btn-secondary" href="/my-home/">Build My Home Plan</a>
+          </div>
+          <ul class="cost-hero__trust" aria-label="Product principles">
+            <li>No account required</li>
+            <li>Your values stay on this device</li>
+            <li>Sources and assumptions shown</li>
+          </ul>
+        </div>
+
+        <div class="cost-hero__instrument" data-reveal>
+          <span class="cost-hero__instrument-label">Live Home Cost Meter</span>
+          <QuickEnergyCost />
+        </div>
+        </div>
       </div>
-      <h2 class="sr-only" id="how-check-works">How the check works</h2>
-      <ol class="container-page home-proof" aria-labelledby="how-check-works">
-        <li><strong>01</strong><span>Seven estimates</span><small>No account connection</small></li>
-        <li><strong>02</strong><span>Four visible pillars</span><small>Every weight published</small></li>
-        <li><strong>03</strong><span>Three next moves</span><small>Ranked by opportunity</small></li>
-      </ol>
     </section>
 
-    <p class="sr-only" data-result-announcement role="status" aria-live="polite" aria-atomic="true"></p>
-    <ResultsDashboard />
-    <SeoContent />
-    <Faq />
+    <section class="section section--paper" id="how-it-works" aria-labelledby="how-it-works-title">
+      <div class="container-page">
+        <div class="section-head" data-reveal>
+          <span class="eyebrow">A more useful kind of finance site</span>
+          <h2 class="section-title" id="how-it-works-title">1 home. 3 decisions that keep repeating.</h2>
+          <p class="section-lead">Cooked Finance is becoming a practical home-cost workspace—not another feed of generic money advice.</p>
+        </div>
+        <ol class="decision-grid">
+          <li data-reveal>
+            <a href="/tools/energy-cost/">
+              <span>01 · Run</span>
+              <strong aria-hidden="true">01</strong>
+              <h3>What does it cost?</h3>
+              <p>Turn label data and utility rates into daily, monthly, and annual operating costs.</p>
+              <b>Open Cost Tools →</b>
+            </a>
+          </li>
+          <li data-reveal>
+            <a href="/my-home/">
+              <span>02 · Care</span>
+              <strong aria-hidden="true">02</strong>
+              <h3>What needs attention?</h3>
+              <p>Build a private maintenance plan around the equipment actually in your home.</p>
+              <b>Plan the Next Task →</b>
+            </a>
+          </li>
+          <li data-reveal>
+            <a href="/tools/repair-or-replace/">
+              <span>03 · Decide</span>
+              <strong aria-hidden="true">03</strong>
+              <h3>Repair or replace?</h3>
+              <p>Compare the quote, replacement price, and operating savings without a fake one-number verdict.</p>
+              <b>Compare Scenarios →</b>
+            </a>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="systems-title">
+      <div class="container-page">
+        <div class="section-head systems-head" data-reveal>
+          <div>
+            <span class="eyebrow">Start with what you own</span>
+            <h2 class="section-title" id="systems-title">8 systems. 1 repeatable method.</h2>
+          </div>
+          <a class="btn-secondary" href="/systems/">See All System Guides</a>
+        </div>
+        <div class="home-systems">
+          {HOME_SYSTEMS.slice(0, 6).map((system, index) => (
+            <a href={`/systems/${system.slug}/`} class:list={['home-system', 'card', { 'home-system--featured': index < 2 }]} data-reveal>
+              <div class="home-system__top">
+                <span>{String(index + 1).padStart(2, '0')} · {system.category}</span>
+                <SystemSignal label={system.shortName} category={system.category} index={index + 1} compact={index >= 2} />
+              </div>
+              <div class="home-system__copy">
+                <h3>{system.shortName}</h3>
+                <p>{system.summary}</p>
+                <span class="manual-tag">{system.energyInput}</span>
+                <b>Cost + Care Guide →</b>
+              </div>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section class="section home-loop" aria-labelledby="home-loop-title">
+      <div class="container-page home-loop__grid">
+        <div data-reveal>
+          <span class="eyebrow">Useful after the first visit</span>
+          <h2 class="section-title" id="home-loop-title">Turn one calculation into a home you can keep track of.</h2>
+          <p>Save an appliance, its model, the last service date, and what comes next. Export a calendar or JSON backup whenever you want.</p>
+          <a class="btn-primary" href="/my-home/">Open My Home</a>
+        </div>
+        <div class="home-loop__board" data-reveal>
+          <div class="home-loop__board-head"><span>Maintenance Board</span><b data-home-preview-status>Example schedule</b></div>
+          <ol aria-label="Example maintenance timeline">
+            <li><span class="home-loop__state home-loop__state--due">Due</span><div><b>Dryer vent check</b><small>Laundry · Safety first</small></div><time>Today</time></li>
+            <li><span class="home-loop__state home-loop__state--soon">Soon</span><div><b>Water heater review</b><small>Water · Manual-led</small></div><time>12 days</time></li>
+            <li><span class="home-loop__state home-loop__state--later">Later</span><div><b>AC filter check</b><small>Cooling · Seasonal</small></div><time>41 days</time></li>
+          </ol>
+          <p>Dates shown are an example. Your plan stays on this device.</p>
+        </div>
+      </div>
+    </section>
   </main>
 
   <SiteFooter />
 </Layout>
 
-<style>
-  .home-hero { padding-block: clamp(2rem, 5vw, 4.75rem) 0; overflow: clip; }
-  .home-hero__grid { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(22rem, 0.72fr); gap: clamp(2rem, 6vw, 5rem); align-items: start; }
-  .home-proof { margin-top: clamp(3rem, 7vw, 5.5rem); display: grid; grid-template-columns: repeat(3, 1fr); border-block: 1px solid var(--color-hairline-strong); }
-  .home-proof { padding-left: max(1.1rem, env(safe-area-inset-left)); list-style: none; }
-  .home-proof li { min-height: 6.5rem; margin: 0; padding: 1.2rem; display: grid; grid-template-columns: auto 1fr; gap: 0.15rem 0.75rem; align-content: center; border-right: 1px solid var(--color-hairline); }
-  .home-proof li:last-child { border-right: 0; }
-  .home-proof strong { grid-row: span 2; color: var(--color-ember-deep); font-family: var(--font-mono); font-size: 0.65rem; }
-  .home-proof span { color: var(--color-ink); font-size: 0.8rem; font-weight: 720; }
-  .home-proof small { color: var(--color-mute); font-size: 0.68rem; }
-  @media (max-width: 920px) {
-    .home-hero__grid { grid-template-columns: 1fr; }
+<script>
+  const previewStatus = document.querySelector<HTMLElement>('[data-home-preview-status]');
+  try {
+    const rawPlan = localStorage.getItem('cooked-finance-home-plan-v1');
+    const parsedPlan = rawPlan ? JSON.parse(rawPlan) : null;
+    const savedItems = Array.isArray(parsedPlan?.items) ? parsedPlan.items : [];
+    if (previewStatus && savedItems.length > 0) {
+      const today = new Date();
+      today.setHours(12, 0, 0, 0);
+      const dueSoon = savedItems.filter((item: { nextDueDate?: string }) => {
+        if (!item.nextDueDate) return false;
+        const date = new Date(`${item.nextDueDate}T12:00:00`);
+        const days = Math.ceil((date.getTime() - today.getTime()) / 86_400_000);
+        return Number.isFinite(days) && days <= 30;
+      }).length;
+      previewStatus.textContent = dueSoon > 0
+        ? `${dueSoon} ${dueSoon === 1 ? 'task' : 'tasks'} due within 30 days`
+        : `${savedItems.length} saved ${savedItems.length === 1 ? 'item' : 'items'}`;
+    }
+  } catch {
+    // The example remains useful when local storage is unavailable.
   }
-  @media (max-width: 620px) {
-    .home-proof { grid-template-columns: 1fr; }
-    .home-proof li { min-height: 5rem; border-right: 0; border-bottom: 1px solid var(--color-hairline); }
-    .home-proof li:last-child { border-bottom: 0; }
+</script>
+
+<style>
+  .cost-hero { position: relative; isolation: isolate; overflow: clip; padding: clamp(1.4rem, 4vw, 3rem) 0 clamp(4rem, 9vw, 7rem); }
+  .cost-hero__frame { position: relative; z-index: 1; }
+  .cost-hero__frame::before { content: ''; position: absolute; inset: 2.5rem 0 0; z-index: -1; border: 1px solid rgba(139, 124, 105, 0.5); background: rgba(255,253,248,0.42); clip-path: polygon(0 0, 96% 0, 100% 7%, 100% 100%, 0 100%); }
+  .cost-hero__register { height: 2.5rem; display: flex; align-items: center; justify-content: space-between; padding-inline: 0.9rem; border-bottom: 1px solid var(--color-hairline-strong); color: var(--color-mute); font-family: var(--font-mono); font-size: 0.6rem; letter-spacing: 0.1em; }
+  .cost-hero__grid { display: grid; grid-template-columns: minmax(0, 0.95fr) minmax(24rem, 0.74fr); align-items: start; gap: clamp(2.5rem, 7vw, 6rem); padding: clamp(2rem, 6vw, 5rem); }
+  .cost-hero__copy { padding-top: clamp(1rem, 5vw, 4rem); }
+  .cost-hero__copy h1 { max-width: 11.5ch; margin: 0.8rem 0 0; font-family: var(--font-serif); font-size: clamp(3.1rem, 6.8vw, 6.2rem); font-weight: 500; letter-spacing: -0.06em; line-height: 0.9; }
+  .cost-hero__lead { max-width: 50ch; margin: 1.4rem 0 0; color: var(--color-body); font-size: clamp(1.05rem, 2vw, 1.25rem); line-height: 1.65; }
+  .cost-hero__actions { margin-top: 1.75rem; display: flex; flex-wrap: wrap; gap: 0.75rem; }
+  .cost-hero__trust { margin: 1.5rem 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0.55rem 1rem; list-style: none; color: var(--color-mute); font-family: var(--font-mono); font-size: 0.7rem; }
+  .cost-hero__trust li::before { content: '✓'; margin-right: 0.35rem; color: var(--color-sage); font-family: var(--font-sans); font-weight: 800; }
+  .cost-hero__instrument { position: relative; padding-top: 1.5rem; }
+  .cost-hero__instrument::before { content: ''; position: absolute; inset: 0.55rem -0.65rem -0.65rem 0.65rem; z-index: -1; background: var(--color-amber); clip-path: polygon(0.7rem 0, 100% 0, 100% calc(100% - 0.7rem), calc(100% - 0.7rem) 100%, 0 100%, 0 0.7rem); }
+  .cost-hero__instrument-label { position: absolute; inset: 0 auto auto 1rem; z-index: 2; padding: 0.45rem 0.8rem; background: var(--color-ink); color: var(--color-paper); font-family: var(--font-mono); font-size: 0.62rem; font-weight: 720; letter-spacing: 0.08em; text-transform: uppercase; }
+  .decision-grid { margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; list-style: none; }
+  .decision-grid li { position: relative; min-width: 0; }
+  .decision-grid li:not(:last-child)::after { content: '→'; position: absolute; top: 50%; right: -1.05rem; z-index: 3; width: 1.1rem; height: 1.1rem; display: grid; place-items: center; border-radius: 50%; background: var(--color-ink); color: var(--color-paper); font-size: 0.65rem; }
+  .decision-grid a { position: relative; min-height: 17rem; display: block; overflow: hidden; padding: clamp(1.25rem, 3vw, 1.8rem); border: 1px solid var(--color-ink); border-radius: var(--radius-sm); background: var(--color-paper); color: var(--color-ink); text-decoration: none; box-shadow: 3px 3px 0 var(--color-hairline-strong); transition: transform 180ms var(--ease-out-expo), box-shadow 180ms ease, background-color 180ms ease; }
+  .decision-grid a:hover, .decision-grid a:focus-visible { transform: translate(-3px, -3px); box-shadow: 7px 7px 0 var(--color-ink); background: #fff; }
+  .decision-grid span { color: var(--color-ember-deep); font-family: var(--font-mono); font-size: 0.7rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
+  .decision-grid strong { position: absolute; top: -0.4rem; right: 0.7rem; color: var(--color-canvas-soft); font-family: var(--font-serif); font-size: 7rem; font-weight: 500; line-height: 1; pointer-events: none; }
+  .decision-grid h3 { position: relative; margin: 3.25rem 0 0; font-family: var(--font-serif); font-size: 1.75rem; font-weight: 500; letter-spacing: -0.03em; }
+  .decision-grid p { margin: 0.7rem 0 0; color: var(--color-body); line-height: 1.65; }
+  .decision-grid b { position: relative; display: inline-block; margin-top: 1.4rem; color: var(--color-link); font-size: 0.76rem; }
+  .systems-head { max-width: none; display: flex; align-items: end; justify-content: space-between; gap: 1.5rem; }
+  .home-systems { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 1rem; }
+  .home-system { grid-column: span 3; min-height: 22rem; padding: 1.25rem; display: flex; flex-direction: column; gap: 1.4rem; color: var(--color-ink); text-decoration: none; transition: transform 180ms var(--ease-out-expo), border-color 180ms ease, box-shadow 180ms ease; }
+  .home-system--featured { grid-column: span 6; min-height: 25rem; flex-direction: row; align-items: center; padding: clamp(1.4rem, 3vw, 2rem); }
+  .home-system:hover, .home-system:focus-visible { transform: translate(-3px, -3px); border-color: var(--color-ink); box-shadow: 7px 7px 0 var(--color-ink); }
+  .home-system__top { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; }
+  .home-system--featured .home-system__top { flex-direction: column; }
+  .home-system__top > span { color: var(--color-ember-deep); font-family: var(--font-mono); font-size: 0.66rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; }
+  .home-system__copy { min-width: 0; display: flex; flex: 1; flex-direction: column; }
+  .home-system h3 { margin: 0; font-family: var(--font-serif); font-size: clamp(1.65rem, 3vw, 2.5rem); font-weight: 500; }
+  .home-system p { display: -webkit-box; margin: 0.6rem 0 1rem; overflow: hidden; color: var(--color-body); font-size: 0.82rem; line-height: 1.55; -webkit-box-orient: vertical; -webkit-line-clamp: 3; }
+  .home-system b { margin-top: auto; padding-top: 1.2rem; color: var(--color-link); font-size: 0.8rem; }
+  .home-loop { border-block: 1px solid var(--color-hairline); background: var(--color-ink); color: var(--color-paper); }
+  .home-loop .eyebrow { color: var(--color-amber); }
+  .home-loop__grid { display: grid; grid-template-columns: minmax(0, 0.82fr) minmax(24rem, 0.78fr); gap: 2rem 6rem; align-items: center; }
+  .home-loop p, .home-loop li { color: rgba(255,253,248,0.72); line-height: 1.65; }
+  .home-loop__grid > div:first-child > p { max-width: 52ch; margin: 1.25rem 0 1.5rem; }
+  .home-loop .btn-primary { background: var(--color-paper); color: var(--color-ink); }
+  .home-loop__board { overflow: hidden; border: 1px solid rgba(255,253,248,0.32); border-radius: var(--radius-sm); background: #24211b; box-shadow: 6px 6px 0 var(--color-ember); }
+  .home-loop__board-head { min-height: 48px; display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 0.7rem 1rem; border-bottom: 1px solid rgba(255,253,248,0.18); font-family: var(--font-mono); font-size: 0.64rem; text-transform: uppercase; }
+  .home-loop__board-head b { color: var(--color-amber); font-weight: 650; }
+  .home-loop__board ol { margin: 0; padding: 0; list-style: none; }
+  .home-loop__board li { min-height: 74px; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 0.9rem; padding: 0.8rem 1rem; border-bottom: 1px solid rgba(255,253,248,0.12); }
+  .home-loop__board li::before { content: none; }
+  .home-loop__board li b, .home-loop__board li small { display: block; }
+  .home-loop__board li b { color: var(--color-paper); font-size: 0.86rem; }
+  .home-loop__board li small, .home-loop__board time { color: rgba(255,253,248,0.56); font-size: 0.68rem; }
+  .home-loop__board time { font-family: var(--font-mono); }
+  .home-loop__state { min-width: 3.1rem; padding: 0.3rem 0.4rem; border: 1px solid currentColor; border-radius: var(--radius-pill); font-family: var(--font-mono); font-size: 0.58rem; text-align: center; text-transform: uppercase; }
+  .home-loop__state--due { color: #f18b6f; }
+  .home-loop__state--soon { color: var(--color-amber); }
+  .home-loop__state--later { color: #8fc4ae; }
+  .home-loop__board > p { margin: 0; padding: 0.8rem 1rem; color: rgba(255,253,248,0.48); font-family: var(--font-mono); font-size: 0.62rem; }
+  @media (max-width: 960px) {
+    .cost-hero__grid { grid-template-columns: 1fr; align-items: start; }
+    .cost-hero__copy h1 { max-width: 13ch; }
+    .decision-grid { grid-template-columns: 1fr; }
+    .decision-grid li { min-height: auto; }
+    .decision-grid h3 { margin-top: 1.8rem; }
+    .home-system, .home-system--featured { grid-column: span 6; min-height: 21rem; flex-direction: column; align-items: stretch; }
+    .home-system--featured .home-system__top { flex-direction: row; }
+    .home-loop__grid { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 700px) {
+    .cost-hero__grid { padding-inline: 1.25rem; }
+    .decision-grid { grid-template-columns: 1fr; }
+    .decision-grid li:not(:last-child)::after { top: auto; right: 50%; bottom: -1.05rem; transform: rotate(90deg); }
+    .decision-grid a { min-height: auto; }
+  }
+  @media (max-width: 520px) {
+    .cost-hero__copy h1 { font-size: clamp(3rem, 15vw, 4.6rem); }
+    .cost-hero__actions { align-items: stretch; flex-direction: column; }
+    .systems-head { align-items: stretch; flex-direction: column; }
+    .home-system, .home-system--featured { grid-column: 1 / -1; min-height: 19rem; }
+    .home-loop__board li { grid-template-columns: auto 1fr; }
+    .home-loop__board time { grid-column: 2; }
   }
 </style>
-
-<script>
-  import {
-    calculateScenario,
-    calculateScore,
-    type AssessmentInput,
-    type ScoreResult,
-  } from '../lib/scoring';
-  import { getRoast } from '../lib/roasts';
-
-  const STORAGE_KEY = 'cooked-finance-saved-check-v2';
-  const LEGACY_STORAGE_KEY = 'cookedfinance:lastResult';
-  const MAX_MONEY = 10_000_000_000;
-  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const dollars = new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    maximumFractionDigits: 0,
-  });
-  const plainNumber = new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 });
-
-  type SavedCheck = {
-    version: 2;
-    savedAt: string;
-    scope?: 'individual' | 'household';
-    input: AssessmentInput;
-    result: { score: number; statusKey: string; statusLabel: string };
-  };
-
-  const $ = <T extends Element = HTMLElement>(selector: string, root: ParentNode = document) =>
-    root.querySelector<T>(selector);
-
-  let currentResult: ScoreResult | null = null;
-  let assessmentStarted = false;
-
-  function track(eventName: 'assessment_started' | 'assessment_completed' | 'result_saved') {
-    const analyticsWindow = window as typeof window & {
-      cookedAnalyticsAllowed?: boolean;
-      gtag?: (...args: unknown[]) => void;
-    };
-    if (analyticsWindow.cookedAnalyticsAllowed === true) {
-      analyticsWindow.gtag?.('event', eventName);
-    }
-  }
-
-  function parseMoney(raw: string): number {
-    const cleaned = raw.trim().replace(/[$,\s]/g, '');
-    if (!/^(?:\d+|\d*\.\d{1,2})$/.test(cleaned)) return Number.NaN;
-    return Number(cleaned);
-  }
-
-  function topSignal(result: ScoreResult): string {
-    const strongest = result.factors.reduce((best, factor) =>
-      factor.score > best.score ? factor : best
-    );
-    return strongest.score > 0 ? strongest.label : 'No pillar leads yet';
-  }
-
-  function setError(id: string, message = '') {
-    const input = document.getElementById(id) as HTMLInputElement | null;
-    const error = document.querySelector<HTMLElement>(`[data-error-for="${id}"]`);
-    if (!input || !error) return;
-    error.textContent = message;
-    if (message) input.setAttribute('aria-invalid', 'true');
-    else input.removeAttribute('aria-invalid');
-  }
-
-  function readInput(): AssessmentInput | null {
-    const ids = [
-      'age',
-      'annual-income',
-      'monthly-expenses',
-      'liquid-savings',
-      'monthly-debt',
-      'retirement-investments',
-      'monthly-savings',
-    ];
-    ids.forEach((id) => setError(id));
-
-    const ageField = $('#age') as HTMLInputElement;
-    const age = Number(ageField.value);
-    let valid = true;
-
-    if (!Number.isInteger(age) || age < 18 || age > 80) {
-      setError('age', 'Enter a whole-number age from 18 to 80.');
-      valid = false;
-    }
-
-    const moneyRules: Array<[keyof Omit<AssessmentInput, 'age'>, string, string, boolean]> = [
-      ['annualIncome', 'annual-income', 'gross annual income', true],
-      ['monthlyEssentialExpenses', 'monthly-expenses', 'essential monthly spending', true],
-      ['liquidSavings', 'liquid-savings', 'liquid savings', false],
-      ['monthlyDebtPayments', 'monthly-debt', 'monthly debt payments', false],
-      ['retirementInvestments', 'retirement-investments', 'retirement and investment savings', false],
-      ['monthlySavings', 'monthly-savings', 'monthly savings', false],
-    ];
-
-    const values: Partial<AssessmentInput> = { age };
-    moneyRules.forEach(([key, id, label, mustBePositive]) => {
-      const field = document.getElementById(id) as HTMLInputElement;
-      const value = parseMoney(field.value);
-      if (!Number.isFinite(value)) {
-        setError(id, mustBePositive ? `Enter ${label}.` : `Enter ${label}; use 0 if none.`);
-        valid = false;
-      } else if (value < 0 || value > MAX_MONEY || (mustBePositive && value <= 0)) {
-        setError(id, mustBePositive ? `Enter a ${label} greater than 0.` : `Enter a ${label} from 0 to ${dollars.format(MAX_MONEY)}.`);
-        valid = false;
-      } else {
-        values[key] = value;
-      }
-    });
-
-    const essentialSpending = values.monthlyEssentialExpenses;
-    const debtPayments = values.monthlyDebtPayments;
-    if (
-      Number.isFinite(essentialSpending) &&
-      Number.isFinite(debtPayments) &&
-      (debtPayments as number) >= (essentialSpending as number)
-    ) {
-      setError(
-        'monthly-debt',
-        'Debt payments must be lower than essential spending, which also includes living costs.',
-      );
-      valid = false;
-    }
-
-    if (!valid) {
-      document.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus();
-      return null;
-    }
-
-    return values as AssessmentInput;
-  }
-
-  function animateScore(element: HTMLElement, target: number) {
-    if (prefersReducedMotion) {
-      element.textContent = String(target);
-      return;
-    }
-    const startedAt = performance.now();
-    const duration = 720;
-    const tick = (now: number) => {
-      const progress = Math.min(1, (now - startedAt) / duration);
-      const eased = 1 - Math.pow(1 - progress, 3);
-      element.textContent = String(Math.round(target * eased));
-      if (progress < 1) requestAnimationFrame(tick);
-    };
-    requestAnimationFrame(tick);
-  }
-
-  function metric(value: number | null, suffix: string, digits = 1): string {
-    return value === null ? 'Not available' : `${value.toFixed(digits)}${suffix}`;
-  }
-
-  function renderList<T extends { title: string; description: string }>(container: HTMLElement, items: T[]) {
-    container.replaceChildren();
-    items.forEach((item) => {
-      const li = document.createElement('li');
-      const title = document.createElement('strong');
-      const description = document.createElement('span');
-      title.textContent = item.title;
-      description.textContent = item.description;
-      li.append(title, description);
-      container.appendChild(li);
-    });
-  }
-
-  function renderFactors(result: ScoreResult) {
-    result.factors.forEach((factor) => {
-      const card = document.querySelector<HTMLElement>(`[data-factor="${factor.key}"]`);
-      if (!card) return;
-      const value = $('[data-factor-value]', card);
-      const bar = $('[data-factor-bar]', card) as HTMLElement | null;
-      const note = $('[data-factor-note]', card);
-      if (value) value.textContent = `${Math.round(factor.score)}/100`;
-      if (bar) bar.style.width = `${factor.score}%`;
-      if (note) note.textContent = factor.explanation;
-    });
-  }
-
-  function renderWarnings(warnings: string[]) {
-    const wrapper = $('[data-warnings]') as HTMLElement | null;
-    const list = $('[data-warnings-list]') as HTMLElement | null;
-    if (!wrapper || !list) return;
-    list.replaceChildren();
-    warnings.forEach((warning) => {
-      const item = document.createElement('li');
-      item.textContent = warning;
-      list.appendChild(item);
-    });
-    wrapper.hidden = warnings.length === 0;
-  }
-
-  function renderResult(result: ScoreResult) {
-    currentResult = result;
-    const results = $('[data-results]') as HTMLElement;
-    results.hidden = false;
-
-    const score = $('[data-score]') as HTMLElement;
-    animateScore(score, result.score);
-    ($('[data-status-label]') as HTMLElement).textContent = `${result.status.emoji} ${result.status.label}`;
-    ($('[data-status-summary]') as HTMLElement).textContent = result.status.summary;
-    ($('[data-method-version]') as HTMLElement).textContent = result.methodologyVersion;
-
-    const heat = $('[data-heat-scale]') as HTMLElement;
-    const marker = $('[data-heat-marker]') as HTMLElement;
-    const markerValue = $('[data-heat-marker-value]') as HTMLElement;
-    heat.setAttribute('aria-label', `Cooked Score ${result.score} out of 100: ${result.status.label}`);
-    marker.style.left = `${Math.min(97, Math.max(3, result.score))}%`;
-    markerValue.textContent = String(result.score);
-
-    ($('[data-metric-buffer]') as HTMLElement).textContent = metric(result.metrics.cashBufferMonths, ' mo');
-    ($('[data-metric-dti]') as HTMLElement).textContent = metric(result.metrics.debtToIncomePercent, '%');
-    ($('[data-metric-savings]') as HTMLElement).textContent = metric(result.metrics.savingsRatePercent, '%');
-    ($('[data-metric-retirement]') as HTMLElement).textContent = metric(result.metrics.retirementSavingsMultiple, '×');
-    ($('[data-metric-retirement-target]') as HTMLElement).textContent = `vs ${result.metrics.retirementTargetMultiple.toFixed(1)}× age guidepost`;
-
-    renderFactors(result);
-    renderList($('[data-strengths]') as HTMLElement, result.strengths);
-    renderList($('[data-next-moves]') as HTMLElement, result.nextMoves);
-    renderWarnings(result.warnings);
-
-    const roast = getRoast(result);
-    ($('[data-roast-text]') as HTMLElement).textContent = roast;
-    ($('[data-share-score]') as HTMLElement).textContent = String(result.score);
-    ($('[data-share-badge]') as HTMLElement).textContent = result.status.label;
-    ($('[data-share-strength]') as HTMLElement).textContent = topSignal(result);
-
-    resetScenario(result);
-    setupSharing(result);
-    updateSaveControls();
-
-    window.setTimeout(() => {
-      ($('[data-result-announcement]') as HTMLElement).textContent = `Your Cooked Score is ${result.score} out of 100, ${result.status.label}.`;
-    }, 0);
-    const heading = document.getElementById('results-title');
-    heading?.scrollIntoView({ behavior: prefersReducedMotion ? 'auto' : 'smooth', block: 'start' });
-    window.setTimeout(() => heading?.focus({ preventScroll: true }), prefersReducedMotion ? 0 : 350);
-  }
-
-  function resetScenario(result: ScoreResult) {
-    const extra = $('#scenario-extra-savings') as HTMLInputElement;
-    const debt = $('#scenario-debt-reduction') as HTMLInputElement;
-    const grossMonthlyIncome = result.input.annualIncome / 12;
-    const plausibleExtraSavings = Math.max(
-      0,
-      Math.floor(grossMonthlyIncome - result.input.monthlyEssentialExpenses - result.input.monthlySavings),
-    );
-    extra.value = '0';
-    extra.max = String(Math.min(10_000, plausibleExtraSavings));
-    extra.setAttribute('aria-valuetext', '$0 extra saved each month');
-    debt.value = '0';
-    debt.max = String(Math.max(0, result.input.monthlyDebtPayments));
-    debt.step = 'any';
-    debt.setAttribute('aria-valuetext', '$0 lower monthly debt payments');
-    ($('[data-scenario-extra]') as HTMLElement).textContent = dollars.format(0);
-    ($('[data-scenario-debt]') as HTMLElement).textContent = dollars.format(0);
-    ($('[data-scenario-score]') as HTMLElement).textContent = String(result.score);
-    ($('[data-scenario-change]') as HTMLElement).textContent = 'Move a slider to test a change.';
-    const warning = $('[data-scenario-warning]') as HTMLElement;
-    warning.textContent = '';
-    warning.hidden = true;
-  }
-
-  function updateScenario() {
-    if (!currentResult) return;
-    const extra = Number(($('#scenario-extra-savings') as HTMLInputElement).value);
-    const extraInput = $('#scenario-extra-savings') as HTMLInputElement;
-    const debtInput = $('#scenario-debt-reduction') as HTMLInputElement;
-    const debtReduction = Math.min(
-      currentResult.input.monthlyDebtPayments,
-      Number(debtInput.value),
-    );
-    const remainingDebtPayments = Math.max(
-      0,
-      currentResult.input.monthlyDebtPayments - debtReduction,
-    );
-    const nonDebtEssentialSpending = Math.max(
-      0.01,
-      currentResult.input.monthlyEssentialExpenses - currentResult.input.monthlyDebtPayments,
-    );
-    const scenario = calculateScenario(currentResult.input, {
-      monthlySavings: currentResult.input.monthlySavings + extra,
-      liquidSavings: currentResult.input.liquidSavings + extra * 12,
-      monthlyEssentialExpenses: nonDebtEssentialSpending + remainingDebtPayments,
-      monthlyDebtPayments: remainingDebtPayments,
-    });
-    const difference = scenario.score - currentResult.score;
-    ($('[data-scenario-extra]') as HTMLElement).textContent = dollars.format(extra);
-    ($('[data-scenario-debt]') as HTMLElement).textContent = dollars.format(debtReduction);
-    extraInput.setAttribute('aria-valuetext', `${dollars.format(extra)} extra saved each month`);
-    debtInput.setAttribute('aria-valuetext', `${dollars.format(debtReduction)} lower monthly debt payments`);
-    ($('[data-scenario-score]') as HTMLElement).textContent = String(scenario.score);
-    ($('[data-scenario-change]') as HTMLElement).textContent = difference > 0
-      ? `Illustrative change: +${difference} points.`
-      : difference < 0
-        ? `Illustrative change: ${difference} points. Review the scenario assumptions.`
-        : 'No whole-point change at these settings.';
-    const warning = $('[data-scenario-warning]') as HTMLElement;
-    warning.textContent = scenario.warnings.join(' ');
-    warning.hidden = scenario.warnings.length === 0;
-  }
-
-  function drawShareCard(result: ScoreResult) {
-    const canvas = $('[data-share-canvas]') as HTMLCanvasElement;
-    const context = canvas.getContext('2d');
-    if (!context) return;
-    const width = canvas.width;
-    const height = canvas.height;
-    const strength = topSignal(result);
-
-    context.fillStyle = '#f5efe4';
-    context.fillRect(0, 0, width, height);
-    context.fillStyle = '#1c1914';
-    context.fillRect(54, 54, width - 108, height - 108);
-    context.fillStyle = '#dda24b';
-    context.fillRect(54, 54, 18, height - 108);
-    context.fillStyle = '#fffcf7';
-    context.font = '700 24px Arial, sans-serif';
-    context.fillText('COOKED FINANCE', 112, 118);
-    context.fillStyle = '#dda24b';
-    context.font = '500 58px Georgia, serif';
-    context.fillText(result.status.label, 112, 218);
-    context.fillStyle = '#fffcf7';
-    context.font = '500 190px Georgia, serif';
-    context.fillText(String(result.score), 105, 430);
-    const scoreWidth = context.measureText(String(result.score)).width;
-    context.fillStyle = 'rgba(255,252,247,0.55)';
-    context.font = '400 30px Arial, sans-serif';
-    context.fillText('/100', 112 + scoreWidth, 430);
-    context.fillStyle = 'rgba(255,252,247,0.55)';
-    context.font = '700 17px Arial, sans-serif';
-    context.fillText('STRONGEST SIGNAL', 690, 315);
-    context.fillStyle = '#fffcf7';
-    context.font = '500 34px Georgia, serif';
-    context.fillText(strength.slice(0, 34), 690, 360);
-    context.fillStyle = 'rgba(255,252,247,0.62)';
-    context.font = '400 20px Arial, sans-serif';
-    context.fillText('What temperature are your finances?', 690, 420);
-    context.fillText('cookedfinance.com', 690, 455);
-
-    const link = document.createElement('a');
-    link.download = `cooked-finance-score-${result.score}.png`;
-    link.href = canvas.toDataURL('image/png');
-    link.click();
-  }
-
-  function showShareToast(message: string) {
-    const toast = $('[data-share-toast]') as HTMLElement;
-    toast.textContent = message;
-    window.setTimeout(() => {
-      if (toast.textContent === message) toast.textContent = '';
-    }, 2600);
-  }
-
-  function setupSharing(result: ScoreResult) {
-    const url = `${window.location.origin}/`;
-    const text = `My Cooked Finance result landed in the ${result.status.label} band. What temperature are your finances?`;
-    const nativeButton = $('[data-share-native]') as HTMLButtonElement;
-    nativeButton.hidden = !('share' in navigator);
-    nativeButton.onclick = async () => {
-      try {
-        await navigator.share({ title: 'Cooked Finance', text, url });
-      } catch {
-        // Closing the operating-system share sheet is not an error.
-      }
-    };
-    ($('[data-copy-link]') as HTMLButtonElement).onclick = async () => {
-      try {
-        await navigator.clipboard.writeText(url);
-        showShareToast('Generic link copied—no result data included.');
-      } catch {
-        showShareToast('Copy failed. Use your browser address bar instead.');
-      }
-    };
-    ($('[data-download-share]') as HTMLButtonElement).onclick = () => drawShareCard(result);
-  }
-
-  function getSavedCheck(): SavedCheck | null {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) return null;
-      const parsed = JSON.parse(raw) as SavedCheck;
-      return parsed.version === 2 && parsed.input ? parsed : null;
-    } catch {
-      return null;
-    }
-  }
-
-  function updateSaveControls() {
-    const saved = getSavedCheck();
-    const clearResult = $('[data-clear-result]') as HTMLButtonElement | null;
-    const prompt = $('[data-saved-prompt]') as HTMLElement | null;
-    if (clearResult) clearResult.hidden = !saved;
-    if (prompt) prompt.hidden = !saved;
-  }
-
-  function saveCurrentResult() {
-    if (!currentResult) return;
-    const saved: SavedCheck = {
-      version: 2,
-      savedAt: new Date().toISOString(),
-      input: currentResult.input,
-      result: {
-        score: currentResult.score,
-        statusKey: currentResult.status.key,
-        statusLabel: currentResult.status.label,
-      },
-    };
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
-      ($('[data-save-status]') as HTMLElement).textContent = 'Saved only in this browser.';
-      track('result_saved');
-      updateSaveControls();
-    } catch {
-      ($('[data-save-status]') as HTMLElement).textContent = 'This browser could not save the check.';
-    }
-  }
-
-  function clearSavedCheck(trigger: HTMLElement, messageTarget?: HTMLElement | null) {
-    if (!window.confirm('Delete the saved check from this browser?')) return;
-    try {
-      localStorage.removeItem(STORAGE_KEY);
-      if (messageTarget) messageTarget.textContent = 'Saved check deleted.';
-      const resultStatus = $('[data-save-status]') as HTMLElement | null;
-      if (resultStatus) resultStatus.textContent = 'Saved check deleted.';
-      const announcement = $('[data-storage-announcement]') as HTMLElement | null;
-      if (announcement) announcement.textContent = 'Saved check deleted from this browser.';
-      const fromResults = trigger.hasAttribute('data-clear-result');
-      updateSaveControls();
-      window.setTimeout(() => {
-        const stableTarget = fromResults
-          ? $('[data-save-result]') as HTMLButtonElement | null
-          : document.getElementById('age') as HTMLInputElement | null;
-        stableTarget?.focus();
-      }, 0);
-    } catch {
-      if (messageTarget) messageTarget.textContent = 'This browser could not delete the saved check.';
-    }
-  }
-
-  function loadSavedInputs() {
-    const saved = getSavedCheck();
-    if (!saved) {
-      updateSaveControls();
-      return;
-    }
-    const fields: Array<[string, number]> = [
-      ['age', saved.input.age],
-      ['annual-income', saved.input.annualIncome],
-      ['monthly-expenses', saved.input.monthlyEssentialExpenses],
-      ['liquid-savings', saved.input.liquidSavings],
-      ['monthly-debt', saved.input.monthlyDebtPayments],
-      ['retirement-investments', saved.input.retirementInvestments],
-      ['monthly-savings', saved.input.monthlySavings],
-    ];
-    fields.forEach(([id, value]) => {
-      const field = document.getElementById(id) as HTMLInputElement | null;
-      if (field) field.value = id === 'age' ? String(value) : plainNumber.format(value);
-    });
-    const status = $('[data-saved-prompt-status]') as HTMLElement | null;
-    if (status) status.textContent = 'Inputs loaded. Review them, then reveal your heat check.';
-    const announcement = $('[data-storage-announcement]') as HTMLElement | null;
-    if (announcement) announcement.textContent = 'Saved inputs loaded. Review them before calculating.';
-    document.getElementById('assessment-form')?.scrollIntoView({ behavior: prefersReducedMotion ? 'auto' : 'smooth', block: 'start' });
-  }
-
-  function init() {
-    // The retired MVP auto-saved a different, incompatible set of financial inputs.
-    // Delete that legacy record rather than retaining invisible data.
-    try { localStorage.removeItem(LEGACY_STORAGE_KEY); } catch {}
-    document.querySelectorAll<HTMLInputElement>('.field-input--money').forEach((input) => {
-      input.addEventListener('blur', () => {
-        const value = parseMoney(input.value);
-        if (Number.isFinite(value)) input.value = plainNumber.format(value);
-      });
-      input.addEventListener('input', () => setError(input.id));
-    });
-    $('#age')?.addEventListener('input', () => setError('age'));
-
-    const form = $('#assessment-form') as HTMLElement | null;
-    form?.addEventListener('focusin', () => {
-      if (assessmentStarted) return;
-      assessmentStarted = true;
-      track('assessment_started');
-    });
-    const runAssessment = () => {
-      const input = readInput();
-      if (!input) return;
-      const result = calculateScore(input);
-      renderResult(result);
-      track('assessment_completed');
-    };
-    form?.addEventListener('keydown', (event) => {
-      if (event.key !== 'Enter' || (event.target as HTMLElement).tagName === 'BUTTON') return;
-      event.preventDefault();
-      runAssessment();
-    });
-    $('[data-run-assessment]')?.addEventListener('click', runAssessment);
-
-    $('#scenario-extra-savings')?.addEventListener('input', updateScenario);
-    $('#scenario-debt-reduction')?.addEventListener('input', updateScenario);
-    $('[data-save-result]')?.addEventListener('click', saveCurrentResult);
-    $('[data-clear-result]')?.addEventListener('click', (event) => clearSavedCheck(event.currentTarget as HTMLElement));
-    $('[data-load-saved]')?.addEventListener('click', loadSavedInputs);
-    $('[data-clear-saved-prompt]')?.addEventListener('click', (event) => clearSavedCheck(event.currentTarget as HTMLElement, $('[data-saved-prompt-status]')));
-    $('[data-retake]')?.addEventListener('click', () => {
-      document.getElementById('check')?.scrollIntoView({ behavior: prefersReducedMotion ? 'auto' : 'smooth', block: 'start' });
-      window.setTimeout(() => (document.getElementById('age') as HTMLInputElement | null)?.focus({ preventScroll: true }), 250);
-    });
-    updateSaveControls();
-  }
-
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
-  else init();
-</script>

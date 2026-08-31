@@ -1,0 +1,236 @@
+---
+interface Props {
+  variant?: 'guide' | 'landing';
+  eager?: boolean;
+}
+
+const { variant = 'guide', eager = false } = Astro.props;
+---
+
+<div
+  class:list={['ambient-home-scene', `ambient-home-scene--${variant}`]}
+  data-ambient-home-scene
+  data-variant={variant}
+  aria-hidden="true"
+>
+  <span class="ambient-home-scene__orbit ambient-home-scene__orbit--one"></span>
+  <span class="ambient-home-scene__orbit ambient-home-scene__orbit--two"></span>
+
+  <img
+    class="ambient-home-scene__art"
+    src="/home-operating-system-cutaway.webp"
+    alt=""
+    width="1586"
+    height="992"
+    loading={eager ? 'eager' : 'lazy'}
+    fetchpriority="low"
+    decoding="async"
+  />
+
+  <svg class="ambient-home-scene__trace" viewBox="0 0 1200 720" preserveAspectRatio="none" focusable="false">
+    <path
+      class="ambient-home-scene__route ambient-home-scene__route--warm"
+      pathLength="1000"
+      d="M-40 505 C145 345 262 602 433 430 S720 250 887 375 S1110 535 1240 280"
+    />
+    <path
+      class="ambient-home-scene__route ambient-home-scene__route--cool"
+      pathLength="1000"
+      d="M-25 548 C170 388 276 640 458 466 S742 290 910 420 S1118 565 1235 330"
+    />
+    <g class="ambient-home-scene__nodes">
+      <circle cx="433" cy="430" r="8"></circle>
+      <circle cx="887" cy="375" r="8"></circle>
+      <circle cx="1112" cy="480" r="8"></circle>
+    </g>
+  </svg>
+</div>
+
+<script>
+  const scenes = [...document.querySelectorAll<HTMLElement>('[data-ambient-home-scene]')];
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (!reducedMotion && scenes.length > 0) {
+    let frameRequested = false;
+
+    const updateScenes = () => {
+      frameRequested = false;
+      const travel = Math.max(window.innerHeight * 1.45, 820);
+      const progress = Math.min(Math.max(window.scrollY / travel, 0), 1);
+
+      scenes.forEach((scene) => {
+        const isLanding = scene.dataset.variant === 'landing';
+        const isMobile = window.innerWidth <= 620;
+        const initialOpacity = isMobile ? (isLanding ? 0.065 : 0.075) : (isLanding ? 0.1 : 0.145);
+        const finalOpacity = isMobile ? 0.035 : (isLanding ? 0.045 : 0.065);
+        scene.style.setProperty('--scene-x', `${(isLanding ? 20 : -28) * progress}px`);
+        scene.style.setProperty('--scene-y', `${-42 * progress}px`);
+        scene.style.setProperty('--scene-rotate', `${(isLanding ? 0.45 : -0.55) * progress}deg`);
+        scene.style.setProperty('--scene-scale', String(1 + 0.025 * progress));
+        scene.style.setProperty('--scene-opacity', String(initialOpacity + (finalOpacity - initialOpacity) * progress));
+        scene.style.setProperty('--scene-orbit', `${96 * progress}deg`);
+      });
+    };
+
+    const requestSceneUpdate = () => {
+      if (frameRequested) return;
+      frameRequested = true;
+      window.requestAnimationFrame(updateScenes);
+    };
+
+    window.addEventListener('scroll', requestSceneUpdate, { passive: true });
+    window.addEventListener('resize', requestSceneUpdate, { passive: true });
+    updateScenes();
+  }
+</script>
+
+<style>
+  .ambient-home-scene {
+    --scene-x: 0px;
+    --scene-y: 0px;
+    --scene-rotate: 0deg;
+    --scene-scale: 1;
+    --scene-opacity: 0.145;
+    --scene-orbit: 0deg;
+    position: absolute;
+    inset: 0 0 auto;
+    z-index: 0;
+    height: clamp(46rem, 80vw, 66rem);
+    overflow: hidden;
+    pointer-events: none;
+    contain: layout paint;
+  }
+
+  .ambient-home-scene__art {
+    position: absolute;
+    z-index: 1;
+    width: min(91rem, 94vw);
+    max-width: none;
+    height: auto;
+    opacity: var(--scene-opacity);
+    mix-blend-mode: multiply;
+    transform: translate3d(var(--scene-x), var(--scene-y), 0) rotate(var(--scene-rotate)) scale(var(--scene-scale));
+    transform-origin: 62% 38%;
+    will-change: transform, opacity;
+  }
+
+  .ambient-home-scene--guide .ambient-home-scene__art {
+    top: clamp(2.2rem, 5vw, 4.8rem);
+    right: clamp(-15rem, -10vw, -6rem);
+  }
+
+  .ambient-home-scene--landing {
+    --scene-opacity: 0.1;
+    height: 100%;
+    min-height: 46rem;
+  }
+
+  .ambient-home-scene--landing .ambient-home-scene__art {
+    top: clamp(1.5rem, 5vw, 4rem);
+    right: clamp(-21rem, -14vw, -10rem);
+    width: min(86rem, 88vw);
+  }
+
+  .ambient-home-scene__trace {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    width: 100%;
+    height: 100%;
+    opacity: 0.34;
+  }
+
+  .ambient-home-scene__route {
+    fill: none;
+    stroke-width: 1.4;
+    stroke-linecap: round;
+    stroke-dasharray: 720 1000;
+    animation: ambient-route-draw 900ms 180ms var(--ease-out-expo) both;
+  }
+
+  .ambient-home-scene__route--warm { stroke: var(--color-amber); }
+  .ambient-home-scene__route--cool { stroke: var(--color-water); animation-delay: 280ms; }
+
+  .ambient-home-scene__nodes circle {
+    fill: var(--color-canvas);
+    stroke: var(--color-ember);
+    stroke-width: 1.2;
+  }
+
+  .ambient-home-scene__orbit {
+    position: absolute;
+    z-index: 3;
+    width: clamp(7rem, 14vw, 12rem);
+    aspect-ratio: 1;
+    border: 1px dashed color-mix(in srgb, var(--color-water) 48%, transparent);
+    border-radius: 50%;
+    opacity: 0.34;
+    transform: rotate(var(--scene-orbit));
+    transform-origin: center;
+  }
+
+  .ambient-home-scene__orbit::before,
+  .ambient-home-scene__orbit::after {
+    content: '';
+    position: absolute;
+    background: var(--color-ember);
+  }
+
+  .ambient-home-scene__orbit::before { inset: -5px 50% auto; width: 1px; height: 10px; }
+  .ambient-home-scene__orbit::after { inset: 50% -5px auto auto; width: 10px; height: 1px; }
+  .ambient-home-scene__orbit--one { top: 18%; right: 12%; }
+  .ambient-home-scene__orbit--two { top: 50%; right: 52%; width: clamp(4rem, 8vw, 7rem); transform: rotate(calc(0deg - var(--scene-orbit))); }
+
+  @keyframes ambient-route-draw {
+    from { stroke-dasharray: 0 1000; }
+    to { stroke-dasharray: 720 1000; }
+  }
+
+  @media (max-width: 900px) {
+    .ambient-home-scene--guide .ambient-home-scene__art {
+      top: 8rem;
+      right: -45vw;
+      width: 132vw;
+    }
+
+    .ambient-home-scene--landing .ambient-home-scene__art {
+      right: -50vw;
+      width: 132vw;
+    }
+
+    .ambient-home-scene__trace { opacity: 0.24; }
+    .ambient-home-scene__orbit--two { display: none; }
+  }
+
+  @media (max-width: 620px) {
+    .ambient-home-scene {
+      --scene-opacity: 0.075;
+      height: 46rem;
+    }
+
+    .ambient-home-scene--guide .ambient-home-scene__art {
+      top: 11rem;
+      right: -74vw;
+      width: 176vw;
+    }
+
+    .ambient-home-scene--landing .ambient-home-scene__art {
+      top: 8rem;
+      right: -70vw;
+      width: 168vw;
+    }
+
+    .ambient-home-scene__trace { opacity: 0.17; }
+    .ambient-home-scene__orbit--one { top: 23%; right: 6%; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ambient-home-scene__art {
+      transform: none;
+      will-change: auto;
+    }
+
+    .ambient-home-scene__orbit { transform: none; }
+    .ambient-home-scene__route { animation: none; }
+  }
+</style>

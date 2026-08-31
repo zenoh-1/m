@@ -1,0 +1,1239 @@
+---
+/**
+ * MyHomeManager
+ *
+ * A local-only home maintenance planner. The component does not create an
+ * account, call an API, or place household details in the URL.
+ */
+import { HOME_SYSTEMS } from '../../data/homeSystems';
+
+const prefillCatalog = HOME_SYSTEMS.map((system) => ({
+  slug: system.slug,
+  name: system.shortName,
+  category: system.category === 'Cooling'
+    ? 'Heating & Cooling'
+    : system.category === 'Water'
+      ? 'Plumbing & Water'
+      : 'Appliances',
+  tasks: system.careTasks,
+}));
+---
+
+<section id="home-plan" class="home-manager" aria-labelledby="home-manager-title">
+  <header class="home-manager__header">
+    <div>
+      <span class="eyebrow">My Home Plan</span>
+      <h2 id="home-manager-title">Keep the Next Home Task From Becoming a Surprise</h2>
+      <p>
+        Save maintenance dates for appliances and home systems in this browser.
+        No account, sync, or network request is used.
+      </p>
+    </div>
+    <span class="home-manager__privacy">Stored on this device only</span>
+  </header>
+
+  <noscript>
+    <style>
+      .home-manager__interactive { display: none !important; }
+    </style>
+    <div class="home-manager__noscript card">
+      <h3>Use This as a Simple Maintenance Checklist</h3>
+      <p>
+        Browser JavaScript is needed to save and export the plan on this device.
+        You can still make a checklist elsewhere with an item name, system,
+        last-service date, next-due date, model number, and a short note.
+      </p>
+    </div>
+  </noscript>
+
+  <div class="home-manager__interactive">
+    <form class="home-manager__form card" data-home-manager-form novalidate aria-describedby="home-manager-form-help home-manager-status">
+      <div class="home-manager__form-heading">
+        <div>
+          <h3>Add a Home Item</h3>
+          <p id="home-manager-form-help">Required fields are marked. Dates may be in the past when a task is overdue.</p>
+        </div>
+        <span aria-hidden="true">01</span>
+      </div>
+
+      <div class="home-manager__fields">
+        <div class="home-field home-field--wide">
+          <label for="home-item-name">Item Name <span aria-hidden="true">*</span></label>
+          <input
+            class="field-input"
+            id="home-item-name"
+            name="itemName"
+            type="text"
+            maxlength="100"
+            autocomplete="off"
+            placeholder="Example: Water heater…"
+            required
+            aria-describedby="home-item-name-help home-item-name-error"
+          />
+          <p id="home-item-name-help" class="home-field__help">Use a name you will recognize later, such as “Upstairs air conditioner.”</p>
+          <p id="home-item-name-error" class="home-field__error" data-error-for="home-item-name" aria-live="polite"></p>
+        </div>
+
+        <div class="home-field">
+          <label for="home-system-category">System Category <span aria-hidden="true">*</span></label>
+          <select
+            class="field-input"
+            id="home-system-category"
+            name="systemCategory"
+            autocomplete="off"
+            required
+            aria-describedby="home-system-category-help home-system-category-error"
+          >
+            <option value="">Choose a system…</option>
+            <option value="Heating & Cooling">Heating &amp; Cooling</option>
+            <option value="Plumbing & Water">Plumbing &amp; Water</option>
+            <option value="Electrical">Electrical</option>
+            <option value="Appliances">Appliances</option>
+            <option value="Roof & Exterior">Roof &amp; Exterior</option>
+            <option value="Safety">Safety</option>
+            <option value="Other">Other</option>
+          </select>
+          <p id="home-system-category-help" class="home-field__help">The category makes a growing plan easier to scan.</p>
+          <p id="home-system-category-error" class="home-field__error" data-error-for="home-system-category" aria-live="polite"></p>
+        </div>
+
+        <div class="home-field">
+          <label for="home-item-model">Model <span class="home-field__optional">Optional</span></label>
+          <input
+            class="field-input"
+            id="home-item-model"
+            name="model"
+            type="text"
+            maxlength="80"
+            autocomplete="off"
+            spellcheck="false"
+            translate="no"
+            placeholder="Example: XE-204…"
+            aria-describedby="home-item-model-help"
+          />
+          <p id="home-item-model-help" class="home-field__help">A model number can help when ordering a part or finding a manual.</p>
+        </div>
+
+        <div class="home-field">
+          <label for="home-last-service">Last-Service Date <span class="home-field__optional">Optional</span></label>
+          <input
+            class="field-input"
+            id="home-last-service"
+            name="lastServiceDate"
+            type="date"
+            autocomplete="off"
+            aria-describedby="home-last-service-help home-last-service-error"
+          />
+          <p id="home-last-service-help" class="home-field__help">Leave this blank if the date is unknown.</p>
+          <p id="home-last-service-error" class="home-field__error" data-error-for="home-last-service" aria-live="polite"></p>
+        </div>
+
+        <div class="home-field">
+          <label for="home-next-due">Next-Due Date <span aria-hidden="true">*</span></label>
+          <input
+            class="field-input"
+            id="home-next-due"
+            name="nextDueDate"
+            type="date"
+            autocomplete="off"
+            required
+            aria-describedby="home-next-due-help home-next-due-error"
+          />
+          <p id="home-next-due-help" class="home-field__help">Past dates are accepted and shown as overdue.</p>
+          <p id="home-next-due-error" class="home-field__error" data-error-for="home-next-due" aria-live="polite"></p>
+        </div>
+
+        <div class="home-field home-field--wide">
+          <label for="home-item-note">Note <span class="home-field__optional">Optional</span></label>
+          <textarea
+            class="field-input home-field__textarea"
+            id="home-item-note"
+            name="note"
+            rows="4"
+            maxlength="600"
+            autocomplete="off"
+            placeholder="Example: Replace sediment filter at the same time…"
+            aria-describedby="home-item-note-help"
+          ></textarea>
+          <p id="home-item-note-help" class="home-field__help">Keep private details, access codes, and passwords out of notes.</p>
+        </div>
+      </div>
+
+      <div class="home-manager__form-actions">
+        <button type="submit" class="btn-primary">Save Home Item</button>
+        <button type="reset" class="btn-secondary" data-reset-form>Reset Fields</button>
+      </div>
+      <p id="home-manager-status" class="home-manager__status" data-home-manager-status role="status" aria-live="polite" aria-atomic="true"></p>
+    </form>
+
+    <section class="home-plan" aria-labelledby="saved-home-plan-title">
+      <div class="home-plan__heading">
+        <div>
+          <span class="eyebrow">Saved Locally</span>
+          <h3 id="saved-home-plan-title">Your Upcoming Home Items</h3>
+          <p data-home-plan-count aria-live="polite">No saved items</p>
+        </div>
+        <div class="home-plan__actions" data-plan-actions hidden>
+          <button type="button" class="btn-secondary" data-export-json>Export JSON</button>
+          <button type="button" class="btn-secondary" data-export-ics>Export Calendar</button>
+          <button type="button" class="btn-quiet" data-clear-all>Clear All</button>
+        </div>
+      </div>
+
+      <div class="home-plan__filters" data-plan-filters hidden aria-label="Filter saved items">
+        <button type="button" data-plan-filter="all" aria-pressed="true">All <span data-filter-count="all">0</span></button>
+        <button type="button" data-plan-filter="overdue" aria-pressed="false">Overdue <span data-filter-count="overdue">0</span></button>
+        <button type="button" data-plan-filter="soon" aria-pressed="false">Next 30 Days <span data-filter-count="soon">0</span></button>
+        <button type="button" data-plan-filter="future" aria-pressed="false">Later <span data-filter-count="future">0</span></button>
+      </div>
+
+      <div class="home-plan__storage-warning" data-storage-warning role="status" aria-live="polite" hidden></div>
+
+      <div class="home-plan__empty card" data-empty-state>
+        <h4>No Home Items Saved Yet</h4>
+        <p>
+          Start with one task that is costly or easy to forget: an HVAC filter,
+          smoke-alarm test, water-heater service, roof inspection, or appliance maintenance.
+        </p>
+      </div>
+
+      <div class="home-plan__filter-empty card" data-filter-empty hidden>
+        <h4>Nothing in This View</h4>
+        <p>Choose another timing filter to see the rest of your saved plan.</p>
+      </div>
+
+      <ul class="home-plan__list" data-home-plan-list aria-label="Saved home maintenance items"></ul>
+
+      <p class="home-plan__export-note">
+        JSON creates a portable backup. Calendar export creates one all-day event for each next-due date.
+        Importing either file elsewhere is always your choice.
+      </p>
+    </section>
+  </div>
+</section>
+
+<script type="application/json" data-home-prefill-catalog set:html={JSON.stringify(prefillCatalog)}></script>
+
+<script>
+  type HomeItem = {
+    id: string;
+    itemName: string;
+    systemCategory: string;
+    model: string;
+    lastServiceDate: string;
+    nextDueDate: string;
+    note: string;
+    createdAt: string;
+  };
+
+  type StoredPlan = {
+    version: 1;
+    items: HomeItem[];
+  };
+
+  const STORAGE_KEY = 'cooked-finance-home-plan-v1';
+  const ALLOWED_CATEGORIES = new Set([
+    'Heating & Cooling',
+    'Plumbing & Water',
+    'Electrical',
+    'Appliances',
+    'Roof & Exterior',
+    'Safety',
+    'Other',
+  ]);
+
+  const manager = document.querySelector<HTMLElement>('.home-manager');
+  const form = manager?.querySelector<HTMLFormElement>('[data-home-manager-form]');
+  const list = manager?.querySelector<HTMLUListElement>('[data-home-plan-list]');
+  const emptyState = manager?.querySelector<HTMLElement>('[data-empty-state]');
+  const planActions = manager?.querySelector<HTMLElement>('[data-plan-actions]');
+  const count = manager?.querySelector<HTMLElement>('[data-home-plan-count]');
+  const status = manager?.querySelector<HTMLElement>('[data-home-manager-status]');
+  const storageWarning = manager?.querySelector<HTMLElement>('[data-storage-warning]');
+  const planFilters = manager?.querySelector<HTMLElement>('[data-plan-filters]');
+  const filterEmpty = manager?.querySelector<HTMLElement>('[data-filter-empty]');
+  const filterButtons = [...(planFilters?.querySelectorAll<HTMLButtonElement>('[data-plan-filter]') ?? [])];
+  const prefillCatalogElement = document.querySelector<HTMLScriptElement>('[data-home-prefill-catalog]');
+
+  const dateFormatter = new Intl.DateTimeFormat(undefined, {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  });
+
+  let items: HomeItem[] = [];
+  let storageWorks = true;
+  let suppressResetAnnouncement = false;
+  let activePlanFilter: 'all' | 'overdue' | 'soon' | 'future' = 'all';
+
+  function getField<T extends HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>(id: string): T | null {
+    return manager?.querySelector<T>(`#${id}`) ?? null;
+  }
+
+  function applyGuidePrefill() {
+    const params = new URLSearchParams(window.location.search);
+    const systemSlug = params.get('system');
+    const taskIndex = Number(params.get('task'));
+    if (!systemSlug || !Number.isInteger(taskIndex) || taskIndex < 0 || !prefillCatalogElement) return;
+
+    try {
+      const catalog = JSON.parse(prefillCatalogElement.textContent ?? '[]') as Array<{
+        slug: string;
+        name: string;
+        category: string;
+        tasks: Array<{ title: string; cadence: string; detail: string }>;
+      }>;
+      const system = catalog.find((candidate) => candidate.slug === systemSlug);
+      const task = system?.tasks[taskIndex];
+      if (!system || !task) return;
+
+      const name = getField<HTMLInputElement>('home-item-name');
+      const category = getField<HTMLSelectElement>('home-system-category');
+      const note = getField<HTMLTextAreaElement>('home-item-note');
+      const nextDue = getField<HTMLInputElement>('home-next-due');
+      if (name && !name.value) name.value = system.name;
+      if (category && !category.value) category.value = system.category;
+      if (note && !note.value) note.value = `${task.title}\nCadence: ${task.cadence}\n${task.detail}`;
+      setStatus(`“${task.title}” is ready to plan. Choose the next-due date.`);
+      nextDue?.focus();
+    } catch {
+      // The planner remains usable if the optional guide handoff cannot be read.
+    }
+  }
+
+  function parseLocalDate(value: string): Date | null {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return null;
+    const [year, month, day] = value.split('-').map(Number);
+    const date = new Date(year, month - 1, day, 12);
+    if (date.getFullYear() !== year || date.getMonth() !== month - 1 || date.getDate() !== day) return null;
+    return date;
+  }
+
+  function todayAtNoon(): Date {
+    const now = new Date();
+    return new Date(now.getFullYear(), now.getMonth(), now.getDate(), 12);
+  }
+
+  function setStatus(message: string) {
+    if (!status) return;
+    status.textContent = '';
+    window.requestAnimationFrame(() => {
+      status.textContent = message;
+    });
+  }
+
+  function setStorageWarning(message = '') {
+    if (!storageWarning) return;
+    storageWarning.textContent = message;
+    storageWarning.hidden = !message;
+  }
+
+  function setFieldError(field: HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement, message = '') {
+    const error = manager?.querySelector<HTMLElement>(`[data-error-for="${field.id}"]`);
+    if (message) field.setAttribute('aria-invalid', 'true');
+    else field.removeAttribute('aria-invalid');
+    if (error) error.textContent = message;
+  }
+
+  function clearErrors() {
+    form?.querySelectorAll<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>('[aria-invalid="true"]')
+      .forEach((field) => setFieldError(field));
+  }
+
+  function isHomeItem(value: unknown): value is HomeItem {
+    if (!value || typeof value !== 'object') return false;
+    const item = value as Partial<HomeItem>;
+    return (
+      typeof item.id === 'string' &&
+      typeof item.itemName === 'string' &&
+      item.itemName.trim().length > 0 &&
+      typeof item.systemCategory === 'string' &&
+      ALLOWED_CATEGORIES.has(item.systemCategory) &&
+      typeof item.model === 'string' &&
+      typeof item.lastServiceDate === 'string' &&
+      typeof item.nextDueDate === 'string' &&
+      parseLocalDate(item.nextDueDate) !== null &&
+      typeof item.note === 'string' &&
+      typeof item.createdAt === 'string'
+    );
+  }
+
+  function sortItems(values: HomeItem[]): HomeItem[] {
+    return [...values].sort((a, b) => {
+      const byDueDate = a.nextDueDate.localeCompare(b.nextDueDate);
+      if (byDueDate !== 0) return byDueDate;
+      const byName = a.itemName.localeCompare(b.itemName, undefined, { sensitivity: 'base' });
+      return byName !== 0 ? byName : a.createdAt.localeCompare(b.createdAt);
+    });
+  }
+
+  function loadItems(): HomeItem[] {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return [];
+      const parsed = JSON.parse(raw) as Partial<StoredPlan>;
+      if (parsed.version !== 1 || !Array.isArray(parsed.items)) throw new Error('Unsupported home-plan data.');
+      const validItems = parsed.items.filter(isHomeItem);
+      if (validItems.length !== parsed.items.length) {
+        setStorageWarning('Some unreadable saved entries were skipped. Export or rebuild the remaining plan before clearing browser data.');
+      }
+      return sortItems(validItems);
+    } catch {
+      storageWorks = false;
+      setStorageWarning('This browser could not read the saved home plan. New changes will last only for this tab unless storage becomes available.');
+      return [];
+    }
+  }
+
+  function saveItems(): boolean {
+    try {
+      const payload: StoredPlan = { version: 1, items: sortItems(items) };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+      storageWorks = true;
+      setStorageWarning();
+      return true;
+    } catch {
+      storageWorks = false;
+      setStorageWarning('Browser storage is unavailable. The visible plan will last only until this tab is closed. Export a copy if you want to keep it.');
+      return false;
+    }
+  }
+
+  function createId(): string {
+    if ('randomUUID' in crypto) return crypto.randomUUID();
+    return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+  }
+
+  function dueDescription(dateValue: string): { label: string; tone: 'overdue' | 'soon' | 'future' } {
+    const dueDate = parseLocalDate(dateValue);
+    if (!dueDate) return { label: 'Date unavailable', tone: 'future' };
+    const days = Math.round((dueDate.getTime() - todayAtNoon().getTime()) / 86_400_000);
+    if (days < 0) return { label: `${Math.abs(days)} ${Math.abs(days) === 1 ? 'day' : 'days'} overdue`, tone: 'overdue' };
+    if (days === 0) return { label: 'Due today', tone: 'soon' };
+    if (days <= 30) return { label: `Due in ${days} ${days === 1 ? 'day' : 'days'}`, tone: 'soon' };
+    return { label: dateFormatter.format(dueDate), tone: 'future' };
+  }
+
+  function addDetail(term: string, value: string, datetime?: string): HTMLDivElement {
+    const wrapper = document.createElement('div');
+    const dt = document.createElement('dt');
+    const dd = document.createElement('dd');
+    dt.textContent = term;
+    if (datetime) {
+      const time = document.createElement('time');
+      time.dateTime = datetime;
+      time.textContent = value;
+      dd.appendChild(time);
+    } else {
+      dd.textContent = value;
+    }
+    wrapper.append(dt, dd);
+    return wrapper;
+  }
+
+  function renderItem(item: HomeItem): HTMLLIElement {
+    const row = document.createElement('li');
+    const article = document.createElement('article');
+    const header = document.createElement('header');
+    const headingGroup = document.createElement('div');
+    const category = document.createElement('span');
+    const title = document.createElement('h4');
+    const due = document.createElement('span');
+    const details = document.createElement('dl');
+    const deleteButton = document.createElement('button');
+    const titleId = `home-plan-item-${item.id}`;
+    const dueInfo = dueDescription(item.nextDueDate);
+    const nextDue = parseLocalDate(item.nextDueDate);
+
+    row.className = 'home-plan__item';
+    article.className = 'home-plan-card card';
+    article.setAttribute('aria-labelledby', titleId);
+    header.className = 'home-plan-card__header';
+    category.className = 'home-plan-card__category';
+    category.textContent = item.systemCategory;
+    title.id = titleId;
+    title.textContent = item.itemName;
+    due.className = `home-plan-card__due home-plan-card__due--${dueInfo.tone}`;
+    due.textContent = dueInfo.label;
+    headingGroup.append(category, title);
+    header.append(headingGroup, due);
+
+    details.className = 'home-plan-card__details';
+    details.append(addDetail('Next due', nextDue ? dateFormatter.format(nextDue) : item.nextDueDate, item.nextDueDate));
+    if (item.lastServiceDate) {
+      const lastService = parseLocalDate(item.lastServiceDate);
+      details.append(addDetail('Last serviced', lastService ? dateFormatter.format(lastService) : item.lastServiceDate, item.lastServiceDate));
+    }
+    if (item.model) details.append(addDetail('Model', item.model));
+    if (item.note) details.append(addDetail('Note', item.note));
+
+    deleteButton.type = 'button';
+    deleteButton.className = 'btn-quiet home-plan-card__delete';
+    deleteButton.textContent = 'Delete Item';
+    deleteButton.setAttribute('aria-label', `Delete ${item.itemName}`);
+    deleteButton.dataset.deleteHomeItem = item.id;
+
+    article.append(header, details, deleteButton);
+    row.appendChild(article);
+    return row;
+  }
+
+  function render() {
+    if (!list || !emptyState || !planActions || !count) return;
+    items = sortItems(items);
+    const hasItems = items.length > 0;
+    const filteredItems = activePlanFilter === 'all'
+      ? items
+      : items.filter((item) => dueDescription(item.nextDueDate).tone === activePlanFilter);
+    list.replaceChildren(...filteredItems.map(renderItem));
+    emptyState.hidden = hasItems;
+    if (filterEmpty) filterEmpty.hidden = !hasItems || filteredItems.length > 0;
+    planActions.hidden = !hasItems;
+    if (planFilters) planFilters.hidden = !hasItems;
+    (['all', 'overdue', 'soon', 'future'] as const).forEach((filter) => {
+      const filterCount = filter === 'all' ? items.length : items.filter((item) => dueDescription(item.nextDueDate).tone === filter).length;
+      const badge = planFilters?.querySelector<HTMLElement>(`[data-filter-count="${filter}"]`);
+      if (badge) badge.textContent = String(filterCount);
+    });
+    count.textContent = hasItems
+      ? `${filteredItems.length} of ${items.length} saved ${items.length === 1 ? 'item' : 'items'} shown`
+      : 'No saved items';
+  }
+
+  filterButtons.forEach((button) => button.addEventListener('click', () => {
+    const requested = button.dataset.planFilter;
+    if (requested !== 'all' && requested !== 'overdue' && requested !== 'soon' && requested !== 'future') return;
+    activePlanFilter = requested;
+    filterButtons.forEach((candidate) => candidate.setAttribute('aria-pressed', String(candidate === button)));
+    render();
+  }));
+
+  function readForm(): HomeItem | null {
+    const itemName = getField<HTMLInputElement>('home-item-name');
+    const category = getField<HTMLSelectElement>('home-system-category');
+    const model = getField<HTMLInputElement>('home-item-model');
+    const lastService = getField<HTMLInputElement>('home-last-service');
+    const nextDue = getField<HTMLInputElement>('home-next-due');
+    const note = getField<HTMLTextAreaElement>('home-item-note');
+    if (!itemName || !category || !model || !lastService || !nextDue || !note) return null;
+
+    clearErrors();
+    let firstInvalid: HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement | null = null;
+    const flag = (field: HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement, message: string) => {
+      setFieldError(field, message);
+      firstInvalid ??= field;
+    };
+
+    const cleanName = itemName.value.trim();
+    const cleanModel = model.value.trim();
+    const cleanNote = note.value.trim();
+    const lastServiceDate = lastService.value;
+    const nextDueDate = nextDue.value;
+
+    if (!cleanName) flag(itemName, 'Enter the home item you want to track.');
+    else if (cleanName.length > 100) flag(itemName, 'Use 100 characters or fewer for the item name.');
+    if (!ALLOWED_CATEGORIES.has(category.value)) flag(category, 'Choose a system category.');
+
+    const lastDate = lastServiceDate ? parseLocalDate(lastServiceDate) : null;
+    const dueDate = nextDueDate ? parseLocalDate(nextDueDate) : null;
+    if (lastServiceDate && !lastDate) flag(lastService, 'Enter a valid last-service date.');
+    else if (lastDate && lastDate > todayAtNoon()) flag(lastService, 'Last-service date cannot be in the future.');
+    if (!nextDueDate || !dueDate) flag(nextDue, 'Enter a valid next-due date.');
+    else if (lastDate && dueDate < lastDate) flag(nextDue, 'Next-due date must be on or after the last-service date.');
+
+    if (firstInvalid) {
+      setStatus('Check the highlighted fields and try again.');
+      firstInvalid.focus();
+      return null;
+    }
+
+    return {
+      id: createId(),
+      itemName: cleanName,
+      systemCategory: category.value,
+      model: cleanModel,
+      lastServiceDate,
+      nextDueDate,
+      note: cleanNote,
+      createdAt: new Date().toISOString(),
+    };
+  }
+
+  function downloadFile(filename: string, type: string, contents: string) {
+    const blob = new Blob([contents], { type });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.setTimeout(() => URL.revokeObjectURL(url), 0);
+  }
+
+  function exportDateStamp(): string {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
+  function exportJson() {
+    const payload = {
+      schema: 'cooked-finance-home-plan',
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      items: sortItems(items),
+    };
+    downloadFile(
+      `my-home-plan-${exportDateStamp()}.json`,
+      'application/json;charset=utf-8',
+      `${JSON.stringify(payload, null, 2)}\n`,
+    );
+    setStatus(`Exported ${items.length} ${items.length === 1 ? 'item' : 'items'} as JSON.`);
+  }
+
+  function escapeIcs(value: string): string {
+    return value
+      .replace(/\\/g, '\\\\')
+      .replace(/\r?\n/g, '\\n')
+      .replace(/,/g, '\\,')
+      .replace(/;/g, '\\;');
+  }
+
+  function icsDate(value: string): string {
+    return value.replaceAll('-', '');
+  }
+
+  function icsTimestamp(): string {
+    return new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d{3}Z$/, 'Z');
+  }
+
+  function foldIcsLine(line: string): string {
+    const encoder = new TextEncoder();
+    const parts: string[] = [];
+    let current = '';
+    for (const character of line) {
+      const candidate = `${current}${character}`;
+      const byteLimit = parts.length === 0 ? 75 : 74;
+      if (current && encoder.encode(candidate).length > byteLimit) {
+        parts.push(current);
+        current = character;
+      } else {
+        current = candidate;
+      }
+    }
+    parts.push(current);
+    return parts.join('\r\n ');
+  }
+
+  function nextCalendarDay(value: string): string {
+    const date = parseLocalDate(value);
+    if (!date) return value;
+    date.setDate(date.getDate() + 1);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
+  function exportIcs() {
+    const stamp = icsTimestamp();
+    const events = sortItems(items).flatMap((item) => {
+      const description = [
+        `System: ${item.systemCategory}`,
+        item.model ? `Model: ${item.model}` : '',
+        item.lastServiceDate ? `Last serviced: ${item.lastServiceDate}` : '',
+        item.note ? `Note: ${item.note}` : '',
+      ].filter(Boolean).join('\n');
+      return [
+        'BEGIN:VEVENT',
+        `UID:${escapeIcs(item.id)}@cooked-finance-home-plan`,
+        `DTSTAMP:${stamp}`,
+        `DTSTART;VALUE=DATE:${icsDate(item.nextDueDate)}`,
+        `DTEND;VALUE=DATE:${icsDate(nextCalendarDay(item.nextDueDate))}`,
+        `SUMMARY:${escapeIcs(`Home maintenance: ${item.itemName}`)}`,
+        `DESCRIPTION:${escapeIcs(description)}`,
+        `CATEGORIES:${escapeIcs(item.systemCategory)}`,
+        'END:VEVENT',
+      ];
+    });
+    const calendar = [
+      'BEGIN:VCALENDAR',
+      'VERSION:2.0',
+      'CALSCALE:GREGORIAN',
+      'METHOD:PUBLISH',
+      'PRODID:-//Cooked Finance//My Home Plan//EN',
+      ...events,
+      'END:VCALENDAR',
+      '',
+    ].map(foldIcsLine).join('\r\n');
+    downloadFile(`my-home-plan-${exportDateStamp()}.ics`, 'text/calendar;charset=utf-8', calendar);
+    setStatus(`Exported ${items.length} ${items.length === 1 ? 'date' : 'dates'} to a calendar file.`);
+  }
+
+  form?.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const item = readForm();
+    if (!item) return;
+    items.push(item);
+    const persisted = saveItems();
+    render();
+    suppressResetAnnouncement = true;
+    form.reset();
+    suppressResetAnnouncement = false;
+    clearErrors();
+    setStatus(
+      persisted
+        ? `${item.itemName} saved on this device.`
+        : `${item.itemName} added for this tab. Export the plan to keep a copy.`,
+    );
+    getField<HTMLInputElement>('home-item-name')?.focus();
+  });
+
+  form?.addEventListener('input', (event) => {
+    const field = event.target;
+    if (field instanceof HTMLInputElement || field instanceof HTMLSelectElement || field instanceof HTMLTextAreaElement) {
+      setFieldError(field);
+    }
+  });
+
+  form?.addEventListener('reset', () => {
+    const shouldAnnounce = !suppressResetAnnouncement;
+    window.setTimeout(() => {
+      clearErrors();
+      if (shouldAnnounce) setStatus('Fields reset.');
+    }, 0);
+  });
+
+  list?.addEventListener('click', (event) => {
+    const target = event.target;
+    if (!(target instanceof HTMLButtonElement) || !target.dataset.deleteHomeItem) return;
+    const item = items.find((candidate) => candidate.id === target.dataset.deleteHomeItem);
+    if (!item || !window.confirm(`Delete “${item.itemName}” from this device?`)) return;
+    items = items.filter((candidate) => candidate.id !== item.id);
+    const persisted = saveItems();
+    render();
+    setStatus(
+      persisted
+        ? `${item.itemName} deleted from this device.`
+        : `${item.itemName} removed for this tab. Browser storage remains unavailable.`,
+    );
+    getField<HTMLInputElement>('home-item-name')?.focus();
+  });
+
+  manager?.querySelector('[data-clear-all]')?.addEventListener('click', () => {
+    if (items.length === 0) return;
+    if (!window.confirm(`Delete all ${items.length} saved home ${items.length === 1 ? 'item' : 'items'} from this device?`)) return;
+    items = [];
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+      storageWorks = true;
+      setStorageWarning();
+      setStatus('All saved home items deleted from this device.');
+    } catch {
+      storageWorks = false;
+      setStorageWarning('Browser storage could not be cleared. The visible list is empty, but reopen this page to verify the saved copy.');
+      setStatus('The visible list was cleared, but browser storage could not be updated.');
+    }
+    render();
+    getField<HTMLInputElement>('home-item-name')?.focus();
+  });
+
+  manager?.querySelector('[data-export-json]')?.addEventListener('click', exportJson);
+  manager?.querySelector('[data-export-ics]')?.addEventListener('click', exportIcs);
+
+  if (form && list) {
+    items = loadItems();
+    render();
+    applyGuidePrefill();
+    if (!storageWorks && items.length === 0) {
+      setStatus('Local storage is unavailable. You can still build and export a temporary plan in this tab.');
+    }
+  }
+</script>
+
+<style>
+  .home-manager {
+    display: grid;
+    gap: clamp(2rem, 6vw, 4rem);
+    padding-block: clamp(2rem, 6vw, 4rem);
+  }
+
+  .home-manager__header {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+    gap: 1.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--color-hairline-strong);
+  }
+
+  .home-manager__header h2 {
+    max-width: 17ch;
+    margin: 0.65rem 0 0;
+    font-family: var(--font-serif);
+    font-size: clamp(2.25rem, 5vw, 4rem);
+    font-weight: 500;
+    letter-spacing: -0.045em;
+    line-height: 1;
+  }
+
+  .home-manager__header p {
+    max-width: 62ch;
+    margin: 1rem 0 0;
+    color: var(--color-body);
+    line-height: 1.65;
+  }
+
+  .home-manager__privacy {
+    align-self: start;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid color-mix(in srgb, var(--color-sage) 38%, var(--color-hairline));
+    border-radius: var(--radius-pill);
+    background: var(--color-sage-soft);
+    color: var(--color-sage);
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    font-weight: 650;
+    text-align: center;
+  }
+
+  .home-manager__noscript {
+    padding: 1.25rem;
+  }
+
+  .home-manager__noscript h3,
+  .home-manager__noscript p {
+    margin: 0;
+  }
+
+  .home-manager__noscript p {
+    margin-top: 0.5rem;
+    color: var(--color-body);
+    line-height: 1.6;
+  }
+
+  .home-manager__interactive {
+    display: grid;
+    grid-template-columns: minmax(18rem, 0.82fr) minmax(0, 1.18fr);
+    gap: clamp(1.5rem, 5vw, 4rem);
+    align-items: start;
+  }
+
+  .home-manager__form {
+    position: sticky;
+    top: 6.5rem;
+    min-width: 0;
+    padding: clamp(1.1rem, 3vw, 1.6rem);
+    border: 1px solid var(--color-ink);
+    border-top: 6px solid var(--color-ink);
+    border-radius: var(--radius-sm);
+    box-shadow: 5px 5px 0 var(--color-amber);
+  }
+
+  .home-manager__form-heading {
+    display: flex;
+    align-items: start;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--color-hairline);
+  }
+
+  .home-manager__form-heading h3 {
+    margin: 0;
+    font-family: var(--font-serif);
+    font-size: clamp(1.55rem, 3vw, 2rem);
+    font-weight: 500;
+  }
+
+  .home-manager__form-heading p {
+    margin: 0.4rem 0 0;
+    color: var(--color-body);
+    font-size: 0.78rem;
+    line-height: 1.5;
+  }
+
+  .home-manager__form-heading > span {
+    width: 2.2rem;
+    height: 2.2rem;
+    flex: 0 0 auto;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--color-ink);
+    color: var(--color-paper);
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+  }
+
+  .home-manager__fields {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+    margin-top: 1.25rem;
+  }
+
+  .home-field {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  .home-field--wide {
+    grid-column: 1 / -1;
+  }
+
+  .home-field label {
+    color: var(--color-ink);
+    font-size: 0.84rem;
+    font-weight: 690;
+  }
+
+  .home-field__optional {
+    margin-left: 0.3rem;
+    color: var(--color-mute);
+    font-size: 0.7rem;
+    font-weight: 500;
+  }
+
+  .home-field .field-input {
+    min-height: 50px;
+  }
+
+  .home-field select.field-input {
+    appearance: auto;
+    padding-right: 0.7rem;
+    background-color: #fffdfa;
+    color: var(--color-ink);
+  }
+
+  .home-field__textarea {
+    min-height: 7rem;
+    resize: vertical;
+    line-height: 1.5;
+  }
+
+  .home-field__help,
+  .home-field__error {
+    margin: 0;
+    font-size: 0.72rem;
+    line-height: 1.4;
+  }
+
+  .home-field__help {
+    color: var(--color-mute);
+  }
+
+  .home-field__error {
+    min-height: 1rem;
+    color: var(--color-error);
+    font-weight: 630;
+  }
+
+  .home-field__error:empty {
+    display: none;
+  }
+
+  .home-manager__form-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+    margin-top: 1.25rem;
+  }
+
+  .home-manager__status {
+    min-height: 1.25rem;
+    margin: 0.8rem 0 0;
+    color: var(--color-sage);
+    font-size: 0.78rem;
+    font-weight: 620;
+    line-height: 1.45;
+  }
+
+  .home-plan {
+    min-width: 0;
+  }
+
+  .home-plan__heading {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 1.25rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--color-hairline-strong);
+  }
+
+  .home-plan__heading h3 {
+    margin: 0.55rem 0 0;
+    font-family: var(--font-serif);
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 500;
+    letter-spacing: -0.04em;
+    line-height: 1;
+  }
+
+  .home-plan__heading p {
+    margin: 0.55rem 0 0;
+    color: var(--color-mute);
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+  }
+
+  .home-plan__actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 0.5rem;
+  }
+
+  .home-plan__actions .btn-secondary,
+  .home-plan__actions .btn-quiet {
+    min-height: 44px;
+    padding: 0.6rem 0.8rem;
+    font-size: 0.76rem;
+  }
+
+  .home-plan__storage-warning {
+    margin-top: 1rem;
+    padding: 0.9rem 1rem;
+    border: 1px solid color-mix(in srgb, var(--color-amber) 55%, var(--color-hairline));
+    border-radius: var(--radius-sm);
+    background: #fff7e8;
+    color: var(--color-body);
+    font-size: 0.8rem;
+    line-height: 1.5;
+  }
+
+  .home-plan__filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    margin-top: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--color-hairline);
+  }
+
+  .home-plan__filters[hidden] { display: none; }
+
+  .home-plan__filters button {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--color-hairline-strong);
+    border-radius: var(--radius-pill);
+    background: transparent;
+    color: var(--color-body);
+    font-size: 0.72rem;
+    font-weight: 690;
+  }
+
+  .home-plan__filters button:hover,
+  .home-plan__filters button[aria-pressed='true'] { border-color: var(--color-ink); background: var(--color-ink); color: var(--color-paper); }
+
+  .home-plan__filters button span { min-width: 1.3rem; min-height: 1.3rem; display: grid; place-items: center; border-radius: 50%; background: rgba(255,255,255,0.16); font-family: var(--font-mono); font-size: 0.58rem; }
+
+  .home-plan__empty {
+    margin-top: 1rem;
+    padding: clamp(1.2rem, 4vw, 1.8rem);
+    box-shadow: none;
+  }
+
+  .home-plan__filter-empty { margin-top: 1rem; padding: 1.2rem; box-shadow: none; }
+  .home-plan__filter-empty[hidden] { display: none; }
+  .home-plan__filter-empty h4, .home-plan__filter-empty p { margin: 0; }
+  .home-plan__filter-empty h4 { font-family: var(--font-serif); font-size: 1.3rem; font-weight: 500; }
+  .home-plan__filter-empty p { margin-top: 0.45rem; color: var(--color-body); }
+
+  .home-plan__empty h4 {
+    margin: 0;
+    font-family: var(--font-serif);
+    font-size: 1.35rem;
+    font-weight: 500;
+  }
+
+  .home-plan__empty p {
+    max-width: 55ch;
+    margin: 0.6rem 0 0;
+    color: var(--color-body);
+    line-height: 1.65;
+  }
+
+  .home-plan__list {
+    display: grid;
+    gap: 0.8rem;
+    margin: 1rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  :global(.home-plan__item) {
+    min-width: 0;
+  }
+
+  :global(.home-plan-card) {
+    position: relative;
+    min-width: 0;
+    overflow: hidden;
+    padding: 1.1rem 1.1rem 1.1rem 1.65rem;
+    border-color: var(--color-hairline-strong);
+    box-shadow: 2px 2px 0 var(--color-hairline-strong);
+  }
+
+  :global(.home-plan-card::before) { content: ''; position: absolute; inset: 0 auto 0 0; width: 0.45rem; background: repeating-linear-gradient(0deg, var(--color-amber) 0 8px, transparent 8px 13px); }
+
+  :global(.home-plan-card__header) {
+    display: flex;
+    align-items: start;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  :global(.home-plan-card__category) {
+    color: var(--color-ember-deep);
+    font-family: var(--font-mono);
+    font-size: 0.66rem;
+    font-weight: 650;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  :global(.home-plan-card h4) {
+    margin: 0.35rem 0 0;
+    overflow-wrap: anywhere;
+    font-family: var(--font-serif);
+    font-size: clamp(1.3rem, 3vw, 1.75rem);
+    font-weight: 500;
+    line-height: 1.1;
+  }
+
+  :global(.home-plan-card__due) {
+    flex: 0 0 auto;
+    padding: 0.4rem 0.65rem;
+    border: 1px solid var(--color-hairline);
+    border-radius: var(--radius-pill);
+    font-size: 0.7rem;
+    font-weight: 690;
+    text-align: center;
+  }
+
+  :global(.home-plan-card__due--overdue) {
+    border-color: color-mix(in srgb, var(--color-error) 45%, var(--color-hairline));
+    background: var(--color-error-soft);
+    color: var(--color-error);
+  }
+
+  :global(.home-plan-card__due--soon) {
+    border-color: color-mix(in srgb, var(--color-amber) 60%, var(--color-hairline));
+    background: #fff5df;
+    color: #6f4b10;
+  }
+
+  :global(.home-plan-card__due--future) {
+    border-color: color-mix(in srgb, var(--color-sage) 35%, var(--color-hairline));
+    background: var(--color-sage-soft);
+    color: var(--color-sage);
+  }
+
+  :global(.home-plan-card__details) {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem 1rem;
+    margin: 1rem 0 0;
+    padding-top: 1rem;
+    border-top: 1px solid var(--color-hairline);
+  }
+
+  :global(.home-plan-card__details div) {
+    min-width: 0;
+  }
+
+  :global(.home-plan-card__details dt) {
+    color: var(--color-mute);
+    font-family: var(--font-mono);
+    font-size: 0.66rem;
+    text-transform: uppercase;
+  }
+
+  :global(.home-plan-card__details dd) {
+    margin: 0.25rem 0 0;
+    overflow-wrap: anywhere;
+    color: var(--color-body);
+    font-size: 0.82rem;
+    line-height: 1.5;
+    white-space: pre-wrap;
+  }
+
+  :global(.home-plan-card__delete) {
+    margin-top: 1rem;
+  }
+
+  .home-plan__export-note {
+    margin: 1rem 0 0;
+    color: var(--color-mute);
+    font-size: 0.75rem;
+    line-height: 1.5;
+  }
+
+  @media (max-width: 940px) {
+    .home-manager__interactive {
+      grid-template-columns: 1fr;
+    }
+
+    .home-manager__form {
+      position: static;
+    }
+  }
+
+  @media (max-width: 660px) {
+    .home-manager__header,
+    .home-plan__heading {
+      align-items: stretch;
+      grid-template-columns: 1fr;
+      flex-direction: column;
+    }
+
+    .home-manager__privacy {
+      justify-self: start;
+    }
+
+    .home-manager__fields,
+    :global(.home-plan-card__details) {
+      grid-template-columns: 1fr;
+    }
+
+    .home-field--wide {
+      grid-column: auto;
+    }
+
+    .home-manager__form-actions,
+    .home-plan__actions {
+      align-items: stretch;
+      flex-direction: column;
+    }
+
+    .home-manager__form-actions > *,
+    .home-plan__actions > * {
+      width: 100%;
+    }
+
+    :global(.home-plan-card__header) {
+      align-items: flex-start;
+      flex-direction: column;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .home-manager *,
+    .home-manager *::before,
+    .home-manager *::after {
+      scroll-behavior: auto !important;
+      transition-duration: 0.001ms !important;
+    }
+  }
+</style>

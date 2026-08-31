@@ -3,183 +3,78 @@ import PageLayout from '../layouts/PageLayout.astro';
 import ContentNote from '../components/content/ContentNote.astro';
 import EvidenceTable from '../components/content/EvidenceTable.astro';
 import RelatedReading from '../components/content/RelatedReading.astro';
+import { HOME_ENERGY_COST_ASSUMPTIONS, REPAIR_VS_REPLACE_ASSUMPTIONS } from '../lib/home-cost';
 ---
 
 <PageLayout
-  title="Cooked Score Methodology | Model Version 2.0.0"
-  description="The complete Cooked Score 2.0.0 methodology: seven inputs, four component formulas, weights, scoring anchors, assumptions, limitations, and change log."
-  path="/methodology"
-  eyebrow="Transparency"
-  heading="How the Cooked Score is calculated."
-  lead="Every part of model version 2.0.0 is documented here so you can understand what the number includes—and what it leaves out."
-  updated="August 17, 2026"
+  title="Home Cost Methodology & Assumptions | Cooked Finance"
+  description="How Cooked Finance calculates home energy costs and repair-versus-replace scenarios, chooses sources, handles uncertainty, and avoids double counting."
+  path="/methodology/"
+  eyebrow="Open methodology"
+  heading="Every home-cost result should be inspectable."
+  lead="The tools use small, deterministic formulas. The hard part is defining the input correctly, showing what was excluded, and refusing to turn an estimate into a prediction."
+  updated="August 31, 2026"
 >
-  <ContentNote title="Educational model, not a professional standard" tone="caution">
-    <p>
-      Cooked Finance created this model for general education. Its weights and
-      scoring curves are editorial product choices; they have not been
-      validated as a professional financial-health standard. The result is not
-      financial, investment, tax, credit, or legal advice.
-    </p>
+  <ContentNote title="Educational estimates, not inspections" tone="caution">
+    <p>Cooked Finance does not inspect equipment, diagnose faults, predict breakdowns, or replace a product manual or qualified professional. Cost never overrides a recall, hazard, or safety instruction.</p>
   </ContentNote>
 
-  <h2>Model at a glance</h2>
-  <p>
-    Version 2.0.0 uses seven user inputs to calculate four component scores from
-    0 to 100. The components are combined as follows:
-  </p>
-  <p>
-    <strong>Cooked Score = round((cash buffer × 0.30) + (payment DTI × 0.25) + (savings habit × 0.20) + (retirement progress × 0.25))</strong>
-  </p>
-  <EvidenceTable caption="Cooked Score 2.0.0 component weights">
-    <thead>
-      <tr><th scope="col">Component</th><th scope="col">Weight</th><th scope="col">Primary question</th></tr>
-    </thead>
+  <h2>Running-cost formula</h2>
+  <p><strong>Annual electricity cost = annual kWh × electricity price per kWh.</strong></p>
+  <p><strong>Annual natural-gas cost = annual therms × gas price per therm.</strong></p>
+  <p>The displayed monthly value is the annual total divided by 12. It is an average, not a prediction of a particular seasonal bill.</p>
+
+  <EvidenceTable caption="Inputs accepted by the running-cost calculator">
+    <thead><tr><th scope="col">Input</th><th scope="col">Preferred source</th><th scope="col">Important limitation</th></tr></thead>
     <tbody>
-      <tr><th scope="row">Cash buffer</th><td>30%</td><td>How long could liquid cash cover essential spending?</td></tr>
-      <tr><th scope="row">Monthly payment DTI</th><td>25%</td><td>How much gross income is committed to required debt payments?</td></tr>
-      <tr><th scope="row">Savings habit</th><td>20%</td><td>How much gross income is regularly being set aside?</td></tr>
-      <tr><th scope="row">Long-term retirement progress</th><td>25%</td><td>How does the retirement balance compare with an age-based planning guidepost?</td></tr>
+      <tr><th scope="row">Annual kWh</th><td>Exact-model EnergyGuide, ENERGY STAR record, utility bill, or measured use</td><td>A standardized label is not actual household consumption.</td></tr>
+      <tr><th scope="row">Electricity rate</th><td>Your utility bill</td><td>Fixed fees, tiers, taxes, and seasonal prices may not be captured by one rate.</td></tr>
+      <tr><th scope="row">Annual therms</th><td>Your utility bill or a properly scoped estimate</td><td>Whole-home gas use should not be attributed to one appliance without support.</td></tr>
+      <tr><th scope="row">Gas rate</th><td>Your utility bill</td><td>Delivery charges and fixed fees may be separate.</td></tr>
     </tbody>
   </EvidenceTable>
 
-  <h2>Inputs and definitions</h2>
-  <EvidenceTable caption="The seven inputs used by model version 2.0.0">
-    <thead>
-      <tr><th scope="col">Input</th><th scope="col">Definition used in the model</th></tr>
-    </thead>
-    <tbody>
-      <tr><th scope="row">Age</th><td>One adult’s age in completed years; used only for that person’s long-term guidepost.</td></tr>
-      <tr><th scope="row">Gross annual income</th><td>That adult’s personal income before taxes and payroll deductions. Do not combine partners; run a separate check for each adult.</td></tr>
-      <tr><th scope="row">Essential monthly spending</th><td>Recurring needs such as housing, basic utilities, groceries, insurance, transport, health care, and required minimum payments.</td></tr>
-      <tr><th scope="row">Liquid cash</th><td>Cash available without selling investments: checking, savings, and similar cash accounts. Retirement accounts are excluded.</td></tr>
-      <tr><th scope="row">Monthly debt payments</th><td>Required monthly payments on mortgages, rent-to-own debt, cards, student loans, vehicle loans, personal loans, and other debt obligations.</td></tr>
-      <tr><th scope="row">Monthly saving</th><td>Recurring contributions to cash savings, retirement accounts, and long-term investments, including employee contributions but excluding market gains.</td></tr>
-      <tr><th scope="row">Retirement assets</th><td>Vested account balances intended for retirement or long-term investing. A current vested cash-balance pension value may be included when it appears as an account balance; projected monthly or annual defined-benefit pension income is excluded. Do not include a primary home or emergency cash.</td></tr>
-    </tbody>
-  </EvidenceTable>
+  <h3>Calculation assumptions</h3>
+  <ul>{HOME_ENERGY_COST_ASSUMPTIONS.map((assumption) => <li>{assumption}</li>)}</ul>
 
-  <h2>Component formulas</h2>
+  <h2>Repair-versus-replace formula</h2>
+  <p><strong>Repair scenario = repair quote + current annual operating cost × planning years.</strong></p>
+  <p><strong>Replacement scenario = installed replacement price + replacement annual operating cost × planning years.</strong></p>
+  <p>Modeled replacement savings are the repair-scenario total minus the replacement-scenario total. A positive number means replacement is less expensive within the entered scenario.</p>
 
-  <h3>1. Cash buffer</h3>
-  <p>
-    <strong>Buffer months = liquid cash ÷ essential monthly spending.</strong>
-    The model linearly interpolates between 0 months = 0 points, 0.5 month = 15,
-    1 month = 30, 2 months = 55, 3 months = 75, 4.5 months = 90, and
-    6 months = 100. Values above 6 months remain at 100. The broader 3–6 month
-    planning context is described in
-    <a href="https://www.fidelity.com/learning-center/smart-money/emergency-fund" rel="noopener" target="_blank">Fidelity’s emergency-fund guide<span class="sr-only"> (opens in a new tab)</span></a>;
-    the component curve and its point values are Cooked Finance modeling choices.
-    This is a resilience indicator, not a command to hold exactly six months.
-  </p>
+  <h3>Scenario assumptions</h3>
+  <ul>{REPAIR_VS_REPLACE_ASSUMPTIONS.map((assumption) => <li>{assumption}</li>)}</ul>
 
-  <h3>2. Monthly payment debt-to-income ratio</h3>
-  <p>
-    <strong>Gross monthly income = gross annual income ÷ 12.</strong><br />
-    <strong>Payment DTI = required monthly debt payments ÷ gross monthly income.</strong>
-  </p>
-  <p>
-    This follows the Consumer Financial Protection Bureau’s definition of DTI
-    as monthly debt payments divided by gross monthly income. Different lenders
-    use different limits, so Cooked Finance does not label a particular ratio
-    as an approval threshold. See the
-    <a href="https://www.consumerfinance.gov/ask-cfpb/what-is-a-debt-to-income-ratio-en-1791/" rel="noopener" target="_blank">CFPB’s DTI explanation<span class="sr-only"> (opens in a new tab)</span></a>.
-  </p>
-  <p>
-    Scoring anchors are 0% = 100 points, 10% = 90, 20% = 75, 30% = 60,
-    36% = 50, 43% = 35, 50% = 20, 60% = 5, and 75% or more = 0.
-    Values between anchors are linearly interpolated.
-  </p>
+  <h2>Double-counting rules</h2>
+  <p>Some federal test procedures include energy outside the appliance itself. In particular, standardized dishwasher and clothes-washer annual kWh can include modeled hot-water energy. Adding either unchanged to a complete water-heater annual estimate can count the same energy twice.</p>
+  <p>We therefore describe what the standardized metric includes on each system page and avoid silently combining overlapping estimates.</p>
 
-  <h3>3. Savings habit</h3>
-  <p>
-    <strong>Savings rate = recurring monthly saving ÷ gross monthly income.</strong>
-    Scoring anchors are 0% or less = 0 points, 2% = 15, 5% = 35, 10% = 65,
-    15% = 90, and 20% or more = 100. Employer contributions are omitted unless
-    the user deliberately includes them in the monthly-saving input.
-  </p>
+  <h2>Source hierarchy</h2>
+  <ol>
+    <li>Federal safety, test-procedure, label, and certified-product sources.</li>
+    <li>Government extension and public-service guidance.</li>
+    <li>The exact product manual for model-specific maintenance.</li>
+    <li>Manufacturer-neutral technical material when a primary source is unavailable.</li>
+  </ol>
+  <p>Each system page lists the sources used and a substantive review date. We do not derive annual kWh directly from CEER, CEF, UEF, IEF, or another efficiency ratio without the additional test inputs required to do so.</p>
 
-  <h3>4. Long-term retirement progress</h3>
-  <p>
-    <strong>Retirement multiple = retirement assets ÷ gross annual income.</strong><br />
-    <strong>Progress ratio = retirement multiple ÷ age-based target multiple.</strong>
-  </p>
-  <p>
-    The target curve uses published Fidelity planning guideposts of 1× income by
-    age 30, 3× by 40, 6× by 50, 8× by 60, and 10× by 67. Fidelity states that
-    these guideposts assume, among other things, saving 15% from age 25,
-    retiring at 67, and seeking to maintain a pre-retirement lifestyle. They
-    are starting points, not universal requirements. Read
-    <a href="https://www.fidelity.com/viewpoints/retirement/how-much-do-i-need-to-retire" rel="noopener" target="_blank">Fidelity’s assumptions and guide<span class="sr-only"> (opens in a new tab)</span></a>.
-  </p>
-  <p>
-    Cooked Finance linearly interpolates between the published guideposts. For
-    younger users, version 2.0.0 uses a proprietary 0.1× floor from ages 18
-    through 25, then rises linearly from 0.1× at 25 to Fidelity’s published 1×
-    guidepost at 30. At age 67 and above, the target remains 10×. The early-career
-    floor and all interpolation are model choices, not Fidelity recommendations.
-    Progress scoring anchors are 0% of target = 0 points, 10% = 10, 25% = 30,
-    50% = 55, 75% = 78, and 100% or more = 100.
-  </p>
-
-  <h2>Input rules and rounding</h2>
+  <h2>What the tools deliberately omit</h2>
   <ul>
-    <li>The public form accepts ages 18–80. The engine itself normalizes ages to whole years and clamps programmatic inputs to 18–100.</li>
-    <li>Money inputs are normalized to finite, non-negative values with two decimal places. Missing, invalid, or negative programmatic values become zero.</li>
-    <li>The public check requires annual income and essential monthly spending greater than zero because those values are ratio denominators.</li>
-    <li>For defensive programmatic use, zero annual income makes the three income-based components unavailable, while zero essential spending makes the cash-buffer component unavailable; those components receive zero points and trigger warnings.</li>
-    <li>Each interpolated component is rounded to a whole-number 0–100 score. Weighted contributions are rounded to two decimal places, then their sum is rounded to the final whole-number score.</li>
-    <li>Component values are capped from 0 through 100, so one unusually strong input cannot erase all other risks.</li>
-    <li>All money inputs must use the same currency. Currency choice does not affect ratios.</li>
+    <li>Failure probability and remaining service life.</li>
+    <li>Financing, discount rates, future inflation, rebates, taxes, resale value, and future repairs.</li>
+    <li>Safety, comfort, noise, downtime, parts availability, and repair quality.</li>
+    <li>Guaranteed savings, payback, or durability from ENERGY STAR certification.</li>
   </ul>
-
-  <h2>What the model deliberately does not do</h2>
-  <ul>
-    <li>It does not estimate a population percentile or “financial age.”</li>
-    <li>It does not use Federal Reserve wealth tables to award or remove score points.</li>
-    <li>It does not distinguish high-interest debt from low-interest debt.</li>
-    <li>It does not value a home, projected defined-benefit pension income, business, insurance policy, or expected government benefit.</li>
-    <li>It does not project investment returns, inflation, taxes, retirement spending, or life expectancy.</li>
-    <li>It is designed for one adult at a time and does not adjust for household size, a partner’s age or finances, local costs, disability, unstable income, or caregiving.</li>
-  </ul>
-
-  <h2>Why those limitations matter</h2>
-  <p>
-    Two people with the same inputs may reasonably make different choices. A
-    person with highly variable income may need more cash than the model rewards.
-    Someone with secure defined-benefit pension income may need less invested wealth than the guidepost
-    suggests. A mortgage payment may increase DTI while the related home equity is
-    absent from the score. Treat the output as a prompt for questions, not a plan.
-  </p>
 
   <h2>Version history</h2>
-  <EvidenceTable caption="Cooked Score model change log">
-    <thead>
-      <tr><th scope="col">Version</th><th scope="col">Date</th><th scope="col">Material changes</th></tr>
-    </thead>
-    <tbody>
-      <tr>
-        <th scope="row">2.0.0</th>
-        <td>August 17, 2026</td>
-        <td>Expanded from four to seven inputs; replaced total-debt-to-annual-income with monthly payment DTI; introduced cash-buffer and savings-habit components; removed estimated percentiles and financial age; published formulas, weights, anchors, assumptions, and limitations.</td>
-      </tr>
-      <tr>
-        <th scope="row">1.x legacy</th>
-        <td>Before August 17, 2026</td>
-        <td>Used age, annual income, combined savings/investments, and total debt. Results from the legacy model are not comparable with version 2.0.0.</td>
-      </tr>
-    </tbody>
+  <EvidenceTable caption="Home-cost model change log">
+    <thead><tr><th scope="col">Version</th><th scope="col">Date</th><th scope="col">Material change</th></tr></thead>
+    <tbody><tr><th scope="row">1.0.0</th><td>August 31, 2026</td><td>Introduced electricity, optional natural-gas, and repair-versus-replace scenario engines with explicit warnings and assumptions.</td></tr></tbody>
   </EvidenceTable>
 
-  <p>
-    Suspect an error or unclear assumption? Please use the
-    <a href="/contact/">contact page</a>. Material corrections will be handled
-    under our <a href="/corrections-policy/">corrections policy</a>.
-  </p>
-
   <RelatedReading links={[
-    { href: '/source-policy/', label: 'Source policy', description: 'How we choose, verify, cite, and update evidence.' },
-    { href: '/score-ranges/', label: 'Score-range guide', description: 'What each broad range can—and cannot—suggest.' },
-    { href: '/benchmarks/net-worth-by-age/', label: 'Net worth by age', description: 'Separate context from the Federal Reserve’s 2022 SCF.' },
+    { href: '/source-policy/', label: 'Source policy', description: 'How evidence is selected, cited, reviewed, and corrected.' },
+    { href: '/systems/', label: 'System guides', description: 'See the metric and source panel for each initial appliance.' },
+    { href: '/tools/', label: 'Home cost tools', description: 'Use the formulas with your own figures.' },
   ]} />
 </PageLayout>

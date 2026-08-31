@@ -4,124 +4,39 @@ import PageLayout from '../layouts/PageLayout.astro';
 
 <PageLayout
   title="Privacy Policy | Cooked Finance"
-  description="How Cooked Finance handles calculator inputs, optional local saving, consent-based analytics, hosting logs, and advertising."
-  path="/privacy"
+  description="How Cooked Finance handles home-plan records, calculator inputs, optional local saving, analytics consent, exports, and hosting logs."
+  path="/privacy/"
   eyebrow="Privacy"
-  heading="Your financial inputs stay in your browser."
-  lead="The calculator does not send your age, income, expenses, savings, debt payments, retirement balance, monthly savings, or score to Cooked Finance or Google Analytics."
-  updated="August 17, 2026"
+  heading="Your home and money inputs stay in your browser."
+  lead="The new home-cost tools, My Home plan, and original money calculators perform their calculations on your device."
+  updated="August 31, 2026"
 >
   <h2>Scope</h2>
-  <p>
-    This policy explains how Cooked Finance (“we,” “us,” or “our”) handles
-    information when you use <strong>cookedfinance.com</strong> (the “Site”).
-    The Site is designed to work without an account, bank connection, or
-    database profile.
-  </p>
+  <p>This policy explains how Cooked Finance handles information when you use cookedfinance.com. The site works without an account, bank connection, or server-side personal profile.</p>
 
   <h2>Calculator information</h2>
-  <p>
-    The seven values entered into the financial health check and the values
-    entered into the standalone calculators are processed locally by code in
-    your web browser. They are not submitted to our servers, placed in page
-    URLs, or included in analytics events.
-  </p>
-  <p>
-    A result is <strong>not saved automatically</strong>. If you select “Save
-    This Check,” the seven inputs, result,
-    and save time are stored in your browser’s <code>localStorage</code>. That
-    copy remains on that browser and device until you delete it in the result
-    controls or clear browser storage.
-  </p>
+  <p>Values entered into home-energy, repair-versus-replace, and money calculators are processed by code in your browser. They are not placed in the page URL or intentionally attached to analytics events.</p>
 
-  <h2>Browser storage and retention</h2>
-  <ul>
-    <li>
-      A saved financial check remains in <code>localStorage</code> until you
-      delete it from the homepage controls or clear this site’s browser storage.
-    </li>
-    <li>
-      Your analytics choice remains in <code>localStorage</code> until you change
-      it through “Privacy choices” or clear this site’s browser storage.
-    </li>
-    <li>
-      Browser privacy settings, private-browsing behavior, or automatic storage
-      cleanup may remove either local item sooner. Cooked Finance cannot restore
-      a locally deleted check.
-    </li>
-  </ul>
+  <h2>My Home local storage</h2>
+  <p>My Home saves item names, categories, optional model and notes, service dates, next-due dates, and creation time under <code>cooked-finance-home-plan-v1</code> in browser <code>localStorage</code>. The record stays on that browser and device until you delete it or clear browser storage. Cooked Finance cannot see, synchronize, or restore it.</p>
+  <p>The original financial check stores a result only when you explicitly choose its save control. Its saved values likewise remain in that browser.</p>
+
+  <h2>Exports</h2>
+  <p>My Home can create JSON and calendar files on your device. Exporting is your choice. Once imported, copied, emailed, or stored elsewhere, those files are governed by the destination you choose.</p>
 
   <h2>Optional analytics</h2>
-  <p>
-    Google Analytics loads only after you select “Allow Analytics.” If allowed,
-    it may process information such as the page visited, referring page,
-    browser and device information, approximate location, and online
-    identifiers. We use generic interaction event names to understand whether
-    the assessment is useful; we do not attach financial inputs, exact results,
-    or score bands to those events.
-  </p>
-  <p>
-    Your analytics choice is stored in <code>localStorage</code>. Choose
-    “Privacy choices” in the footer to reopen the consent notice. Selecting
-    “Essential Only” disables analytics collection immediately and prevents the
-    analytics script from loading on future page views in that browser. If the
-    script or analytics cookies were already loaded, they may remain in the
-    browser until the page is reloaded or those cookies are deleted.
-  </p>
-  <p>
-    After permission is granted, Google Analytics may set first-party cookies
-    including <code>_ga</code> and <code>_ga_&lt;container-id&gt;</code> to
-    distinguish users and preserve session state. Google documents a default
-    lifetime of up to two years for those cookies, although browser controls can
-    shorten it. User-level and event-level analytics data is retained under the
-    property’s configured Google Analytics retention setting; aggregated reports
-    are not governed by that same setting. See Google’s
-    <a href="https://support.google.com/analytics/answer/11397207" rel="noopener" target="_blank">GA4 cookie documentation<span class="sr-only"> (opens in a new tab)</span></a>,
-    <a href="https://support.google.com/analytics/answer/7667196" rel="noopener" target="_blank">data-retention documentation<span class="sr-only"> (opens in a new tab)</span></a>, and
-    <a href="https://policies.google.com/technologies/partner-sites" rel="noopener" target="_blank">explanation of how Google uses information from partner sites<span class="sr-only"> (opens in a new tab)</span></a>.
-  </p>
+  <p>Google Analytics loads only after “Allow Analytics” is selected. When allowed, it may process the page visited, referrer, browser and device information, approximate location, cookies, and online identifiers. Calculator values, saved-home records, model numbers, notes, due dates, financial values, and result bands are not intentionally included.</p>
+  <p>Your choice is kept locally under <code>cooked-finance-analytics-choice</code>. Use “Privacy Choices” in the footer to change it. Selecting “Essential Only” prevents future analytics loading in that browser; previously created third-party cookies may require a reload or browser deletion.</p>
 
   <h2>Hosting and security logs</h2>
-  <p>
-    Our hosting and network providers may process routine request data needed
-    to deliver and protect the Site, such as IP address, requested URL,
-    timestamp, user agent, and security signals. Those requests do not contain
-    calculator fields because calculations happen locally.
-  </p>
+  <p>Hosting and network providers may process ordinary request data such as IP address, URL, timestamp, user agent, and security signals to deliver and protect the site. Calculator fields are not part of those requests.</p>
 
   <h2>Advertising</h2>
-  <p>
-    Cooked Finance currently displays no paid ads and has not applied for
-    Google AdSense. No AdSense script or ad unit is loaded. If advertising is
-    introduced later, this policy and the
-    <a href="/advertising-policy/">advertising policy</a> will be updated before
-    ads are enabled.
-  </p>
-
-  <h2>External links</h2>
-  <p>
-    Educational pages link to external sources. Their privacy practices are
-    controlled by their operators, not Cooked Finance.
-  </p>
-
-  <h2>Children</h2>
-  <p>
-    The Site is intended for a general adult audience and is not directed to
-    children under 13. We do not knowingly ask children to provide personal
-    information.
-  </p>
+  <p>The site currently displays no paid advertising and loads no AdSense code. Before advertising is introduced, this policy, consent controls, and the <a href="/advertising-policy/">advertising policy</a> will be reviewed and updated.</p>
 
   <h2>Your choices</h2>
-  <ul>
-    <li>Use the calculators without saving a result.</li>
-    <li>Delete a saved check from the homepage result controls or browser storage.</li>
-    <li>Choose “Essential Only” or reopen “Privacy choices” in the footer.</li>
-    <li>Use browser controls to clear site storage or restrict scripts.</li>
-  </ul>
+  <ul><li>Use every calculator without saving.</li><li>Delete individual My Home items or the complete local plan.</li><li>Export a local backup before clearing storage.</li><li>Choose Essential Only for optional analytics.</li><li>Clear site data through browser settings.</li></ul>
 
-  <h2>Changes and contact</h2>
-  <p>
-    Material changes will be posted here with a revised date. For a privacy
-    question or deletion concern, use the <a href="/contact/">contact page</a>.
-  </p>
+  <h2>Contact</h2>
+  <p>For privacy questions, use the <a href="/contact/">contact page</a>.</p>
 </PageLayout>

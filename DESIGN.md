@@ -2,75 +2,65 @@
 
 ## Direction
 
-Cooked Finance uses a warm editorial visual language: trustworthy enough for a
-financial education product, distinctive enough to make a calculator feel
-inviting. It should resemble an independent field guide rather than a bank
-dashboard, fintech template, or casino-like score game.
+Cooked Finance uses “The Home Operating Manual”: a warm editorial field guide
+paired with live utility instruments, service tags, maintenance tickets, and
+measured technical rules. It should feel like a trustworthy manual beside a
+utility bill—not a fintech dashboard, contractor marketplace, or generic
+programmatic-SEO template.
 
-## Core palette
+## Palette and type
 
 | Role | Color |
 | --- | --- |
-| Canvas | #f5efe4 |
-| Paper | #fffcf7 |
-| Ink | #1c1914 |
-| Body | #625d55 |
-| Hairline | #d8cfc1 |
-| Ember action | #bd4b2b |
-| Amber highlight | #e2a23a |
-| Sage positive | #3e6b5b |
+| Canvas | `#f3ecdf` |
+| Paper | `#fffdf8` |
+| Ink | `#191712` |
+| Body | `#575249` |
+| Hairline | `#d3c6b4` |
+| Ember action / hazard | `#b74729` |
+| Amber electricity / evidence | `#e3a43b` |
+| Sage care / confirmation | `#4e7564` |
+| Utility teal water / air | `#356a70` |
 
-Use ink for primary actions and result surfaces. Ember is a selective emphasis,
-not a background wash. Sage communicates stability without turning the product
-into a red-versus-green judgment system.
+- An Iowan/Palatino/Georgia serif stack is the editorial display face.
+- Geist is used for interface and body copy.
+- Geist Mono is reserved for units, dates, evidence labels, and short metadata.
+- Headlines use sentence case; uppercase is limited to compact mono eyebrows.
 
-## Typography
+## Product surfaces
 
-- Editorial display: Georgia with moderate weight and tight tracking.
-- Interface and body: self-hosted Geist Variable.
-- Labels and numerical metadata: self-hosted Geist Mono Variable.
-- Headlines are sentence case. Uppercase is reserved for short mono eyebrows.
-- Body copy targets comfortable 65–75 character lines and generous line height.
+- Working tools expose useful inputs in the first meaningful viewport.
+- System guides alternate readable explanation with calculators and checklists.
+- Ink surfaces hold calculated results; clay surfaces hold safety boundaries.
+- Catalog cards, meters, maintenance tickets, source ledgers, and decisions use
+  distinct patterns instead of one universal rounded-card treatment.
+- Featured surfaces use printed offset shadows rather than soft floating blur.
+- Numbers always show their unit and relevant time horizon.
+- Standardized examples are visibly distinguished from personal results.
 
-## Layout
+## Interaction rules
 
-- Main container: 1220px maximum with fluid side gutters.
-- Reading column: 790px maximum.
-- Sections use generous vertical rhythm and hairline boundaries.
-- Homepage hero is a two-column editorial split; it stacks below 920px.
-- Results move from summary, to raw ratios, to factor breakdown, to action.
-- Mobile controls keep at least 44px effective touch targets.
+- Use native forms, labels, names, field help, and live validation messages.
+- Maintain at least 44px touch targets and visible focus.
+- Never put home records, model numbers, notes, quotes, or results in URLs.
+- Local saving is explicit, reversible, and paired with export where practical.
+- Finder state may use URL query parameters; household data never does.
+- Motion explains state through transform and opacity, and always respects
+  reduced-motion preferences.
+- The primary interaction spine is discover → calculate → plan → return.
 
-## Components
+## Tone
 
-- Cards use paper, a quiet warm border, and restrained stacked shadow.
-- Primary buttons are ink-filled pills; secondary buttons are paper with a
-  stronger border.
-- Inputs have persistent labels, contextual help, inline errors, and visible
-  focus states.
-- Data tables remain semantic and horizontally scroll only when unavoidable.
-- Interactive results use text and shape as well as color.
-
-## Product tone
-
-Lead with clarity, then add restrained cooking language. Never shame people,
-manufacture urgency, imply lender authority, or present a broad guidepost as a
-personal requirement. Optional humor follows the useful analysis.
-
-## Motion and accessibility
-
-- Motion is used for result reveal and progress only.
-- All motion respects reduced-motion preferences.
-- Focus is never hidden.
-- Do not use color alone to communicate a score or error.
-- Decorative SVGs are hidden from assistive technology; meaningful graphics
-  receive concise labels.
+Lead with the useful answer. Explain assumptions without sounding legalistic.
+Use the Cooked name as a brand, not as permission for repeated food puns.
+Never shame a homeowner, create false urgency, imply inspection, or turn a cost
+scenario into a safety recommendation.
 
 ## Avoid
 
-- Generic neon gradients, glassmorphism, stock-photo finance imagery, and
-  template-style icon grids.
-- Fake testimonials, population percentiles, invented credentials, or
-  performance guarantees.
-- Ad placeholders before monetization is actually enabled.
-- Sending calculator inputs, results, or score bands to analytics or URLs.
+- Generic house stock photography and template icon grids
+- “Typical cost” claims without geography, date, or source
+- Guaranteed savings, lifespans, payback, safety, or repair success
+- Fake experts, reviews, testimonials, traffic, or first-hand testing
+- Ads or affiliate placeholders before monetization is actually enabled
+- Thin keyword variations, model pages, or location permutations

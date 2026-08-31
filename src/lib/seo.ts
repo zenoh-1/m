@@ -3,11 +3,10 @@ export const SITE = {
   name: 'Cooked Finance',
   url: 'https://cookedfinance.com',
   locale: 'en_US',
-  defaultTitle: 'Free Financial Health Check & Score Calculator | Cooked Finance',
+  defaultTitle: 'Home Running Costs & Repair Decisions | Cooked Finance',
   defaultDescription:
-    'Get a private, educational financial health estimate based on your cash buffer, debt-payment burden, savings habit, and long-term progress.',
+    'Calculate appliance running costs, plan home maintenance, and compare repair with replacement using transparent, privacy-first tools.',
   ogImage: 'https://cookedfinance.com/og.png',
-  twitterImage: 'https://cookedfinance.com/og.png',
 } as const;
 
 export interface FaqItem {
@@ -68,11 +67,11 @@ export function buildStructuredData(): string {
       },
       {
         '@type': 'WebApplication',
-        '@id': `${SITE.url}/#financial-health-check`,
-        name: 'Cooked Finance Financial Health Check',
+        '@id': `${SITE.url}/#home-cost-tools`,
+        name: 'Cooked Finance Home Cost Tools',
         url: `${SITE.url}/`,
         description: SITE.defaultDescription,
-        applicationCategory: 'FinanceApplication',
+        applicationCategory: 'UtilitiesApplication',
         operatingSystem: 'Any web browser',
         isAccessibleForFree: true,
         inLanguage: 'en-US',

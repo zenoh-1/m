@@ -1,90 +1,24 @@
 ---
 import PageLayout from '../layouts/PageLayout.astro';
-import ContentNote from '../components/content/ContentNote.astro';
 import RelatedReading from '../components/content/RelatedReading.astro';
 ---
 
 <PageLayout
   title="Editorial Policy | Cooked Finance"
-  description="How Cooked Finance plans, researches, writes, reviews, labels, updates, and corrects educational personal-finance content."
-  path="/editorial-policy"
-  eyebrow="Trust and accountability"
-  heading="Our editorial policy."
-  lead="Useful personal-finance content should show its evidence, its assumptions, and its limits."
-  updated="August 17, 2026"
+  description="Cooked Finance standards for sourcing, safety boundaries, authorship, calculations, updates, corrections, and scalable publishing."
+  path="/editorial-policy/"
+  eyebrow="Editorial standards"
+  heading="Useful first. Checkable always."
+  lead="A calculator is only as trustworthy as its input definition, assumptions, evidence, and willingness to say what it cannot know."
+  updated="August 31, 2026"
 >
-  <h2>Purpose and scope</h2>
-  <p>
-    Cooked Finance is an independent educational website. We publish calculators,
-    model documentation, data explainers, and practical guides intended to help
-    readers ask clearer questions about their money. We do not provide personal
-    financial, investment, tax, legal, credit, or accounting advice.
-  </p>
-
-  <h2>Our editorial standards</h2>
-  <ul>
-    <li><strong>Be useful before being searchable.</strong> A page should solve a defined reader problem rather than exist only to target a keyword.</li>
-    <li><strong>Separate evidence from our model.</strong> Published statistics, external guideposts, and Cooked Finance scoring choices are labelled distinctly.</li>
-    <li><strong>Prefer original utility.</strong> Calculators, transparent formulas, worksheets, tables, and careful synthesis should add something beyond summarizing another page.</li>
-    <li><strong>Use primary sources.</strong> Regulators, government datasets, statutes, official documentation, and original research are preferred where available.</li>
-    <li><strong>Avoid false precision.</strong> We do not manufacture percentiles, probabilities, projections, or authoritative-sounding thresholds from insufficient evidence.</li>
-    <li><strong>Write without shame.</strong> Financial difficulty is not a character defect. Headlines and score labels should not humiliate readers.</li>
-  </ul>
-
-  <h2>Publication process</h2>
-  <ol>
-    <li>Define the reader question and what the page will not attempt to answer.</li>
-    <li>Collect and verify primary evidence under the <a href="/source-policy/">source policy</a>.</li>
-    <li>Draft the page with formulas, definitions, dates, assumptions, and limitations where relevant.</li>
-    <li>Check factual claims against their cited sources and test links.</li>
-    <li>Review the page for clarity, accessibility, conflicts, safety, and consistency with current product behavior.</li>
-    <li>Publish an updated date and revisit material claims when source data or the model changes.</li>
-  </ol>
-
-  <h2>Authorship and review</h2>
-  <ContentNote title="No credential claim">
-    <p>
-      Cooked Finance does not currently claim that its content is reviewed by a
-      CFP professional, CPA, attorney, physician, or other credentialed specialist.
-      We will not imply professional review until a named reviewer has actually
-      reviewed the material and has agreed to a truthful public attribution.
-    </p>
-  </ContentNote>
-  <p>
-    When a page has a named author or specialist reviewer, its byline should link
-    to a profile explaining relevant experience, role, and potential conflicts.
-    Anonymous expertise, invented biographies, stock-photo “experts,” and
-    fabricated testimonials are not acceptable.
-  </p>
-
-  <h2>Use of assistive tools</h2>
-  <p>
-    Software, including generative tools, may assist with research organization,
-    drafting, editing, code, or accessibility checks. Tool output is not treated
-    as a source. Factual claims still require verification, and the publisher is
-    responsible for the final page. We do not publish unreviewed bulk-generated
-    articles or invent quotations, experience, credentials, or source findings.
-  </p>
-
-  <h2>Commercial independence</h2>
-  <p>
-    Advertising or future commercial relationships do not purchase favorable
-    editorial coverage, scoring treatment, rankings, links, or access to financial
-    inputs. Commercial material must be clearly separated and labelled under our
-    <a href="/advertising-policy/">advertising policy</a>.
-  </p>
-
-  <h2>Updates and corrections</h2>
-  <p>
-    An “updated” date should reflect a meaningful review or change, not a cosmetic
-    timestamp refresh. Confirmed material errors are corrected transparently under
-    the <a href="/corrections-policy/">corrections policy</a>. Readers can report
-    a concern through the <a href="/contact/">contact page</a>.
-  </p>
-
-  <RelatedReading links={[
-    { href: '/source-policy/', label: 'Source policy', description: 'The evidence hierarchy and verification rules behind our work.' },
-    { href: '/corrections-policy/', label: 'Corrections policy', description: 'How to report an error and how material changes are documented.' },
-    { href: '/methodology/', label: 'Model methodology', description: 'A concrete example of our transparency standard.' },
-  ]} />
+  <h2>Core standards</h2>
+  <ul><li>Answer a real user question rather than manufacture a page for a keyword variation.</li><li>Show formulas, important assumptions, exclusions, and source links.</li><li>Separate standardized test estimates from actual household use.</li><li>Distinguish owner-safe care from work requiring a qualified professional.</li><li>Never invent credentials, testing, first-hand experience, or review.</li></ul>
+  <h2>Safety content</h2><p>Safety-sensitive instructions are deliberately conservative. The site does not publish internal electrical, gas, refrigerant, compressor, sealed-system, or pressurized safety-valve repair instructions. A future symptom guide must have a clearly defined observation-only scope and qualified review before publication.</p>
+  <h2>Authorship and review</h2><p>Current system pages are published by Cooked Finance and identify their official source set. Organization authorship is not presented as professional certification. When an individual author or reviewer is added, their name, role, relevant experience, and actual contribution will be disclosed.</p>
+  <h2>Calculation policy</h2><p>Calculation logic is deterministic, versioned, and regression-tested. We do not hide editorial thresholds behind claims of scientific precision. Repair-versus-replace outputs are scenarios, not predictions.</p>
+  <h2>Scaled publishing</h2><p>Structured data can produce consistent pages, but no page should exist only because two keywords can be swapped. Every indexable system page must contain a distinct metric definition, care plan, safety boundary, source panel, and useful connection to the tools.</p>
+  <h2>Commercial independence</h2><p>Advertising or commercial relationships may not buy a favorable calculation, conclusion, ranking, hidden link, or removal of accurate criticism. Current content is ad-free.</p>
+  <h2>Corrections</h2><p>Material factual, mathematical, safety, or source errors are corrected under the <a href="/corrections-policy/">corrections policy</a>. Substantive reviews update the page date; silent cosmetic edits do not imply a new review.</p>
+  <RelatedReading links={[{ href: '/source-policy/', label: 'Source policy', description: 'The evidence hierarchy and update process.' },{ href: '/methodology/', label: 'Methodology', description: 'The formulas and model boundaries.' },{ href: '/advertising-policy/', label: 'Advertising policy', description: 'Rules before any ads are introduced.' }]} />
 </PageLayout>
