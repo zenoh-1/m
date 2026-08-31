@@ -1,3 +1,25 @@
+---
+const quickCostGaugeTicks = Array.from({ length: 21 }, (_, index) => {
+  const radians = Math.PI - (index / 20) * Math.PI;
+  const outerRadius = 100;
+  const innerRadius = index % 5 === 0 ? 78 : 84;
+  const coordinate = (radius: number, axis: 'x' | 'y') => {
+    const value = axis === 'x'
+      ? 110 + radius * Math.cos(radians)
+      : 110 - radius * Math.sin(radians);
+    return value.toFixed(2);
+  };
+
+  return {
+    x1: coordinate(innerRadius, 'x'),
+    y1: coordinate(innerRadius, 'y'),
+    x2: coordinate(outerRadius, 'x'),
+    y2: coordinate(outerRadius, 'y'),
+    major: index % 5 === 0,
+  };
+});
+---
+
 <section class="quick-cost card" data-quick-cost-shell aria-labelledby="quick-cost-title">
   <div class="quick-cost__head">
     <span class="eyebrow">Quick running-cost check</span>
@@ -63,8 +85,21 @@
 
   <div class="quick-cost__result" data-quick-cost-result aria-atomic="true">
     <div class="quick-cost__dial" data-quick-dial aria-hidden="true">
-      <span class="quick-cost__needle"></span>
-      <span class="quick-cost__hub"></span>
+      <svg viewBox="0 0 220 132" focusable="false">
+        <path class="quick-cost__dial-track" d="M18 110 A92 92 0 0 1 202 110" pathLength="100"></path>
+        <path class="quick-cost__dial-fill" d="M18 110 A92 92 0 0 1 202 110" pathLength="100"></path>
+        <path class="quick-cost__dial-inner" d="M32 110 A78 78 0 0 1 188 110"></path>
+        <g class="quick-cost__ticks">
+          {quickCostGaugeTicks.map((tick) => (
+            <line class:list={{ 'is-major': tick.major }} x1={tick.x1} y1={tick.y1} x2={tick.x2} y2={tick.y2}></line>
+          ))}
+        </g>
+        <g class="quick-cost__needle">
+          <line x1="110" y1="110" x2="110" y2="31"></line>
+        </g>
+        <circle class="quick-cost__hub" cx="110" cy="110" r="8"></circle>
+      </svg>
+      <div class="quick-cost__dial-scale"><span>$0</span><span>$500</span><span>$1k+</span></div>
     </div>
     <div class="quick-cost__annual">
       <span class="quick-cost__result-label">Estimated annual cost</span>
@@ -123,8 +158,9 @@
       if (annual) annual.textContent = money.format(annualCost);
       if (monthly) monthly.textContent = money.format(annualCost / 12);
       if (daily) daily.textContent = money.format(annualCost / 365);
-      const dialRatio = Math.min(annualCost / 1_000, 1);
-      dial?.style.setProperty('--dial-angle', `${-112 + (dialRatio * 224)}deg`);
+      const dialRatio = Math.min(Math.max(annualCost / 1_000, 0), 1);
+      dial?.style.setProperty('--dial-progress', String(dialRatio * 100));
+      dial?.style.setProperty('--dial-angle', `${-90 + (dialRatio * 180)}deg`);
       result?.classList.remove('is-updated');
       window.requestAnimationFrame(() => result?.classList.add('is-updated'));
       if (announce && status) status.textContent = `Estimate updated to ${money.format(annualCost)} per year.`;
@@ -168,10 +204,18 @@
   .quick-cost__form .field__error { grid-column: 1 / -1; margin: -0.25rem 0; }
   .quick-cost__form .btn-primary { grid-column: 1 / -1; }
   .quick-cost__result { min-height: 13rem; display: grid; grid-template-columns: 9rem minmax(0, 1fr); align-items: center; gap: 1rem 1.5rem; padding: clamp(1.35rem, 4vw, 2rem); background: var(--color-ink); color: var(--color-paper); }
-  .quick-cost__dial { --dial-angle: -94deg; position: relative; width: 9rem; aspect-ratio: 1; border: 1px solid rgba(255,253,248,0.35); border-radius: 50%; background: repeating-conic-gradient(from -112deg, rgba(255,253,248,0.72) 0 1deg, transparent 1deg 10deg); clip-path: polygon(0 0, 100% 0, 100% 78%, 0 78%); }
-  .quick-cost__dial::before { content: ''; position: absolute; inset: 18%; border: 1px solid rgba(255,253,248,0.24); border-radius: 50%; background: var(--color-ink); }
-  .quick-cost__needle { position: absolute; left: 50%; bottom: 22%; z-index: 2; width: 42%; height: 2px; transform: rotate(var(--dial-angle)); transform-origin: left center; background: var(--color-amber); transition: transform 420ms var(--ease-out-expo); }
-  .quick-cost__hub { position: absolute; left: calc(50% - 0.28rem); bottom: calc(22% - 0.28rem); z-index: 3; width: 0.56rem; height: 0.56rem; border-radius: 50%; background: var(--color-amber); }
+  .quick-cost__dial { --dial-angle: -75.6deg; --dial-progress: 8; width: 9rem; }
+  .quick-cost__dial svg { width: 100%; height: auto; overflow: visible; }
+  .quick-cost__dial-track, .quick-cost__dial-fill, .quick-cost__dial-inner { fill: none; }
+  .quick-cost__dial-track { stroke: rgba(255,253,248,0.16); stroke-width: 18; stroke-linecap: round; }
+  .quick-cost__dial-fill { stroke: var(--color-amber); stroke-width: 18; stroke-linecap: round; stroke-dasharray: var(--dial-progress) 100; transition: stroke-dasharray 420ms var(--ease-out-expo); }
+  .quick-cost__dial-inner { stroke: rgba(255,253,248,0.2); stroke-width: 1; }
+  .quick-cost__ticks line { stroke: rgba(255,253,248,0.68); stroke-width: 1.25; }
+  .quick-cost__ticks line.is-major { stroke: var(--color-paper); stroke-width: 2; }
+  .quick-cost__needle { transform: rotate(var(--dial-angle)); transform-box: view-box; transform-origin: 110px 110px; transition: transform 420ms var(--ease-out-expo); }
+  .quick-cost__needle line { stroke: var(--color-paper); stroke-width: 4; stroke-linecap: round; }
+  .quick-cost__hub { fill: var(--color-amber); stroke: var(--color-ink); stroke-width: 3; }
+  .quick-cost__dial-scale { margin-top: -0.15rem; display: flex; justify-content: space-between; color: rgba(255,253,248,0.56); font-family: var(--font-mono); font-size: 0.5rem; font-weight: 650; }
   .quick-cost__annual { min-width: 0; }
   .quick-cost__result-label { margin-bottom: 0.45rem; color: rgba(255, 252, 247, 0.64); font-family: var(--font-mono); font-size: 0.68rem; font-weight: 650; letter-spacing: 0.08em; text-transform: uppercase; }
   .quick-cost__annual strong { display: block; overflow-wrap: anywhere; font-family: var(--font-serif); font-size: clamp(2.2rem, 6vw, 4.15rem); font-weight: 500; letter-spacing: -0.045em; line-height: 1; }
@@ -191,11 +235,12 @@
     .quick-cost__foot a { width: 100%; margin-left: 0; }
     .quick-cost__result { grid-template-columns: 6.5rem minmax(0, 1fr); }
     .quick-cost__dial { width: 6.5rem; }
+    .quick-cost__dial-scale { font-size: 0.46rem; }
     .quick-cost__ledger { grid-template-columns: 1fr; }
     .quick-cost__ledger span + span { padding-left: 0; border-left: 0; }
   }
   @media (prefers-reduced-motion: reduce) {
-    .quick-cost__needle { transition: none; }
+    .quick-cost__needle, .quick-cost__dial-fill { transition: none; }
     .quick-cost__result.is-updated { animation: none; }
   }
 </style>
