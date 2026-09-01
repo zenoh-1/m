@@ -37,6 +37,7 @@ const routes = [...new Set([...Object.keys(pageModules).map(toRoute), ...systemR
   .sort();
 
 function lastModified(route: string): string {
+  if (route === '/') return '2026-09-01';
   const system = HOME_SYSTEMS.find((candidate) => route === `/systems/${candidate.slug}/`);
   if (system) return system.reviewedAt;
   const legacyFinance = route.startsWith('/calculators/')

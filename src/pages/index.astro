@@ -3,6 +3,7 @@ import Layout from '../layouts/Layout.astro';
 import SiteHeader from '../components/SiteHeader.astro';
 import SiteFooter from '../components/SiteFooter.astro';
 import QuickEnergyCost from '../components/home/QuickEnergyCost.astro';
+import DecisionJourney from '../components/home/DecisionJourney.astro';
 import SystemSignal from '../components/SystemSignal.astro';
 import AmbientHomeScene from '../components/AmbientHomeScene.astro';
 import { HOME_SYSTEMS } from '../data/homeSystems';
@@ -42,44 +43,7 @@ import { HOME_SYSTEMS } from '../data/homeSystems';
       </div>
     </section>
 
-    <section class="section section--paper" id="how-it-works" aria-labelledby="how-it-works-title">
-      <div class="container-page">
-        <div class="section-head" data-reveal>
-          <span class="eyebrow">A more useful kind of finance site</span>
-          <h2 class="section-title" id="how-it-works-title">1 home. 3 decisions that keep repeating.</h2>
-          <p class="section-lead">Cooked Finance is becoming a practical home-cost workspace—not another feed of generic money advice.</p>
-        </div>
-        <ol class="decision-grid">
-          <li data-reveal>
-            <a href="/tools/energy-cost/">
-              <span>01 · Run</span>
-              <strong aria-hidden="true">01</strong>
-              <h3>What does it cost?</h3>
-              <p>Turn label data and utility rates into daily, monthly, and annual operating costs.</p>
-              <b>Open Cost Tools →</b>
-            </a>
-          </li>
-          <li data-reveal>
-            <a href="/my-home/">
-              <span>02 · Care</span>
-              <strong aria-hidden="true">02</strong>
-              <h3>What needs attention?</h3>
-              <p>Build a private maintenance plan around the equipment actually in your home.</p>
-              <b>Plan the Next Task →</b>
-            </a>
-          </li>
-          <li data-reveal>
-            <a href="/tools/repair-or-replace/">
-              <span>03 · Decide</span>
-              <strong aria-hidden="true">03</strong>
-              <h3>Repair or replace?</h3>
-              <p>Compare the quote, replacement price, and operating savings without a fake one-number verdict.</p>
-              <b>Compare Scenarios →</b>
-            </a>
-          </li>
-        </ol>
-      </div>
-    </section>
+    <DecisionJourney />
 
     <section class="section" aria-labelledby="systems-title">
       <div class="container-page">
@@ -172,16 +136,6 @@ import { HOME_SYSTEMS } from '../data/homeSystems';
   .cost-hero__instrument { position: relative; padding-top: 1.5rem; }
   .cost-hero__instrument::before { content: ''; position: absolute; inset: 0.55rem -0.65rem -0.65rem 0.65rem; z-index: -1; background: var(--color-amber); clip-path: polygon(0.7rem 0, 100% 0, 100% calc(100% - 0.7rem), calc(100% - 0.7rem) 100%, 0 100%, 0 0.7rem); }
   .cost-hero__instrument-label { position: absolute; inset: 0 auto auto 1rem; z-index: 2; padding: 0.45rem 0.8rem; background: var(--color-ink); color: var(--color-paper); font-family: var(--font-mono); font-size: 0.62rem; font-weight: 720; letter-spacing: 0.08em; text-transform: uppercase; }
-  .decision-grid { margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; list-style: none; }
-  .decision-grid li { position: relative; min-width: 0; }
-  .decision-grid li:not(:last-child)::after { content: '→'; position: absolute; top: 50%; right: -1.05rem; z-index: 3; width: 1.1rem; height: 1.1rem; display: grid; place-items: center; border-radius: 50%; background: var(--color-ink); color: var(--color-paper); font-size: 0.65rem; }
-  .decision-grid a { position: relative; min-height: 17rem; display: block; overflow: hidden; padding: clamp(1.25rem, 3vw, 1.8rem); border: 1px solid var(--color-ink); border-radius: var(--radius-sm); background: var(--color-paper); color: var(--color-ink); text-decoration: none; box-shadow: 3px 3px 0 var(--color-hairline-strong); transition: transform 180ms var(--ease-out-expo), box-shadow 180ms ease, background-color 180ms ease; }
-  .decision-grid a:hover, .decision-grid a:focus-visible { transform: translate(-3px, -3px); box-shadow: 7px 7px 0 var(--color-ink); background: #fff; }
-  .decision-grid span { color: var(--color-ember-deep); font-family: var(--font-mono); font-size: 0.7rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
-  .decision-grid strong { position: absolute; top: -0.4rem; right: 0.7rem; color: var(--color-canvas-soft); font-family: var(--font-serif); font-size: 7rem; font-weight: 500; line-height: 1; pointer-events: none; }
-  .decision-grid h3 { position: relative; margin: 3.25rem 0 0; font-family: var(--font-serif); font-size: 1.75rem; font-weight: 500; letter-spacing: -0.03em; }
-  .decision-grid p { margin: 0.7rem 0 0; color: var(--color-body); line-height: 1.65; }
-  .decision-grid b { position: relative; display: inline-block; margin-top: 1.4rem; color: var(--color-link); font-size: 0.76rem; }
   .systems-head { max-width: none; display: flex; align-items: end; justify-content: space-between; gap: 1.5rem; }
   .home-systems { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 1rem; }
   .home-system { grid-column: span 3; min-height: 22rem; padding: 1.25rem; display: flex; flex-direction: column; gap: 1.4rem; color: var(--color-ink); text-decoration: none; transition: transform 180ms var(--ease-out-expo), border-color 180ms ease, box-shadow 180ms ease; }
@@ -218,18 +172,12 @@ import { HOME_SYSTEMS } from '../data/homeSystems';
   @media (max-width: 960px) {
     .cost-hero__grid { grid-template-columns: 1fr; align-items: start; }
     .cost-hero__copy h1 { max-width: 13ch; }
-    .decision-grid { grid-template-columns: 1fr; }
-    .decision-grid li { min-height: auto; }
-    .decision-grid h3 { margin-top: 1.8rem; }
     .home-system, .home-system--featured { grid-column: span 6; min-height: 21rem; flex-direction: column; align-items: stretch; }
     .home-system--featured .home-system__top { flex-direction: row; }
     .home-loop__grid { grid-template-columns: 1fr; }
   }
   @media (max-width: 700px) {
     .cost-hero__grid { padding-inline: 1.25rem; }
-    .decision-grid { grid-template-columns: 1fr; }
-    .decision-grid li:not(:last-child)::after { top: auto; right: 50%; bottom: -1.05rem; transform: rotate(90deg); }
-    .decision-grid a { min-height: auto; }
   }
   @media (max-width: 520px) {
     .cost-hero__copy h1 { font-size: clamp(3rem, 15vw, 4.6rem); }
